@@ -96,7 +96,8 @@ export function AppShell({ userName, children }: { userName: string; children: R
   const clearOnboardingKeys = useCallback(() => {
     try {
       window.sessionStorage.removeItem(GUIDE_STORAGE_KEY);
-      window.localStorage.removeItem(getWelcomeKey());
+      // La guarda de bienvenida es por-día ("No mostrar más hoy") y NO se
+      // limpia al cerrar sesión: persiste hasta el día siguiente.
       window.sessionStorage.removeItem("gosession-categories-auto-opened");
       window.sessionStorage.removeItem("gosession-personalize-seen");
     } catch {

@@ -40,6 +40,18 @@ export function WelcomeModal({
     callback();
   }
 
+  // Persiste la preferencia de inmediato al marcar/desmarcar la casilla, para
+  // que haga efecto aunque el usuario no elija una opción (o recargue).
+  function toggleDontShowToday() {
+    setDontShowToday((prev) => {
+      const next = !prev;
+      if (next) {
+        onDontShowToday?.();
+      }
+      return next;
+    });
+  }
+
   if (typeof document === "undefined") return null;
 
   const options = [
@@ -158,7 +170,7 @@ export function WelcomeModal({
 
             <button
               type="button"
-              onClick={() => setDontShowToday((prev) => !prev)}
+              onClick={toggleDontShowToday}
               className="flex w-full cursor-pointer items-center justify-start gap-4 rounded-2xl border border-dashed border-border bg-surface-muted px-4 py-3 text-sm text-muted-foreground transition-colors hover:border-accent-aprender/40 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender"
             >
               <span
