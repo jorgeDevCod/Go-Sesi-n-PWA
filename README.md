@@ -2,7 +2,7 @@
 
 PWA de enfoque personal. "Reserva tu espacio y haz que cada momento cuente."
 
-Aplicación de sesiones de enfoque: elige una actividad, define un tiempo mínimo/recomendado/máximo, inicia el cronómetro y avanza sin fricción. Incluye recomendaciones personalizadas por energía y dificultad, plan del día, historial y PWA instalable.
+Aplicación de sesiones de enfoque: elige una actividad, define un tiempo mínimo/recomendado/máximo, inicia el cronómetro y avanza sin fricción. Incluye recomendaciones personalizadas por energía y dificultad, plan del día, historial, accesos rápidos al home y PWA instalable.
 
 ## Stack
 
@@ -43,42 +43,48 @@ Copia `.env.example` a `.env` y ajústalo. En desarrollo apunta al `docker-compo
 
 ## Despliegue en producción (Vercel + Neon)
 
-Recomendado: **Vercel** (hosting gratuito) + **Neon** (Postgres serverless gratuito). Ambos tienen plan gratuito suficiente para este proyecto.
+Stack gratuito y rápido: **Vercel** (hosting Next.js) + **Neon** (Postgres serverless). El `.env` nunca se sube: las variables se configuran en el panel de Vercel.
 
 ### 1. Crear la base de datos en Neon
 
-1. Crea una cuenta en [neon.tech](https://neon.tech) y un proyecto.
-2. Copia la **connection string "pooled"** con `?sslmode=require` al final.
+1. Crea una cuenta y un proyecto en [neon.tech](https://neon.tech).
+2. En el proyecto, copia la **connection string "pooled"** (termina en `...-pooler` o incluye `/neondb`) y agrégale `?sslmode=require` al final.
+   - Ejemplo: `postgresql://user:pass@ep-xxxx-pooler.region.aws.neon.tech/neondb?sslmode=require`
 
 ### 2. Subir el repo a GitHub
 
+El proyecto ya está inicializado como repositorio Git y con un commit listo. Solo crea el repo en GitHub y sube:
+
 ```bash
-git init
-git add .
-git commit -m "Initial commit"
+# (desde la raíz del proyecto)
 git branch -M main
-# crear repo en GitHub y:
 git remote add origin https://github.com/<tu-usuario>/go-sesion.git
 git push -u origin main
 ```
 
-> El cliente Prisma (`lib/generated/prisma`) está ignorado en Git: se genera durante el build en Vercel.
+> `lib/generated/prisma` está ignorado en Git: se regenera con `prisma generate` durante el build en Vercel.
 
 ### 3. Configurar el proyecto en Vercel
 
-1. Crea la app en [vercel.com](https://vercel.com) e importa el repo (framework Next.js se autodetecta).
-2. En **Settings → Environment Variables** agrega:
+1. Crea la app en [vercel.com](https://vercel.com) e importa el repo (framework **Next.js** se autodetecta).
+2. En **Settings → Environment Variables** agrega (para los entornos **Production**, **Preview** y **Development**):
    - `DATABASE_URL` → la connection string pooled de Neon (con `?sslmode=require`)
    - `AUTH_SECRET` → un secreto de 32 bytes en base64
-   - `NEXT_PUBLIC_SITE_URL` → la URL del deploy (p. ej. `https://go-sesion.vercel.app`)
-3. La app usará `vercel.json` (buildCommand incluye `prisma generate && prisma migrate deploy && next build`), de modo que las migraciones se aplican automáticamente en cada deploy.
+   - `NEXT_PUBLIC_SITE_URL` → la URL del deploy, p. ej. `https://<proyecto>.vercel.app`
+3. Deploy → el build corre `prisma generate && prisma migrate deploy && next build`, de modo que las migraciones se aplican automáticamente en cada deploy.
 
-Deploy → la app queda en línea en `https://<proyecto>.vercel.app`.
+La app queda en línea en `https://<proyecto>.vercel.app`.
 
-### 4. (Opcional) Reasignar el plan gratuito
+### 4. Notas del plan gratuito
 
 - **Neon** free tier: 0.5 GB de almacenamiento (sobra para este proyecto). Puede pausarse tras inactividad; se reactiva con la primera consulta.
-- **Vercel** Hobby: builds ilimitados para repos personales, sin costo.
+- **Vercel** Hobby: deploys ilimitados para repos personales, sin costo.
+
+### 5. Verificación post-deploy
+
+- Registro + login, home, iniciar sesión (cronómetro), historial, recomendaciones, planificación, Personalizar, Actividades, acceso rápido al home, cambio de tema.
+- PWA: instalable, manifest, icons, offline fallback.
+- Revisar los logs de Vercel: sin errores de Edge/middleware ni de conexión a la BD.
 
 ## Scripts
 
@@ -98,9 +104,12 @@ Deploy → la app queda en línea en `https://<proyecto>.vercel.app`.
 
 ```
 app/            rutas (App Router)
+auth.ts         NextAuth (Credentials + JWT), runtime Node
+auth.config.ts  Config de NextAuth Edge-safe (usada por el middleware)
 features/       UI + hooks + acciones por dominio (auth, categories, home, session...)
 services/       casos de uso (orquestan repositorios, validan reglas de negocio)
 repositories/   acceso a datos vía Prisma
 lib/            utilidades puras, cliente Prisma, constantes
 prisma/         schema, migraciones
+proxy.ts        Middleware de autenticación (edge-safe)
 ```
