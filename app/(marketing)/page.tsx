@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Layers, CalendarCheck2, Sparkles } from "lucide-react";
+import { Layers, CalendarCheck2, Sparkles, Clock, History, Timer, TrendingUp } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { LandingActions } from "@/components/marketing/LandingActions";
@@ -24,6 +24,33 @@ const PILARS = [
   },
 ];
 
+const TRACKING = [
+  {
+    icon: Clock,
+    title: "Cada minuto queda registrado",
+    description:
+      "Go mide el tiempo real de cada sesión —con pausas y extensiones— para que sepas cuánto dedicaste de verdad, no lo que planeaste.",
+  },
+  {
+    icon: History,
+    title: "Un historial que te cuenta tu constancia",
+    description:
+      "Revisa cada sesión por día: completa o interrumpida, con su duración, si la extendiste y cuánto sobró. Tu esfuerzo deja huella.",
+  },
+  {
+    icon: Timer,
+    title: "Extiende cuando quieras",
+    description:
+      "Si el ritmo fluye, suma minutos y mira reflejado en el historial exactamente cuánto extra le dedicaste a esa actividad.",
+  },
+  {
+    icon: TrendingUp,
+    title: "Tu avance, visible de un vistazo",
+    description:
+      "El Home te muestra tus sesiones completadas, minutos acumulados y actividades realizada contra tu plan del día. Progreso sin culpa.",
+  },
+];
+
 const STEPS = [
   {
     title: "Entra a tu espacio",
@@ -38,7 +65,7 @@ const STEPS = [
   {
     title: "Inicia una sesión",
     description:
-      "Elige la duración y arranca. Pausa, reanuda y extiende cuando quieras, sin fricción.",
+      "Elige la duración y arranca. Pausa, reanuda y extiende cuando quieras. Go registra el tiempo real de cada sesión.",
   },
   {
     title: "Deja que Go te recomiende",
@@ -49,6 +76,11 @@ const STEPS = [
     title: "Personaliza a tu ritmo",
     description:
       "Ajusta los tiempos mínimos, recomendados y máximos por energía y dificultad, y personaliza las recomendaciones por categoría y actividad. Todo se adapta a ti.",
+  },
+  {
+    title: "Revisa tu historial",
+    description:
+      "Cada sesión queda registrada por día: duración, si la completaste o interrumpiste y cuánto extendiste. Tu constancia, visible.",
   },
   {
     title: "Llévala contigo",
@@ -67,6 +99,11 @@ const FAQS = [
     question: "¿Qué pasa si tengo poca energía o ansiedad?",
     answer:
       "Go te sugiere solo sesiones cortas y actividades ligeras cuando así lo indicas. Nunca te presiona a hacer más.",
+  },
+  {
+    question: "¿Qué mide Go de mis sesiones?",
+    answer:
+      "Registra la duración real de cada sesión (con pausas y extensiones), si la completaste o interrumpiste, cuánto tiempo le extendiste y cuánto sobró. Además suma tus sesiones completadas y minutos acumulados.",
   },
   {
     question: "¿Cuánto cuesta usar Go?",
@@ -101,14 +138,14 @@ export default function MarketingHomePage() {
           </h1>
 
           <p className="max-w-xl text-lg leading-relaxed text-muted-foreground py-2">
-            Es una plataforma PWA que busca ayudar a romper la fricción de empezar. Aqui podras tener espacios de tiempos ideales basados en tu estado de animo, tiempo o permitir que te recomiende Actividades.
+            Es una plataforma diseñada para eliminar la fricción de empezar con tus planes, reducir la saturación y dejar atrás la culpa de no saber cómo iniciar, sin quedarte atrapado sobrepensando.
           </p>
 
           <p className="text-sm font-medium text-foreground">Tu eliges cómo quieres empezar:</p>
 
           <div className="flex flex-wrap items-stretch justify-center gap-3">
             {[
-              { icon: Layers, label: "Explorar categorías" },
+              { icon: Layers, label: "Explorar o crear categorías" },
               { icon: CalendarCheck2, label: "Planificar actividades" },
               { icon: Sparkles, label: "Recibir una recomendación" },
             ].map(({ icon: Icon, label }) => (
@@ -123,7 +160,7 @@ export default function MarketingHomePage() {
           </div>
 
           <p className="max-w-md text-sm leading-relaxed text-muted-foreground">
-            Personaliza tus tiempos según tu energía, dificultad y disponibilidad. Go se adapta a ti.
+            Personaliza tus experiencia y recomendaciones: Por energía, dificultad y disponibilidad. Go se adapta a ti.
           </p>
 
           <div className="flex flex-wrap items-center justify-center gap-3">
@@ -152,6 +189,32 @@ export default function MarketingHomePage() {
                   {pillar.title}
                 </h3>
                 <p className="text-sm text-muted-foreground">{pillar.description}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Medición e historial */}
+        <section className="mx-auto w-full max-w-4xl px-4 py-12">
+          <h2 className="font-display mb-2 text-center text-2xl font-semibold text-foreground">
+            Mide tu avance, celebra cada paso
+          </h2>
+          <p className="mb-8 text-center text-sm text-muted-foreground">
+            Go no solo te ayuda a empezar: también registra tu constancia para que veas cuánto has avanzado, sin presión.
+          </p>
+          <div className="grid gap-5 sm:grid-cols-2">
+            {TRACKING.map((item) => (
+              <div
+                key={item.title}
+                className="flex items-start gap-4 rounded-3xl border border-border bg-surface p-6"
+              >
+                <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-accent-aprender/10 text-accent-aprender">
+                  <item.icon className="size-5" />
+                </span>
+                <div>
+                  <h3 className="mb-1 text-base font-semibold text-foreground">{item.title}</h3>
+                  <p className="text-sm text-muted-foreground">{item.description}</p>
+                </div>
               </div>
             ))}
           </div>
