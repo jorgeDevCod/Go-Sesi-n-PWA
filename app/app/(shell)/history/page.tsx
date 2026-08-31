@@ -15,7 +15,7 @@ export default async function HistoryPage() {
 
   return (
     <div className="mx-auto w-full max-w-3xl">
-      <h1 className="font-display mb-6 text-2xl font-semibold text-foreground">Tu historial</h1>
+      <h1 className="font-display mb-6 text-3xl font-bold text-foreground">Tu historial</h1>
       <HistoryView entries={entries} />
     </div>
   );

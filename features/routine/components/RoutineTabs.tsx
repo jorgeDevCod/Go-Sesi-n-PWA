@@ -40,7 +40,7 @@ export function RoutineTabs({
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="font-display text-2xl font-semibold text-foreground">
+        <h1 className="font-display text-3xl font-bold text-foreground">
           Personaliza tu rutina
         </h1>
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
