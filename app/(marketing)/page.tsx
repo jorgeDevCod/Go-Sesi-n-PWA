@@ -1,26 +1,67 @@
 import Link from "next/link";
-import { Layers, CalendarCheck2, Sparkles, Clock, History, Timer, TrendingUp } from "lucide-react";
+import {
+  Layers,
+  CalendarCheck2,
+  Sparkles,
+  Clock,
+  History,
+  Timer,
+  TrendingUp,
+  SlidersHorizontal,
+  Gauge,
+  BatteryMedium,
+  Star,
+  Palette,
+  Download,
+} from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { LandingActions } from "@/components/marketing/LandingActions";
 import { EnterCta } from "@/components/marketing/EnterCta";
 import { EnergyDemo } from "@/components/marketing/EnergyDemo";
 
-const PILARS = [
+const CUSTOMIZE = [
   {
-    title: "Energía en lugar de exigencia",
+    icon: BatteryMedium,
+    title: "Energía a tu medida",
     description:
-      "Sesiones ajustadas a tu nivel de batería. No te exigimos más de lo que puedes dar hoy.",
+      "Cuéntanos cómo te sientes (baja, media, alta) y Go ajusta las actividades y tiempos sugeridos a tu batería de hoy.",
   },
   {
-    title: "Cero Complejidad para empezar",
+    icon: Gauge,
+    title: "Dificultad que encaja",
     description:
-      "Supera el bloqueo inicial en un solo clic. Sin formularios eternos ni decisiones interminables.",
+      "Cada actividad tiene su nivel (Ligera, Moderada, Intensa) y tú decides cuál se siente bien según tu energía.",
   },
   {
-    title: "Tu espacio libre de culpa",
+    icon: Clock,
+    title: "Tiempos mínimo, recomendado y máximo",
     description:
-      "Para crear, estudiar, descansar o trabajar a tu ritmo. Sin contadores rojos ni presión.",
+      "Define cuánto dedicar a cada actividad por energía y dificultad. El recomendado es el que verás por defecto.",
+  },
+  {
+    icon: SlidersHorizontal,
+    title: "Recomendaciones por categoría",
+    description:
+      "Marca qué actividades quieres que Go sugiera para cada combinación de energía y dificultad. Todo se adapta a ti.",
+  },
+  {
+    icon: Star,
+    title: "Accesos rápidos en tu Home",
+    description:
+      "Agrega tus actividades favoritas al inicio para empezarlas de un toque, sin buscar entre todo.",
+  },
+  {
+    icon: Palette,
+    title: "Tu tema de color",
+    description:
+      "Elige entre varios temas (celeste, verde, rosa, humo, blanco y oscuro) para que la app se sienta como tú.",
+  },
+  {
+    icon: Download,
+    title: "Instálala como app",
+    description:
+      "Descarga Go en tu pantalla de inicio y úsala como una app más, incluso sin conexión.",
   },
 ];
 
@@ -73,9 +114,9 @@ const STEPS = [
       "¿No sabes qué hacer? Go te sugiere el siguiente paso según tu energía y tiempo disponible.",
   },
   {
-    title: "Personaliza a tu ritmo",
+    title: "Personaliza lo que quieras",
     description:
-      "Ajusta los tiempos mínimos, recomendados y máximos por energía y dificultad, y personaliza las recomendaciones por categoría y actividad. Todo se adapta a ti.",
+      "Ajusta energía, dificultad, tiempos y recomendaciones por categoría. Todo se adapta a cómo te sientes hoy.",
   },
   {
     title: "Revisa tu historial",
@@ -104,6 +145,11 @@ const FAQS = [
     question: "¿Qué mide Go de mis sesiones?",
     answer:
       "Registra la duración real de cada sesión (con pausas y extensiones), si la completaste o interrumpiste, cuánto tiempo le extendiste y cuánto sobró. Además suma tus sesiones completadas y minutos acumulados.",
+  },
+  {
+    question: "¿Puedo personalizar todo o Go decide por mí?",
+    answer:
+      "Tú mandas. Puedes ajustar energía, dificultad y tiempos por actividad, y decirle a Go exactamente qué recomendarte. O, si prefieres, dejar que Go elija por ti según tu ánimo. Tú decides.",
   },
   {
     question: "¿Cuánto cuesta usar Go?",
@@ -174,21 +220,25 @@ export default function MarketingHomePage() {
           <EnergyDemo />
         </section>
 
-        {/* 3 Pilares */}
+        {/* Personalización */}
         <section className="mx-auto w-full max-w-4xl px-4 py-12">
-          <h2 className="mb-6 text-center text-2xl font-semibold text-foreground">
-            Tres pilares. Cero fricción.
+          <h2 className="mb-2 text-center text-2xl font-semibold text-foreground">
+            Todo se adapta a ti
           </h2>
-          <div className="grid gap-6 sm:grid-cols-3">
-            {PILARS.map((pillar) => (
+          <p className="mb-8 text-center text-sm text-muted-foreground">
+            Ajusta energía, dificultad, tiempos y recomendaciones. Go se moldea a cómo te sientes cada día.
+          </p>
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {CUSTOMIZE.map((item) => (
               <div
-                key={pillar.title}
-                className="rounded-3xl border border-border bg-surface p-6"
+                key={item.title}
+                className="group rounded-3xl border border-border bg-surface p-6 transition-all duration-200 hover:border-border-hover hover:shadow-md"
               >
-                <h3 className="mb-2 text-lg font-semibold text-foreground">
-                  {pillar.title}
-                </h3>
-                <p className="text-sm text-muted-foreground">{pillar.description}</p>
+                <span className="mb-4 flex size-11 shrink-0 items-center justify-center rounded-2xl bg-accent-aprender/10 text-accent-aprender transition-colors duration-200 group-hover:bg-accent-aprender group-hover:text-white">
+                  <item.icon className="size-5" />
+                </span>
+                <h3 className="mb-1.5 text-base font-semibold text-foreground">{item.title}</h3>
+                <p className="text-sm leading-relaxed text-muted-foreground">{item.description}</p>
               </div>
             ))}
           </div>
