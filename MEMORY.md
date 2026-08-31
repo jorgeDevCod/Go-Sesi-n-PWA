@@ -1,7 +1,16 @@
  # Go Sesión — Memoria del proyecto
 
  > PWA de enfoque personal. "Reserva tu espacio y haz que cada momento cuente."
-> **Fase actual:** 2.18 — Fondos de temas verde y rosa. Sobre la base de la 2.17: se suavizaron los fondos de los temas `verde` y `rosa` a tonos pastel más claros y armoniosos (acordes a celeste/humo), con sus tokens `surface-muted`/`hover`/`border` ajustados.
+> **Fase actual:** 2.19 — Preparación para producción (Vercel + Neon). Sobre la base de la 2.18: refactor del auth para ser Edge-safe (build de Vercel), repo git inicializado con commits, y README actualizado con los pasos exactos de despliegue.
+
+---
+
+## Preparación para producción (fase 2.19)
+
+- **Refactor auth edge-safe**: creación de `auth.config.ts` (NextAuthConfig sin bcrypt/Prisma, usada por el middleware) y `auth.ts` completo (providers + `authorize` con bcrypt/Prisma, runtime Node). `proxy.ts` ahora usa `NextAuth(authConfig).auth(...)` para no arrastrar módulos Node-only al bundle del middleware (evita que el build de Vercel/Edge falle).
+- **Git**: `git init` + 2 commits (`Go Sesion - lista para produccion`, `Actualiza README`). `.gitignore` corregido (`next-env.d.ts`), verificado que no se suben `.env`, `node_modules`, `.next` ni `lib/generated/prisma`.
+- **README**: reescrito con los pasos exactos de Neon (connection string pooled + `sslmode=require`) y Vercel (env vars `DATABASE_URL`, `AUTH_SECRET`, `NEXT_PUBLIC_SITE_URL`).
+- **Verificación**: build de producción exitoso, tests 117/117, lint limpio.
 
 ---
 
