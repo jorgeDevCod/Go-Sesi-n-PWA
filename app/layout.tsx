@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Work_Sans, Plus_Jakarta_Sans, JetBrains_Mono, Fredoka } from "next/font/google";
+import { Work_Sans, Outfit, JetBrains_Mono } from "next/font/google";
 import { MotionConfig } from "framer-motion";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { ServiceWorkerRegistration } from "@/components/pwa/ServiceWorkerRegistration";
@@ -12,18 +12,11 @@ const workSans = Work_Sans({
   weight: ["400", "500", "600", "700"],
 });
 
-// Tipografía display: títulos, descripciones y encabezados.
-const plusJakartaSans = Plus_Jakarta_Sans({
-  variable: "--font-plus-jakarta",
+// Tipografía limpia y equilibrada: títulos, descripciones, cuerpo y encabezados.
+const outfit = Outfit({
+  variable: "--font-outfit",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
-});
-
-// Tipografía de títulos display (reemplazo moderno de Fredoka One).
-const fredoka = Fredoka({
-  variable: "--font-fredoka",
-  subsets: ["latin"],
-  weight: ["600", "700"],
 });
 
 // Mono (números de reloj/temporizador y código).
@@ -87,7 +80,7 @@ export default function RootLayout({
     <html
       lang="es"
       suppressHydrationWarning
-      className={`${workSans.variable} ${plusJakartaSans.variable} ${fredoka.variable} ${jetbrainsMono.variable} h-full antialiased`}
+      className={`${workSans.variable} ${outfit.variable} ${jetbrainsMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <ThemeProvider

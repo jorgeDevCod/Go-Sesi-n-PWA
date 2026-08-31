@@ -128,9 +128,9 @@
   --color-accent-trabajo: var(--accent-trabajo);
   --color-accent-trabajo-hover: var(--accent-trabajo-hover);
 
-  --font-sans: var(--font-plus-jakarta);
+  --font-sans: var(--font-outfit);
   --font-work: var(--font-work-sans);
-  --font-display: var(--font-fredoka);
+  --font-display: var(--font-outfit);
   --font-mono: var(--font-geist-mono);
 }
 
