@@ -195,7 +195,7 @@ export function CategoryHomeGrid({
       {/* Title */}
       <div className="flex flex-col items-center gap-2 text-center">
         <h1 className="font-display text-2xl font-bold leading-tight tracking-tight text-foreground sm:text-4xl">
-          Tu espacio personal para avanzar a tu ritmo con sesiones y recomendaciones.
+          Tu espacio para avanzar, sin fricción. ⭐
         </h1>
         <p className="max-w-md text-sm leading-relaxed text-muted-foreground">
           Elige una categoría para empezar o planifica tus actividades o deja que Go Sesión te recomiende algo.

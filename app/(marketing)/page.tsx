@@ -101,7 +101,7 @@ export default function MarketingHomePage() {
           </h1>
 
           <p className="max-w-xl text-lg leading-relaxed text-muted-foreground py-2">
-            Reserva una sesión para hacer lo que quieras o deja que Go te recomiende qué hacer.
+            Es una plataforma PWA que busca ayudar a romper la fricción de empezar. Aqui podras tener espacios de tiempos ideales basados en tu estado de animo, tiempo o permitir que te recomiende Actividades.
           </p>
 
           <p className="text-sm font-medium text-foreground">Tu eliges cómo quieres empezar:</p>
