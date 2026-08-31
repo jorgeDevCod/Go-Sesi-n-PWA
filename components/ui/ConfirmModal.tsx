@@ -95,7 +95,7 @@ export function ConfirmModal({
                 </span>
               )}
               <div className="flex flex-col gap-1">
-                <h2 className="text-lg font-semibold text-foreground">{title}</h2>
+                <h2 className="font-display text-lg font-semibold text-foreground">{title}</h2>
                 <div className="text-sm text-muted-foreground">{message}</div>
               </div>
             </div>

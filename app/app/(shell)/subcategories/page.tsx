@@ -39,7 +39,7 @@ export default async function SubcategoriesPage() {
 
   return (
     <div className="mx-auto w-full max-w-2xl">
-      <h1 className="mb-6 text-2xl font-semibold text-foreground">
+      <h1 className="font-display mb-6 text-2xl font-semibold text-foreground">
         Tus Actividades
       </h1>
       <CategoryTabs categories={categories} itemsByCategory={itemsByCategory} />

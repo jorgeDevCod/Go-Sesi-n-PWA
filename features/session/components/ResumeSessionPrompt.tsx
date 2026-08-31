@@ -118,7 +118,7 @@ export function ResumeSessionPrompt({ userName }: { userName: string }) {
               <AlertCircle className="size-6" />
             </span>
             <div>
-              <h2 className="text-lg font-semibold text-foreground">
+              <h2 className="font-display text-lg font-semibold text-foreground">
                 Parece que dejaste una sesión sin terminar, {userName}
               </h2>
               <p className="mt-1 text-sm text-muted-foreground">

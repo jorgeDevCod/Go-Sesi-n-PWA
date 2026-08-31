@@ -132,7 +132,7 @@ export function SessionWizard({
             transition={{ duration: 0.15, ease: "easeOut" }}
             className="flex flex-col gap-4"
           >
-            <h2 className="mb-2 text-center text-2xl font-medium text-foreground">
+            <h2 className="font-display mb-2 text-center text-2xl font-medium text-foreground">
               ¿Qué actividad te gustaría hacer en {categoryName}?
             </h2>
 

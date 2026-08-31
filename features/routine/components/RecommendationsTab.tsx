@@ -131,7 +131,7 @@ export function RecommendationsTab({
     <div className="flex flex-col gap-8">
       {/* Header */}
       <div className="text-center">
-        <h2 className="text-lg font-bold text-foreground py-4">Personaliza tus recomendaciones, a tu gusto</h2>
+        <h2 className="font-display text-lg font-bold text-foreground py-4">Personaliza tus recomendaciones, a tu gusto</h2>
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
           Define tus niveles de dificultad y energeria para las recomendaciones de tus actividades de forma más personalizadas. Cuanto más
           lo ajustes, más acertadas serán las recomendaciones.

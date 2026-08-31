@@ -107,7 +107,7 @@ export function WelcomeModal({
               <span className="flex size-12 items-center justify-center rounded-full bg-accent-aprender/10 text-accent-aprender">
                 <Sparkles className="size-6" />
               </span>
-              <h2 className="text-xl font-semibold text-foreground">
+              <h2 className="font-display text-xl font-semibold text-foreground">
                 ¡Bienvenido de nuevo, {userName}!
               </h2>
               <p className="text-xs text-muted-foreground">

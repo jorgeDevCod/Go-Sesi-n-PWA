@@ -95,7 +95,7 @@ export default function MarketingHomePage() {
       <main className="flex flex-col">
         {/* Hero */}
         <section className="mx-auto flex w-full max-w-3xl flex-col items-center gap-6 px-4 py-16 text-center">
-          <h1 className="max-w-2xl text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
+          <h1 className="font-display max-w-2xl text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
             Go Sesión
             <br />
           </h1>
@@ -139,7 +139,7 @@ export default function MarketingHomePage() {
 
         {/* 3 Pilares */}
         <section className="mx-auto w-full max-w-4xl px-4 py-12">
-          <h2 className="mb-6 text-center text-2xl font-semibold text-foreground">
+          <h2 className="font-display mb-6 text-center text-2xl font-semibold text-foreground">
             Tres pilares. Cero fricción.
           </h2>
           <div className="grid gap-6 sm:grid-cols-3">
@@ -159,7 +159,7 @@ export default function MarketingHomePage() {
 
         {/* Cómo usar */}
         <section className="mx-auto w-full max-w-3xl px-4 py-12">
-          <h2 className="mb-2 text-center text-2xl font-semibold text-foreground">
+          <h2 className="font-display mb-2 text-center text-2xl font-semibold text-foreground">
             Cómo funciona Go
           </h2>
           <p className="mb-8 text-center text-sm text-muted-foreground">
@@ -185,7 +185,7 @@ export default function MarketingHomePage() {
 
         {/* FAQ */}
         <section className="mx-auto w-full max-w-2xl px-4 py-12">
-          <h2 className="mb-6 text-center text-2xl font-semibold text-foreground">
+          <h2 className="font-display mb-6 text-center text-2xl font-semibold text-foreground">
             Preguntas frecuentes
           </h2>
           <div className="flex flex-col gap-4">

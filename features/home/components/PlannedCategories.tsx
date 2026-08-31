@@ -272,7 +272,7 @@ export function PlannedCategories({
         className="flex w-full cursor-pointer items-center justify-between p-4 text-left transition-colors hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender"
       >
         <div className="flex items-center gap-2">
-          <h2 className="text-sm font-semibold text-foreground">Plan de hoy</h2>
+          <h2 className="font-display text-base font-semibold text-foreground">Plan de hoy</h2>
           <span className="text-xs text-muted-foreground">
             {practicedCount} de {visibleItems.length} realizadas
           </span>

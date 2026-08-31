@@ -361,7 +361,7 @@ export function PlanningModal({
 
             {/* Header */}
             <div className="text-center">
-              <h2 className="text-xl font-semibold text-foreground">
+              <h2 className="font-display text-xl font-semibold text-foreground">
                 ¡Hola {userName}! ¿Qué te gustaría hacer hoy?
               </h2>
               <p className="mt-2 text-sm text-muted-foreground">

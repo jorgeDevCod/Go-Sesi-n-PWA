@@ -68,7 +68,7 @@ export function EnergyPromptModal({
             className="flex w-full max-w-sm flex-col gap-6 rounded-2xl border border-border bg-surface p-6 shadow-xl"
           >
             <div className="text-center">
-              <h2 className="text-lg font-semibold text-foreground">
+              <h2 className="font-display text-lg font-semibold text-foreground">
                 ¿Cómo está tu energía hoy?
               </h2>
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground">

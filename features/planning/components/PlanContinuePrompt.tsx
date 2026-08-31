@@ -60,7 +60,7 @@ export function PlanContinuePrompt({
             </span>
 
             <div className="flex flex-col gap-1.5">
-              <h2 className="text-lg font-semibold text-foreground">
+              <h2 className="font-display text-lg font-semibold text-foreground">
                 Tienes una planificación actual
               </h2>
               <p className="text-sm leading-relaxed text-muted-foreground">

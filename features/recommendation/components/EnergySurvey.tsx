@@ -176,7 +176,7 @@ export function EnergySurvey({ onComplete }: { onComplete: (energy: EnergyLevel,
               className="flex flex-col gap-5"
             >
               <div className="flex flex-col gap-1.5">
-                <h2 className="text-xl font-semibold text-foreground">
+                <h2 className="font-display text-xl font-semibold text-foreground">
                   ¿Cómo está tu energía hoy?
                 </h2>
                 <p className="text-sm leading-relaxed text-muted-foreground">
@@ -281,7 +281,7 @@ export function EnergySurvey({ onComplete }: { onComplete: (energy: EnergyLevel,
               className="flex flex-col gap-5"
             >
               <div className="flex flex-col gap-1.5">
-                <h2 className="text-xl font-semibold text-foreground">
+                <h2 className="font-display text-xl font-semibold text-foreground">
                   ¿Cuánto tiempo tienes disponible?
                 </h2>
                 <p className="text-sm leading-relaxed text-muted-foreground">{energyMessage(energy)}</p>

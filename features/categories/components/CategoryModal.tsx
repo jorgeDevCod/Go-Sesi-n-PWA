@@ -142,7 +142,7 @@ export function CategoryModal({
             </button>
 
             <div className="text-center">
-              <h2 className="text-lg font-semibold text-foreground">{title}</h2>
+              <h2 className="font-display text-lg font-semibold text-foreground">{title}</h2>
               <p className="mt-2 text-sm text-muted-foreground">
                 {isEditing
                   ? "Actualiza el nombre, icono, color o dificultad"

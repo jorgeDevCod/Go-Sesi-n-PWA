@@ -63,7 +63,7 @@ export function ExistingPlanPrompt({
             className="flex w-full max-w-md flex-col gap-6 rounded-2xl border border-border bg-surface p-6 shadow-xl sm:p-8"
           >
             <div className="flex flex-col gap-3 text-center">
-              <h2 className="text-lg font-semibold text-foreground sm:text-xl">
+              <h2 className="font-display text-lg font-semibold text-foreground sm:text-xl">
                 ¡Bienvenido de nuevo! Ya tienes un plan para hoy
               </h2>
               <p className="text-sm leading-relaxed text-muted-foreground sm:text-base">

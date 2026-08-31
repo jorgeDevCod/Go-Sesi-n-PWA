@@ -6,8 +6,8 @@
   --background: #d4e6f1;
   --foreground: #1c1c1a;
   --surface: #FFFFFF;
-  --surface-muted: #F1F3F6;
-  --surface-hover: #E6EAEF;
+  --surface-muted: #ECEFF4;
+  --surface-hover: #DDE2EA;
   --border: #C7CDD5;
   --border-hover: #98A2AE;
   --muted-foreground: #4B5563;
@@ -36,8 +36,8 @@
   --background: #DCE7F5;
   --foreground: #1c1c1a;
   --surface: #FFFFFF;
-  --surface-muted: #eef1fb;
-  --surface-hover: #e3e7f6;
+  --surface-muted: #E9EDF9;
+  --surface-hover: #DAE0F1;
   --border: #c2c9e0;
   --border-hover: #98a2c7;
   --muted-foreground: #4a5170;
@@ -48,8 +48,8 @@
   --background: #EBF9EE;
   --foreground: #1c1c1a;
   --surface: #FFFFFF;
-  --surface-muted: #eef6ed;
-  --surface-hover: #e2eedf;
+  --surface-muted: #E8F5E8;
+  --surface-hover: #D8EDD9;
   --border: #c3d5c2;
   --border-hover: #94aa93;
   --muted-foreground: #4a5c4b;
@@ -60,8 +60,8 @@
   --background: #F2F2F2;
   --foreground: #1c1c1a;
   --surface: #FFFFFF;
-  --surface-muted: #efeefc;
-  --surface-hover: #e6e5ee;
+  --surface-muted: #EBEAEE;
+  --surface-hover: #DDDCE2;
   --border: #c9c8ce;
   --border-hover: #9c9ba6;
   --muted-foreground: #4d4d48;
@@ -72,8 +72,8 @@
   --background: #F5E1EE;
   --foreground: #2b181d;
   --surface: #ffffff;
-  --surface-muted: #fceff5;
-  --surface-hover: #f4dce7;
+  --surface-muted: #F9E7F1;
+  --surface-hover: #F0D3E2;
   --border: #d5aec0;
   --border-hover: #b07f95;
   --muted-foreground: #5c3a47;
@@ -84,8 +84,8 @@
   --background: #FFFFFF;
   --foreground: #16161c;
   --surface: #ffffff;
-  --surface-muted: #f4f5f8;
-  --surface-hover: #eaecf1;
+  --surface-muted: #F0F2F7;
+  --surface-hover: #E2E6EF;
   --border: #d5d8e0;
   --border-hover: #a3a9b8;
   --muted-foreground: #52545d;
@@ -95,8 +95,8 @@
   --background: #030202;
   --foreground: #f0f0ed;
   --surface: #1c1c1f;
-  --surface-muted: #26262a;
-  --surface-hover: #303035;
+  --surface-muted: #2a2a2e;
+  --surface-hover: #3a3a40;
   --border: #47474d;
   --border-hover: #5e5e66;
   --muted-foreground: #acacaa;
@@ -130,6 +130,7 @@
 
   --font-sans: var(--font-plus-jakarta);
   --font-work: var(--font-work-sans);
+  --font-display: var(--font-fredoka);
   --font-mono: var(--font-geist-mono);
 }
 

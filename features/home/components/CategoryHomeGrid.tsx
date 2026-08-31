@@ -194,7 +194,7 @@ export function CategoryHomeGrid({
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-4">
       {/* Title */}
       <div className="flex flex-col items-center gap-2 text-center">
-        <h1 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">
+        <h1 className="font-display text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
           Tu espacio personal para avanzar a tu ritmo con sesiones y recomendaciones.
         </h1>
         <p className="max-w-md text-sm leading-relaxed text-muted-foreground">
@@ -204,8 +204,7 @@ export function CategoryHomeGrid({
 
       {/* Energy selector */}
       <div className="flex flex-col gap-2">
-        <p className="text-sm font-medium text-foreground">¿Seleccióna tu nivel de energia
-?</p>
+        <p className="font-display text-sm font-semibold text-foreground">Selecciona tu nivel de energía</p>
         <div className="flex gap-2">
           {(["baja", "media", "alta"] as EnergyLevel[]).map((level) => {
             const active = energy === level;
@@ -299,7 +298,7 @@ export function CategoryHomeGrid({
             className="flex flex-col gap-5 overflow-hidden"
           >
             <div className="flex flex-col gap-1.5">
-              <p className="text-sm font-semibold text-foreground">Tus categorías</p>
+              <p className="font-display text-base font-semibold text-foreground">Tus categorías</p>
               <p className="text-xs text-muted-foreground">
                 Toca una categoría para ver sus actividades y empezar una sesión.
               </p>

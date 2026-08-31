@@ -87,7 +87,7 @@ export function MoodModal({
               <span className="flex size-12 items-center justify-center rounded-2xl bg-accent-aprender/10 text-accent-aprender">
                 <PartyPopper className="size-6" />
               </span>
-              <h2 className="text-xl font-semibold text-foreground">
+              <h2 className="font-display text-xl font-semibold text-foreground">
                 ¿Cómo te sientes hoy, {userName}?
               </h2>
               <p className="text-sm leading-relaxed text-muted-foreground">

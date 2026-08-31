@@ -129,7 +129,7 @@ export function AppShell({ userName, children }: { userName: string; children: R
             href="/app/home"
             aria-label="Ir a home"
             title="Ir a home"
-            className="flex cursor-pointer items-center gap-1.5 rounded-full border border-border px-3 py-2 text-sm font-medium text-foreground transition-colors duration-300 hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender"
+            className="flex cursor-pointer items-center gap-1.5 rounded-full border border-border px-3 py-2 text-sm font-medium text-foreground transition-colors duration-200 hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender"
           >
             <Home className="size-4" />
             <span className="hidden sm:inline">Inicio</span>
@@ -139,7 +139,7 @@ export function AppShell({ userName, children }: { userName: string; children: R
             onClick={() => usePlanningStore.getState().open()}
             aria-label="Editar planificación del día"
             title="Editar planificación del día"
-            className="flex cursor-pointer items-center gap-1.5 rounded-full border border-border px-3 py-2 text-sm font-medium text-foreground transition-colors duration-300 hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender"
+            className="flex cursor-pointer items-center gap-1.5 rounded-full border border-border px-3 py-2 text-sm font-medium text-foreground transition-colors duration-200 hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender"
           >
             <CalendarCheck2 className="size-4" />
             <span className="hidden sm:inline">Planificación</span>
@@ -148,7 +148,7 @@ export function AppShell({ userName, children }: { userName: string; children: R
             href="/app/subcategories"
             aria-label="Editar Actividades"
             title="Editar Actividades"
-            className="flex cursor-pointer items-center gap-1.5 rounded-full border border-border px-3 py-2 text-sm font-medium text-foreground transition-colors duration-300 hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender"
+            className="flex cursor-pointer items-center gap-1.5 rounded-full border border-border px-3 py-2 text-sm font-medium text-foreground transition-colors duration-200 hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender"
           >
             <Settings2 className="size-4" />
             <span className="hidden sm:inline">Actividades</span>
@@ -157,7 +157,7 @@ export function AppShell({ userName, children }: { userName: string; children: R
             href="/app/routine"
             aria-label="Personaliza tu rutina como más te acomode."
             title="Personaliza tu rutina como más te acomode."
-            className="flex cursor-pointer items-center gap-1.5 rounded-full border border-border px-3 py-2 text-sm font-medium text-foreground transition-colors duration-300 hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender"
+            className="flex cursor-pointer items-center gap-1.5 rounded-full border border-border px-3 py-2 text-sm font-medium text-foreground transition-colors duration-200 hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender"
           >
             <SlidersHorizontal className="size-4" />
             <span className="hidden sm:inline">Personalizar</span>
@@ -166,7 +166,7 @@ export function AppShell({ userName, children }: { userName: string; children: R
             href="/app/history"
             aria-label="Ver historial"
             title="Ver historial"
-            className="flex cursor-pointer items-center gap-1.5 rounded-full border border-border px-3 py-2 text-sm font-medium text-foreground transition-colors duration-300 hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender"
+            className="flex cursor-pointer items-center gap-1.5 rounded-full border border-border px-3 py-2 text-sm font-medium text-foreground transition-colors duration-200 hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender"
           >
             <History className="size-4" />
             <span className="hidden sm:inline">Historial</span>
@@ -180,7 +180,7 @@ export function AppShell({ userName, children }: { userName: string; children: R
               onClick={clearOnboardingKeys}
               aria-label="Cerrar sesión"
               title="Cerrar sesión"
-              className="flex size-10 cursor-pointer items-center justify-center rounded-full border border-border text-foreground transition-colors duration-300 hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender"
+              className="flex size-10 cursor-pointer items-center justify-center rounded-full border border-border text-foreground transition-colors duration-200 hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender"
             >
               <LogOut className="size-5" />
             </button>
@@ -190,7 +190,7 @@ export function AppShell({ userName, children }: { userName: string; children: R
             onClick={() => setMenuOpen(true)}
             aria-label="Abrir menú"
             title="Abrir menú"
-            className="flex size-10 cursor-pointer items-center justify-center rounded-full border border-border text-foreground transition-colors duration-300 hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender min-[600px]:hidden"
+            className="flex size-10 cursor-pointer items-center justify-center rounded-full border border-border text-foreground transition-colors duration-200 hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender min-[600px]:hidden"
           >
             <Menu className="size-5" />
           </button>

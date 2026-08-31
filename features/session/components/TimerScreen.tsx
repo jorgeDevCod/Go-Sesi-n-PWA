@@ -3,6 +3,7 @@
 import { CircularProgress } from "@/features/session/components/CircularProgress";
 import { DynamicIcon } from "@/components/ui/DynamicIcon";
 import { Button } from "@/components/ui/Button";
+import { cn } from "@/lib/utils";
 import { Pause, Play } from "lucide-react";
 import type { TimerView } from "@/features/session/timer-view";
 import type { SessionDTO } from "@/services/session/session.dto";
@@ -56,23 +57,19 @@ export function TimerScreen({
 
       <div className="relative flex flex-col items-center gap-4">
         <CircularProgress progressRatio={view.progressRatio} color={ringColor} size={260} strokeWidth={14}>
-          {view.hasHours ? (
-            <div className="flex flex-col items-center leading-none">
-              <span className="text-3xl font-bold tabular-nums text-foreground sm:text-4xl">
-                {parseInt(view.hourPart, 10)}h {parseInt(view.minutePart, 10)}m
-              </span>
-              <span className="mt-1 text-sm font-medium text-muted-foreground">
-                {parseInt(view.secondPart, 10)}s restantes
-              </span>
-            </div>
-          ) : (
-            <>
-              <span className="text-4xl font-bold tabular-nums text-foreground sm:text-5xl">
-                {view.formattedTime}
-              </span>
-              <span className="text-sm font-medium text-muted-foreground">restantes</span>
-            </>
-          )}
+          <div className="flex flex-col items-center leading-none">
+            <span
+              className={cn(
+                "font-bold tabular-nums text-foreground",
+                view.hasHours ? "text-3xl sm:text-4xl" : "text-4xl sm:text-5xl",
+              )}
+            >
+              {view.formattedTime}
+            </span>
+            <span className="mt-1.5 text-xs font-medium uppercase tracking-wide text-muted-foreground sm:text-sm">
+              restantes
+            </span>
+          </div>
         </CircularProgress>
 
         {view.isPaused && (

@@ -237,7 +237,7 @@ export function ActivityModal({
             </button>
 
             <div className="text-center">
-              <h2 className="text-lg font-semibold text-foreground">{title}</h2>
+              <h2 className="font-display text-lg font-semibold text-foreground">{title}</h2>
               <p className="mt-2 text-sm text-muted-foreground">
                 {isEditing
                   ? "Actualiza los datos de la actividad"

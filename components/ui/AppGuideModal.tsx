@@ -147,7 +147,7 @@ export function AppGuideModal({
             </button>
 
             <div className="text-center">
-              <h2 className="text-xl font-semibold text-foreground">
+              <h2 className="font-display text-xl font-semibold text-foreground">
                 Bienvenido a Go Sesión
               </h2>
               <div>

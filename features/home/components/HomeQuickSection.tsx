@@ -31,7 +31,7 @@ export function HomeQuickSection() {
           <House className="size-4 text-accent-aprender" />
         </span>
         <div>
-          <p className="text-sm font-semibold text-foreground">Accesos rápidos</p>
+          <p className="font-display text-base font-semibold text-foreground">Accesos rápidos</p>
           <p className="text-xs text-muted-foreground">
             Tus actividades marcadas para empezar de un toque.
           </p>
