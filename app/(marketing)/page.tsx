@@ -113,7 +113,7 @@ const FAQS = [
 
 export default function MarketingHomePage() {
   return (
-    <>
+    <div className="font-plus-jakarta">
       <header className="flex items-center justify-between border-b border-border px-4 py-3 sm:px-6">
         <Link href="/" aria-label="Go — Ir al inicio" title="Go">
           <Logo />
@@ -132,7 +132,7 @@ export default function MarketingHomePage() {
       <main className="flex flex-col">
         {/* Hero */}
         <section className="mx-auto flex w-full max-w-3xl flex-col items-center gap-6 px-4 py-16 text-center">
-          <h1 className="font-display max-w-2xl text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
+          <h1 className="max-w-2xl text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
             Go Sesión
             <br />
           </h1>
@@ -141,7 +141,7 @@ export default function MarketingHomePage() {
             Es una plataforma diseñada para eliminar la fricción de empezar con tus planes, reducir la saturación y dejar atrás la culpa de no saber cómo iniciar, sin quedarte atrapado sobrepensando.
           </p>
 
-          <p className="text-sm font-medium text-foreground">Tu eliges cómo quieres empezar:</p>
+          <p className="text-base font-semibold text-foreground">Tú eliges cómo quieres empezar:</p>
 
           <div className="flex flex-wrap items-stretch justify-center gap-3">
             {[
@@ -176,7 +176,7 @@ export default function MarketingHomePage() {
 
         {/* 3 Pilares */}
         <section className="mx-auto w-full max-w-4xl px-4 py-12">
-          <h2 className="font-display mb-6 text-center text-2xl font-semibold text-foreground">
+          <h2 className="mb-6 text-center text-2xl font-semibold text-foreground">
             Tres pilares. Cero fricción.
           </h2>
           <div className="grid gap-6 sm:grid-cols-3">
@@ -196,7 +196,7 @@ export default function MarketingHomePage() {
 
         {/* Medición e historial */}
         <section className="mx-auto w-full max-w-4xl px-4 py-12">
-          <h2 className="font-display mb-2 text-center text-2xl font-semibold text-foreground">
+          <h2 className="mb-2 text-center text-2xl font-semibold text-foreground">
             Mide tu avance, celebra cada paso
           </h2>
           <p className="mb-8 text-center text-sm text-muted-foreground">
@@ -222,7 +222,7 @@ export default function MarketingHomePage() {
 
         {/* Cómo usar */}
         <section className="mx-auto w-full max-w-3xl px-4 py-12">
-          <h2 className="font-display mb-2 text-center text-2xl font-semibold text-foreground">
+          <h2 className="mb-2 text-center text-2xl font-semibold text-foreground">
             Cómo funciona Go
           </h2>
           <p className="mb-8 text-center text-sm text-muted-foreground">
@@ -235,7 +235,7 @@ export default function MarketingHomePage() {
                   {index + 1}
                 </span>
                 <div className="rounded-2xl border border-border bg-surface p-5">
-                  <h3 className="mb-1 font-medium text-foreground">{step.title}</h3>
+                  <h3 className="mb-1 font-semibold text-foreground">{step.title}</h3>
                   <p className="text-sm text-muted-foreground">{step.description}</p>
                 </div>
               </li>
@@ -248,13 +248,13 @@ export default function MarketingHomePage() {
 
         {/* FAQ */}
         <section className="mx-auto w-full max-w-2xl px-4 py-12">
-          <h2 className="font-display mb-6 text-center text-2xl font-semibold text-foreground">
+          <h2 className="mb-6 text-center text-2xl font-semibold text-foreground">
             Preguntas frecuentes
           </h2>
           <div className="flex flex-col gap-4">
             {FAQS.map((faq) => (
               <div key={faq.question} className="rounded-2xl border border-border p-5">
-                <h3 className="mb-1 font-medium text-foreground">{faq.question}</h3>
+                <h3 className="mb-1 font-semibold text-foreground">{faq.question}</h3>
                 <p className="text-sm text-muted-foreground">{faq.answer}</p>
               </div>
             ))}
@@ -265,6 +265,6 @@ export default function MarketingHomePage() {
           Go — Tu siguiente paso, sin fricción.
         </footer>
       </main>
-    </>
+    </div>
   );
 }

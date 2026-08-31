@@ -131,6 +131,7 @@
   --font-sans: var(--font-outfit);
   --font-work: var(--font-work-sans);
   --font-display: var(--font-outfit);
+  --font-plus-jakarta: var(--font-plus-jakarta);
   --font-mono: var(--font-geist-mono);
 }
 

@@ -194,8 +194,8 @@ export function CategoryHomeGrid({
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-4">
       {/* Title */}
       <div className="flex flex-col items-center gap-2 text-center">
-        <h1 className="font-display text-2xl font-bold leading-tight tracking-tight text-foreground sm:text-4xl">
-          Tu espacio para avanzar, sin fricción. ⭐
+        <h1 className="font-display text-2xl font-bold leading-tight tracking-tight text-foreground sm:text-4xl my-6">
+          Bienvenido a tu espacio personal, donde podrás avanzar sin fricción. ⭐
         </h1>
         <p className="max-w-md text-sm leading-relaxed text-muted-foreground">
           Elige una categoría para empezar o planifica tus actividades o deja que Go Sesión te recomiende algo.

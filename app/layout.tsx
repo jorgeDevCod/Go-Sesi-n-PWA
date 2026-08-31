@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Work_Sans, Outfit, JetBrains_Mono } from "next/font/google";
+import { Work_Sans, Plus_Jakarta_Sans, Outfit, JetBrains_Mono } from "next/font/google";
 import { MotionConfig } from "framer-motion";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { ServiceWorkerRegistration } from "@/components/pwa/ServiceWorkerRegistration";
@@ -8,6 +8,13 @@ import "./globals.css";
 // Tipografía principal: UI, botones y controles.
 const workSans = Work_Sans({
   variable: "--font-work-sans",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+});
+
+// Tipografía base (cuerpo, landing, descripciones). Limpia y legible.
+const plusJakartaSans = Plus_Jakarta_Sans({
+  variable: "--font-plus-jakarta",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
 });
@@ -80,7 +87,7 @@ export default function RootLayout({
     <html
       lang="es"
       suppressHydrationWarning
-      className={`${workSans.variable} ${outfit.variable} ${jetbrainsMono.variable} h-full antialiased`}
+      className={`${workSans.variable} ${plusJakartaSans.variable} ${outfit.variable} ${jetbrainsMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <ThemeProvider
