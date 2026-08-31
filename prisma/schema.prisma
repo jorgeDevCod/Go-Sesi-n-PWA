@@ -1,0 +1,148 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id             String   @id @default(cuid())
+  name           String
+  email          String   @unique
+  passwordHash   String
+  defaultsSeeded Boolean  @default(false)
+  seedVersion    Int      @default(1)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  categories    Category[]
+  subcategories Subcategory[]
+  focusSessions FocusSession[]
+  dailyPlans    DailyPlan[]
+
+  @@map("users")
+}
+
+enum Complexity {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+model Category {
+  id         String     @id @default(cuid())
+  key        String?
+  name       String
+  icon       String
+  color      String
+  order      Int        @default(0)
+  isDefault  Boolean    @default(false)
+  complexity         Complexity  @default(MEDIUM)
+  energyLevel        String?
+  energyComplexity   Complexity?
+  createdAt          DateTime    @default(now())
+  updatedAt  DateTime   @updatedAt
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  subcategories Subcategory[]
+  planItems     PlanItem[]
+
+  @@unique([userId, key])
+  @@unique([userId, name])
+  @@index([userId, order])
+  @@map("categories")
+}
+
+model Subcategory {
+  id         String   @id @default(cuid())
+  name       String
+  icon       String
+  color      String
+  order      Int      @default(0)
+  complexity         Complexity  @default(MEDIUM)
+  energyLevel        String?
+  energyComplexity   Complexity?
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
+
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  focusSessions FocusSession[]
+  planItems     PlanItem[]
+
+  @@unique([userId, categoryId, name])
+  @@index([userId, categoryId, order])
+  @@map("subcategories")
+}
+
+enum SessionStatus {
+  ACTIVE
+  COMPLETED
+  INTERRUPTED
+}
+
+model FocusSession {
+  id             String        @id @default(cuid())
+  status         SessionStatus @default(ACTIVE)
+  startedAt      DateTime      @default(now())
+  endedAt        DateTime?
+  plannedMinutes Int
+  actualMinutes  Int?
+  pausedMs       Int           @default(0)
+  pausedAt         DateTime?
+  extendedCount    Int           @default(0)
+  extendedMinutes  Int           @default(0)
+  energyLevel      String?
+  comment          String?
+
+  activeUserId String? @unique
+
+  subcategoryId String
+  subcategory   Subcategory @relation(fields: [subcategoryId], references: [id], onDelete: Restrict)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, status])
+  @@index([userId, startedAt])
+  @@map("focus_sessions")
+}
+
+model DailyPlan {
+  id        String     @id @default(cuid())
+  userId    String
+  date      DateTime
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items     PlanItem[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@unique([userId, date])
+  @@map("daily_plans")
+}
+
+model PlanItem {
+  id        String  @id @default(cuid())
+  planId    String
+  plan      DailyPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+  categoryId String?
+  category  Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  subcategoryId String?
+  subcategory   Subcategory? @relation(fields: [subcategoryId], references: [id], onDelete: SetNull)
+  title     String
+  icon      String  @default("Star")
+  color     String  @default("#6366F1")
+  order     Int     @default(0)
+  completed Boolean @default(false)
+
+  @@index([planId, order])
+  @@map("plan_items")
+}

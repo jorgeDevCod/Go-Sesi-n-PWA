@@ -1,0 +1,4 @@
+-- AlterTable
+ALTER TABLE "categories" ALTER COLUMN "color" SET NOT NULL,
+ALTER COLUMN "icon" SET NOT NULL,
+ALTER COLUMN "userId" SET NOT NULL;

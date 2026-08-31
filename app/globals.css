@@ -1,0 +1,196 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --background: #d4e6f1;
+  --foreground: #1c1c1a;
+  --surface: #FFFFFF;
+  --surface-muted: #F1F3F6;
+  --surface-hover: #E6EAEF;
+  --border: #C7CDD5;
+  --border-hover: #98A2AE;
+  --muted-foreground: #4B5563;
+
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 8px -1px rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.06);
+  --shadow-lg: 0 10px 16px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.05);
+  --shadow-xl: 0 20px 26px -5px rgb(0 0 0 / 0.12), 0 8px 10px -6px rgb(0 0 0 / 0.06);
+
+  --accent-aprender: #6366f1;
+  --accent-aprender-hover: #4f46e5;
+  --accent-salud: #16a34a;
+  --accent-salud-hover: #15803d;
+  --accent-finanzas: #d97706;
+  --accent-finanzas-hover: #b45309;
+  --accent-descanso: #0d9488;
+  --accent-descanso-hover: #0f766e;
+  --accent-trabajo: #7c3aed;
+  --accent-trabajo-hover: #6d28d9;
+}
+
+/* Tema celeste (por defecto antes de elegir otro): azul lavanda suave.
+   Solo varían los neutros; los acentos y las formas son compartidos con el
+   resto de temas. */
+.celeste {
+  --background: #DCE7F5;
+  --foreground: #1c1c1a;
+  --surface: #FFFFFF;
+  --surface-muted: #eef1fb;
+  --surface-hover: #e3e7f6;
+  --border: #c2c9e0;
+  --border-hover: #98a2c7;
+  --muted-foreground: #4a5170;
+}
+
+/* Tema verde: neutros suaves verdosos. */
+.verde {
+  --background: #EBF9EE;
+  --foreground: #1c1c1a;
+  --surface: #FFFFFF;
+  --surface-muted: #eef6ed;
+  --surface-hover: #e2eedf;
+  --border: #c3d5c2;
+  --border-hover: #94aa93;
+  --muted-foreground: #4a5c4b;
+}
+
+/* Tema blanco humo: neutro claro, casi blanco. */
+.humo {
+  --background: #F2F2F2;
+  --foreground: #1c1c1a;
+  --surface: #FFFFFF;
+  --surface-muted: #efeefc;
+  --surface-hover: #e6e5ee;
+  --border: #c9c8ce;
+  --border-hover: #9c9ba6;
+  --muted-foreground: #4d4d48;
+}
+
+/* Tema rosa: neutros suaves rosados. */
+.rosa {
+  --background: #F5E1EE;
+  --foreground: #2b181d;
+  --surface: #ffffff;
+  --surface-muted: #fceff5;
+  --surface-hover: #f4dce7;
+  --border: #d5aec0;
+  --border-hover: #b07f95;
+  --muted-foreground: #5c3a47;
+}
+
+/* Tema blanco: puro y minimalista. */
+.blanco {
+  --background: #FFFFFF;
+  --foreground: #16161c;
+  --surface: #ffffff;
+  --surface-muted: #f4f5f8;
+  --surface-hover: #eaecf1;
+  --border: #d5d8e0;
+  --border-hover: #a3a9b8;
+  --muted-foreground: #52545d;
+}
+
+.dark {
+  --background: #030202;
+  --foreground: #f0f0ed;
+  --surface: #1c1c1f;
+  --surface-muted: #26262a;
+  --surface-hover: #303035;
+  --border: #47474d;
+  --border-hover: #5e5e66;
+  --muted-foreground: #acacaa;
+
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.2);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.25), 0 2px 4px -2px rgb(0 0 0 / 0.2);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.2);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.35), 0 8px 10px -6px rgb(0 0 0 / 0.25);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-surface-hover: var(--surface-hover);
+  --color-border: var(--border);
+  --color-border-hover: var(--border-hover);
+  --color-muted-foreground: var(--muted-foreground);
+
+  --color-accent-aprender: var(--accent-aprender);
+  --color-accent-aprender-hover: var(--accent-aprender-hover);
+  --color-accent-salud: var(--accent-salud);
+  --color-accent-salud-hover: var(--accent-salud-hover);
+  --color-accent-finanzas: var(--accent-finanzas);
+  --color-accent-finanzas-hover: var(--accent-finanzas-hover);
+  --color-accent-descanso: var(--accent-descanso);
+  --color-accent-descanso-hover: var(--accent-descanso-hover);
+  --color-accent-trabajo: var(--accent-trabajo);
+  --color-accent-trabajo-hover: var(--accent-trabajo-hover);
+
+  --font-sans: var(--font-plus-jakarta);
+  --font-work: var(--font-work-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+}
+
+/* Scrollbars con los tokens del tema, coherentes con vistas, modales y popups. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-hover) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: var(--border-hover);
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background-color: var(--muted-foreground);
+}
+
+/* Scrollbars más discretos dentro de contenedores con overflow (modales/popups). */
+.overflow-auto::-webkit-scrollbar,
+.overflow-y-auto::-webkit-scrollbar,
+.overflow-x-auto::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+/* Evita el fondo gris del autofill del navegador: usa los tokens del tema. */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-text-fill-color: var(--foreground);
+  -webkit-box-shadow: 0 0 0 1000px var(--surface) inset;
+  box-shadow: 0 0 0 1000px var(--surface) inset;
+  caret-color: var(--foreground);
+  transition: background-color 9999s ease-in-out 0s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
