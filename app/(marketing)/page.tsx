@@ -280,7 +280,7 @@ export default function MarketingHomePage() {
             Cómo funciona Go
           </h2>
           <p className="mb-8 text-center text-sm font-normal leading-[1.6] text-muted-foreground">
-            Paso a paso para empezar a fluir en minutos.
+            Conoce cómo funciona y mejora tu experiencia. ⭐
           </p>
           <ol className="flex flex-col gap-4">
             {STEPS.map((step, index) => (
