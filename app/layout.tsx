@@ -35,11 +35,11 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://gosession.vercel.app"),
   title: {
-    default: "Go Sesión: Un espacio para mejorar tu productividad sin fricción",
+    default: "Go Sesión: Tu espacio para mejorar tu productividad sin fricción",
     template: "%s · Go Sesión",
   },
   description:
-    "Go: tu espacio personal para iniciar a tu ritmo. Organiza tus actividades, crea nuevos hábitos y personaliza tus sesiones según tu ánimo, energía y tiempo",
+    "Go: tu espacio personal para iniciar a tu ritmo. Organiza tus actividades, crea nuevos hábitos y personaliza tus sesiones según tu ánimo, energía y tiempo.",
   openGraph: {
     type: "website",
     title: "Go Sesión: Un Espacio Para Empezar Tus Planes Sin Fricción",
