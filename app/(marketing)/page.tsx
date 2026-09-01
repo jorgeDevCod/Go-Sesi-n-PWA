@@ -96,7 +96,7 @@ const STEPS = [
   {
     title: "Regístrate e inicia sesión",
     description:
-      "Crea tu cuenta gratis y entra en segundos. Solo te pedimos lo esencial para arrancar.",
+      "Crea tu cuenta gratis en menos de un minuto: solo un nombre, tu correo y una contraseña. Al entrar ya estás listo para reservar tu primera sesión y hacer que cada momento cuente.",
   },
   {
     title: "Entra a tu espacio",
@@ -165,7 +165,7 @@ const FAQS = [
 export default function MarketingHomePage() {
   return (
     <div className="font-sans">
-      <header className="flex items-center justify-between border-b border-border px-4 py-3 sm:px-6">
+      <header className="sticky top-0 z-40 flex items-center justify-between border-b border-border bg-background px-4 py-3 shadow-sm sm:px-6">
         <Link href="/" aria-label="Go — Ir al inicio" title="Go">
           <Logo />
         </Link>

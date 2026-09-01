@@ -9,7 +9,10 @@ export const metadata: Metadata = {
 
 export default function RegisterPage() {
   return (
-    <AuthShell title="Crea tu cuenta" subtitle="Deja de decidir. Solo empieza.">
+    <AuthShell
+      title="Crea tu cuenta"
+      subtitle="Empieza gratis en menos de un minuto. Deja de decidir qué hacer y deja que Go te acompañe en tu siguiente paso."
+    >
       <RegisterForm />
     </AuthShell>
   );

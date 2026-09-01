@@ -9,7 +9,10 @@ export const metadata: Metadata = {
 
 export default function LoginPage() {
   return (
-    <AuthShell title="Hola de nuevo" subtitle="Solo elige el siguiente paso.">
+    <AuthShell
+      title="Hola de nuevo"
+      subtitle="Entra y retoma tu espacio. Reserva una sesión y sigue avanzando sin fricción."
+    >
       <LoginForm />
     </AuthShell>
   );
