@@ -57,7 +57,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary",
-    title: "Go Sesión, un espacio para ti sin fricción",
+    title: "Go Sesión: Un Espacio Para Empezar Tus Planes facilmente",
     description:
       "Go: tu aliado para empezar a hacer lo que quieras fácilmente. Reserva sesiones, planifica tu día y deja que Go te sugiera el siguiente paso.",
     images: ["/icons/512"],
