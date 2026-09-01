@@ -6,7 +6,7 @@
 export function IconMark({
   size,
   rounded = false,
-  glyphScale = 0.56,
+  glyphScale = 0.42,
 }: {
   size: number;
   rounded?: boolean;
@@ -20,8 +20,8 @@ export function IconMark({
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        background: "#6366F1",
-        borderRadius: rounded ? size * 0.22 : 0,
+        background: "linear-gradient(135deg, #6366F1 0%, #7C3AED 100%)",
+        borderRadius: rounded ? size * 0.27 : 0,
       }}
     >
       <span
@@ -31,6 +31,7 @@ export function IconMark({
           color: "#FFFFFF",
           fontFamily: "sans-serif",
           lineHeight: 1,
+          letterSpacing: "-0.02em",
         }}
       >
         Go
