@@ -43,7 +43,8 @@ model Category {
   energyLevel        String?
   energyComplexity   Complexity?
   createdAt          DateTime    @default(now())
-  updatedAt  DateTime   @updatedAt
+  updatedAt          DateTime    @updatedAt
+  deletedAt          DateTime?
 
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -54,6 +55,7 @@ model Category {
   @@unique([userId, key])
   @@unique([userId, name])
   @@index([userId, order])
+  @@index([userId, deletedAt])
   @@map("categories")
 }
 
@@ -68,6 +70,7 @@ model Subcategory {
   energyComplexity   Complexity?
   createdAt          DateTime    @default(now())
   updatedAt          DateTime    @updatedAt
+  deletedAt          DateTime?
 
   categoryId String
   category   Category @relation(fields: [categoryId], references: [id], onDelete: Restrict)
@@ -80,6 +83,7 @@ model Subcategory {
 
   @@unique([userId, categoryId, name])
   @@index([userId, categoryId, order])
+  @@index([userId, deletedAt])
   @@map("subcategories")
 }
 

@@ -86,6 +86,7 @@ export async function updateCategoryAction(input: unknown): Promise<ActionResult
 
   revalidatePath("/app/subcategories");
   revalidatePath("/app/routine");
+  revalidatePath("/app/home");
   return { success: true };
 }
 
@@ -104,5 +105,6 @@ export async function deleteCategoryAction(input: unknown): Promise<ActionResult
 
   revalidatePath("/app/subcategories");
   revalidatePath("/app/routine");
+  revalidatePath("/app/home");
   return { success: true };
 }

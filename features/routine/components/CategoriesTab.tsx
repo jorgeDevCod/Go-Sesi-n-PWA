@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Pencil, Plus, Trash2 } from "lucide-react";
+import { Check, CheckSquare, Pencil, Plus, Trash2, X } from "lucide-react";
 import { DynamicIcon } from "@/components/ui/DynamicIcon";
 import { Button } from "@/components/ui/Button";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
@@ -11,6 +11,8 @@ import { updateCategoryAction } from "@/features/categories/actions/category.act
 import { deleteCategoryAction } from "@/features/categories/actions/category.actions";
 import { createCategoryAction } from "@/features/categories/actions/category.actions";
 import { COMPLEXITY_LABELS } from "@/services/recommendation/energy-level";
+import { cn } from "@/lib/utils";
+import { useTrashUndoStore } from "@/features/categories/store/trash-undo.store";
 import type { RoutineCategory } from "@/features/routine/components/RoutineTabs";
 
 export function CategoriesTab({ categories }: { categories: RoutineCategory[] }) {
@@ -22,8 +24,66 @@ export function CategoriesTab({ categories }: { categories: RoutineCategory[] })
   const [deletePassword, setDeletePassword] = useState("");
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [isDeleting, startDelete] = useTransition();
+  const [selectMode, setSelectMode] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [blockedCategory, setBlockedCategory] = useState<RoutineCategory | null>(null);
+  const setUndo = useTrashUndoStore((s) => s.set);
 
   const isModalOpen = editCategory !== null || showCreateModal;
+
+  function toggleSelect(id: string) {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  function cancelSelectMode() {
+    setSelectMode(false);
+    setSelectedIds(new Set());
+  }
+
+  async function runDeleteCats(ids: string[]) {
+    setDeleteError(null);
+    startDelete(async () => {
+      const deletedIds: string[] = [];
+      for (const id of ids) {
+        const cat = list.find((c) => c.id === id);
+        if (!cat) continue;
+        const result = await deleteCategoryAction({
+          id,
+          password: cat.isDefault ? deletePassword : undefined,
+        });
+        if (!result.success) {
+          // Si la categoría no está vacía, se muestra el modal informativo y se detiene.
+          setBlockedCategory(cat);
+          break;
+        }
+        deletedIds.push(id);
+        setList((prev) => prev.filter((c) => c.id !== id));
+      }
+      if (deletedIds.length > 0) {
+        setUndo({ kind: "category", count: deletedIds.length, ids: deletedIds });
+        cancelSelectMode();
+        setDeletePassword("");
+        router.refresh();
+      }
+    });
+  }
+
+  function deleteSelected() {
+    const ids = Array.from(selectedIds);
+    if (ids.length === 0) return;
+    setConfirmingDelete(null); // no usar ConfirmModal por lotes; eliminar directo
+    void runDeleteCats(ids);
+  }
+
+  function deleteAll() {
+    setConfirmingDelete(null);
+    void runDeleteCats(list.map((c) => c.id));
+  }
 
   function executeDelete() {
     const cat = confirmingDelete;
@@ -51,6 +111,48 @@ export function CategoriesTab({ categories }: { categories: RoutineCategory[] })
         Crea categorías para enfocarte en lo que quieres mejorar, organizar tus actividades o dedicarte a tus nuevos hobbies. Personaliza cada una y hazla completamente tuya.
       </p>
 
+      {list.length > 0 && (
+        <div className="flex flex-wrap items-center gap-2">
+          {selectMode ? (
+            <>
+              <Button
+                variant="secondary"
+                size="md"
+                onClick={deleteSelected}
+                disabled={selectedIds.size === 0}
+                className={cn(
+                  "gap-2",
+                  selectedIds.size > 0 && "border-red-300 bg-red-50 text-red-600 dark:border-red-900 dark:bg-red-950 dark:text-red-400",
+                )}
+              >
+                <Trash2 className="size-4" />
+                Eliminar seleccionadas ({selectedIds.size})
+              </Button>
+              <Button variant="ghost" size="md" onClick={cancelSelectMode} className="gap-2">
+                <X className="size-4" />
+                Cancelar
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button variant="secondary" size="md" onClick={deleteAll} className="gap-2">
+                <Trash2 className="size-4" />
+                Eliminar todo
+              </Button>
+              <Button
+                variant="secondary"
+                size="md"
+                onClick={() => setSelectMode(true)}
+                className="gap-2"
+              >
+                <CheckSquare className="size-4" />
+                Seleccionar y eliminar
+              </Button>
+            </>
+          )}
+        </div>
+      )}
+
       {list.length === 0 ? (
         <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-border bg-surface-muted p-6 text-center">
           <p className="text-sm text-muted-foreground">Aún no tienes categorías. Crea la primera:</p>
@@ -61,11 +163,29 @@ export function CategoriesTab({ categories }: { categories: RoutineCategory[] })
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          {list.map((category) => (
+          {list.map((category) => {
+            const selected = selectedIds.has(category.id);
+            return (
             <div
               key={category.id}
-              className="flex items-center gap-3 rounded-2xl border border-border bg-surface p-4 shadow-sm"
+              onClick={selectMode ? () => toggleSelect(category.id) : undefined}
+              className={cn(
+                "flex items-center gap-3 rounded-2xl border bg-surface p-4 transition-all duration-200",
+                selectMode ? "cursor-pointer" : "border-border shadow-sm",
+                selectMode && selected && "border-red-400 bg-red-50 ring-2 ring-red-300 dark:bg-red-950/40 dark:ring-red-700",
+                selectMode && !selected && "border-dashed border-border",
+              )}
             >
+              {selectMode && (
+                <span
+                  className={cn(
+                    "flex size-6 shrink-0 items-center justify-center rounded-full border transition-colors",
+                    selected ? "border-red-500 bg-red-500 text-white" : "border-border bg-surface text-transparent",
+                  )}
+                >
+                  <Check className="size-4" />
+                </span>
+              )}
               <span
                 className="flex size-11 shrink-0 items-center justify-center rounded-xl"
                 style={{ backgroundColor: `${category.color}33`, color: category.color }}
@@ -78,6 +198,8 @@ export function CategoriesTab({ categories }: { categories: RoutineCategory[] })
                   Dificultad: {COMPLEXITY_LABELS[category.complexity]}
                 </p>
               </div>
+              {!selectMode && (
+              <>
               <button
                 type="button"
                 onClick={() => setEditCategory(category)}
@@ -100,8 +222,11 @@ export function CategoriesTab({ categories }: { categories: RoutineCategory[] })
               >
                 <Trash2 className="size-4" />
               </button>
+              </>
+              )}
             </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
@@ -175,6 +300,17 @@ export function CategoriesTab({ categories }: { categories: RoutineCategory[] })
         password={deletePassword}
         onPasswordChange={setDeletePassword}
         onConfirm={executeDelete}
+      />
+
+      <ConfirmModal
+        open={blockedCategory !== null}
+        onClose={() => setBlockedCategory(null)}
+        title={`No se pudo eliminar "${blockedCategory?.name ?? ""}"`}
+        message="Esta categoría contiene actividades. Para eliminar una categoría, primero elimina todas sus actividades (se van a la papelera) o muévelas a otra. Una categoría solo se elimina si está completamente vacía."
+        variant="danger"
+        onConfirm={() => setBlockedCategory(null)}
+        confirmLabel="Entendido"
+        cancelLabel="Cerrar"
       />
     </div>
   );

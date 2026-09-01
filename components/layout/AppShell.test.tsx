@@ -41,6 +41,10 @@ vi.mock("@/features/session/components/ResumeSessionPrompt", () => ({
   ResumeSessionPrompt: () => null,
 }));
 
+vi.mock("@/features/categories/components/TrashUndoModal", () => ({
+  TrashUndoModal: () => null,
+}));
+
 vi.mock("@/features/session/store/session.store", () => ({
   useSessionStore: {
     persist: { rehydrate: vi.fn() },

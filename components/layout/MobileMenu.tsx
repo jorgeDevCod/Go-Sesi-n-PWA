@@ -11,6 +11,7 @@ import {
   LogOut,
   Settings2,
   SlidersHorizontal,
+  Trash2,
   X,
 } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
@@ -54,6 +55,7 @@ export function MobileMenu({ open, onClose }: { open: boolean; onClose: () => vo
     },
     { label: "Actividades", icon: Settings2, href: "/app/subcategories" },
     { label: "Historial", icon: History, href: "/app/history" },
+    { label: "Papelera", icon: Trash2, href: "/app/trash" },
     { label: "Personaliza tu rutina como más te acomode.", icon: SlidersHorizontal, href: "/app/routine" },
   ];
 

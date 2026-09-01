@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { GripVertical, Pencil, Trash2, Play, House } from "lucide-react";
+import { Check, GripVertical, Pencil, Trash2, Play, House } from "lucide-react";
 import { DynamicIcon } from "@/components/ui/DynamicIcon";
 import { cn } from "@/lib/utils";
 import { COMPLEXITY_LABELS } from "@/services/recommendation/energy-level";
@@ -24,11 +24,17 @@ export function SubcategoryItem({
   onEdit,
   onDelete,
   category,
+  selectMode = false,
+  selected = false,
+  onToggleSelect,
 }: {
   item: SubcategoryItemType;
   onEdit: () => void;
   onDelete: () => void;
   category?: { id: string; name: string; icon: string; color: string };
+  selectMode?: boolean;
+  selected?: boolean;
+  onToggleSelect?: (id: string) => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id: item.id });
@@ -42,6 +48,10 @@ export function SubcategoryItem({
   };
 
   function handleStart() {
+    if (selectMode) {
+      onToggleSelect?.(item.id);
+      return;
+    }
     router.push(`/app/session/new?category=${item.categoryId}&activity=${item.id}`);
   }
 
@@ -67,8 +77,12 @@ export function SubcategoryItem({
     <li
       ref={setNodeRef}
       style={style}
+      onClick={selectMode ? () => onToggleSelect?.(item.id) : undefined}
       className={cn(
-        "flex flex-col gap-2 rounded-2xl border border-border bg-surface p-3 transition-shadow duration-200",
+        "flex flex-col gap-2 rounded-2xl border bg-surface p-3 transition-all duration-200",
+        selectMode ? "cursor-pointer" : "border-border shadow-sm",
+        selectMode && selected && "border-red-400 bg-red-50 ring-2 ring-red-300 dark:bg-red-950/40 dark:ring-red-700",
+        selectMode && !selected && "border-dashed border-border",
         isDragging && "shadow-lg",
       )}
     >
@@ -107,6 +121,19 @@ export function SubcategoryItem({
         </span>
 
         <div className="flex items-center gap-1">
+          {selectMode ? (
+            <span
+              className={cn(
+                "flex size-6 items-center justify-center rounded-full border transition-colors",
+                selected
+                  ? "border-red-500 bg-red-500 text-white"
+                  : "border-border bg-surface text-transparent",
+              )}
+            >
+              <Check className="size-4" />
+            </span>
+          ) : (
+            <>
           <button
             type="button"
             onClick={toggleHome}
@@ -144,6 +171,8 @@ export function SubcategoryItem({
           >
             <Trash2 className="size-4" />
           </button>
+            </>
+          )}
         </div>
       </div>
     </li>

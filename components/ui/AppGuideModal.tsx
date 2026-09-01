@@ -13,6 +13,7 @@ import {
   Palette,
   Menu,
   Download,
+  Trash2,
   Check,
   X,
 } from "lucide-react";
@@ -80,6 +81,12 @@ const SECTIONS = [
     title: "Temas de color",
     description:
       "Elige el ambiente visual que más te guste: Celeste, Verde, Humo, Rosa, Blanco u Oscuro. Puedes cambiarlo cuando quieras desde el botón circular del header.",
+  },
+  {
+    icon: Trash2,
+    title: "Papelera y recuperación",
+    description:
+      "Cuando eliminas una actividad o una categoría (que esté vacía), pasa a la papelera en lugar de borrarse para siempre. La papelera guarda un máximo de 50 artículos durante 15 días; luego se purgan. Puedes restaurarlos o vaciarla desde la pestaña \"Papelera\". Si cambias de opinión justo al eliminar, tienes 5 segundos para restablecer.",
   },
 ];
 

@@ -19,6 +19,7 @@ type HomeQuickStore = {
   items: HomeQuickItem[];
   add: (item: Omit<HomeQuickItem, "order">) => void;
   remove: (subcategoryId: string) => void;
+  removeMany: (subcategoryIds: string[]) => void;
   isAdded: (subcategoryId: string) => boolean;
   reorder: (fromIndex: number, toIndex: number) => void;
   reset: () => void;
@@ -41,6 +42,13 @@ export const useHomeQuickStore = create<HomeQuickStore>()(
         set((state) => ({
           items: state.items
             .filter((i) => i.subcategoryId !== subcategoryId)
+            .map((i, index) => ({ ...i, order: index })),
+        })),
+
+      removeMany: (subcategoryIds) =>
+        set((state) => ({
+          items: state.items
+            .filter((i) => !subcategoryIds.includes(i.subcategoryId))
             .map((i, index) => ({ ...i, order: index })),
         })),
 

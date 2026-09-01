@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { z } from "zod";
 import { auth } from "@/auth";
 import {
   createSubcategorySchema,
@@ -12,6 +13,7 @@ import { createSubcategoryForUser } from "@/services/categories/create-subcatego
 import { updateSubcategoryForUser } from "@/services/categories/update-subcategory.service";
 import { deleteSubcategoryForUser } from "@/services/categories/delete-subcategory.service";
 import { reorderSubcategoriesForUser } from "@/services/categories/reorder-subcategories.service";
+import { softDeleteManySubcategoriesToTrash } from "@/services/categories/trash.service";
 
 export type ActionResult = { success: true } | { success: false; error: string };
 
@@ -108,6 +110,25 @@ export async function deleteSubcategoryAction(input: unknown): Promise<ActionRes
 
   revalidatePath("/app/subcategories");
   revalidatePath("/app/routine");
+  return { success: true };
+}
+
+export async function deleteManySubcategoriesAction(input: unknown): Promise<ActionResult> {
+  const parsed = z.object({ ids: z.array(z.string().cuid()) }).safeParse(input);
+  if (!parsed.success) {
+    return { success: false, error: parsed.error.issues[0]?.message ?? "Datos inválidos." };
+  }
+
+  try {
+    const userId = await requireUserId();
+    await softDeleteManySubcategoriesToTrash(parsed.data.ids, userId);
+  } catch (error) {
+    return toErrorResult(error);
+  }
+
+  revalidatePath("/app/subcategories");
+  revalidatePath("/app/routine");
+  revalidatePath("/app/home");
   return { success: true };
 }
 

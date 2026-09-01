@@ -67,6 +67,7 @@ export function ActivitiesTab({
             categoryComplexity={current.complexity}
             initialItems={itemsByCategory[current.id] ?? []}
             showFilters={false}
+            enableBulkDelete
           />
       ) : (
         <p className="rounded-xl border border-dashed border-border bg-surface-muted p-6 text-center text-sm text-muted-foreground">

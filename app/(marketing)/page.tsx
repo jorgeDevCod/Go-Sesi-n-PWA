@@ -13,6 +13,7 @@ import {
   Star,
   Palette,
   Download,
+  Trash2,
 } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
@@ -62,6 +63,12 @@ const CUSTOMIZE = [
     title: "Instálala como app",
     description:
       "Descarga Go en tu pantalla de inicio y úsala como una app más, incluso sin conexión.",
+  },
+  {
+    icon: Trash2,
+    title: "Papelera con recuperación",
+    description:
+      "Nada se pierde para siempre: lo que elimines va a la papelera (máx. 50 artículos, 15 días) y puedes restaurarlo cuando quieras.",
   },
 ];
 
@@ -155,6 +162,11 @@ const FAQS = [
     question: "¿Puedo personalizar todo o Go decide por mí?",
     answer:
       "Tú mandas. Puedes ajustar energía, dificultad y tiempos por actividad, y decirle a Go exactamente qué recomendarte. O, si prefieres, dejar que Go elija por ti según tu ánimo. Tú decides.",
+  },
+  {
+    question: "¿Puedo recuperar algo que eliminé?",
+    answer:
+      "Sí. Las actividades y categorías eliminadas van a la papelera en lugar de borrarse para siempre. Guarda hasta 50 artículos durante 15 días y puedes restaurarlos cuando quieras. Si cambias de opinión en el momento, tienes 5 segundos para deshacer.",
   },
   {
     question: "¿Cuánto cuesta usar Go?",

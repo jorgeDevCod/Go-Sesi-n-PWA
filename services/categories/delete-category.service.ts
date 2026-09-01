@@ -2,8 +2,8 @@ import { verifyPassword } from "@/lib/password";
 import { findUserById } from "@/repositories/user.repository";
 import {
   countSubcategoriesForCategory,
-  deleteCategory,
   findCategoryById,
+  softDeleteCategory,
 } from "@/repositories/category.repository";
 import {
   CategoryForbiddenError,
@@ -33,5 +33,5 @@ export async function deleteCategoryForUser(
     if (!validPassword) throw new InvalidPasswordError();
   }
 
-  await deleteCategory(id);
+  await softDeleteCategory(id, userId);
 }

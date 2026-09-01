@@ -17,9 +17,10 @@ import {
   sortableKeyboardCoordinates,
   rectSortingStrategy,
 } from "@dnd-kit/sortable";
-import { Plus, Search } from "lucide-react";
+import { Plus, Search, Trash2, CheckSquare, X } from "lucide-react";
 import {
   deleteSubcategoryAction,
+  deleteManySubcategoriesAction,
   reorderSubcategoriesAction,
 } from "@/features/categories/actions/subcategory.actions";
 import {
@@ -29,7 +30,10 @@ import {
 import { SubcategoryItem } from "@/features/categories/components/SubcategoryItem";
 import { ActivityModal } from "@/features/categories/components/ActivityModal";
 import { ActivityFilters } from "@/features/categories/components/ActivityFilters";
+import { useHomeQuickStore } from "@/features/home/store/home-quick.store";
+import { useTrashUndoStore } from "@/features/categories/store/trash-undo.store";
 import { Button } from "@/components/ui/Button";
+import { cn } from "@/lib/utils";
 import type { Complexity } from "@/lib/constants/default-subcategories";
 import type { EnergyLevel } from "@/services/recommendation/energy-level";
 
@@ -42,6 +46,7 @@ export function SubcategoryList({
   initialItems,
   showFilters = true,
   showEnergyInModal = true,
+  enableBulkDelete = false,
 }: {
   categoryId: string;
   categoryName: string;
@@ -51,10 +56,13 @@ export function SubcategoryList({
   initialItems: SubcategoryItemType[];
   showFilters?: boolean;
   showEnergyInModal?: boolean;
+  enableBulkDelete?: boolean;
 }) {
   const router = useRouter();
   const setItems = useSubcategoryStore((s) => s.setItems);
   const reorder = useSubcategoryStore((s) => s.reorder);
+  const removeManyQuick = useHomeQuickStore((s) => s.removeMany);
+  const setUndo = useTrashUndoStore((s) => s.set);
   const items = useSubcategoryStore(
     (s) => s.itemsByCategory[categoryId] ?? initialItems,
   );
@@ -65,11 +73,50 @@ export function SubcategoryList({
   const [selectedEnergies, setSelectedEnergies] = useState<EnergyLevel[]>([]);
   const [selectedDifficulties, setSelectedDifficulties] = useState<Complexity[]>([]);
   const [search, setSearch] = useState("");
+  const [selectMode, setSelectMode] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const previousOrderRef = useRef<SubcategoryItemType[] | null>(null);
 
   useEffect(() => {
     setItems(categoryId, initialItems);
   }, [categoryId, initialItems, setItems]);
+
+  function toggleSelect(id: string) {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  function cancelSelectMode() {
+    setSelectMode(false);
+    setSelectedIds(new Set());
+  }
+
+  async function deleteSelected() {
+    const ids = Array.from(selectedIds);
+    if (ids.length === 0) return;
+    const result = await deleteManySubcategoriesAction({ ids });
+    if (result.success) {
+      removeManyQuick(ids);
+      setUndo({ kind: "subcategory", count: ids.length, ids });
+      cancelSelectMode();
+      router.refresh();
+    }
+  }
+
+  async function deleteAll() {
+    const allIds = items.map((item) => item.id);
+    const result = await deleteManySubcategoriesAction({ ids: allIds });
+    if (result.success) {
+      removeManyQuick(allIds);
+      setUndo({ kind: "subcategory", count: allIds.length, ids: allIds });
+      cancelSelectMode();
+      router.refresh();
+    }
+  }
 
   const filteredItems = items.filter((item) => {
     const energyMatch =
@@ -140,6 +187,58 @@ export function SubcategoryList({
         />
       </div>
 
+      {enableBulkDelete && items.length > 0 && (
+        <div className="flex flex-wrap items-center gap-2">
+          {selectMode ? (
+            <>
+              <Button
+                variant="secondary"
+                size="md"
+                onClick={deleteSelected}
+                disabled={selectedIds.size === 0}
+                className={cn(
+                  "gap-2",
+                  selectedIds.size > 0 && "border-red-300 bg-red-50 text-red-600 dark:border-red-900 dark:bg-red-950 dark:text-red-400",
+                )}
+              >
+                <Trash2 className="size-4" />
+                Eliminar seleccionadas ({selectedIds.size})
+              </Button>
+              <Button
+                variant="ghost"
+                size="md"
+                onClick={cancelSelectMode}
+                className="gap-2"
+              >
+                <X className="size-4" />
+                Cancelar
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button
+                variant="secondary"
+                size="md"
+                onClick={deleteAll}
+                className="gap-2"
+              >
+                <Trash2 className="size-4" />
+                Eliminar todo
+              </Button>
+              <Button
+                variant="secondary"
+                size="md"
+                onClick={() => setSelectMode(true)}
+                className="gap-2"
+              >
+                <CheckSquare className="size-4" />
+                Seleccionar y eliminar
+              </Button>
+            </>
+          )}
+        </div>
+      )}
+
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
@@ -160,6 +259,9 @@ export function SubcategoryList({
                   icon: categoryIcon ?? "Folder",
                   color: categoryColor ?? "#6366F1",
                 }}
+                selectMode={selectMode}
+                selected={selectedIds.has(item.id)}
+                onToggleSelect={toggleSelect}
                 onEdit={() => setEditing(item)}
                 onDelete={() => {
                   if (
@@ -169,7 +271,10 @@ export function SubcategoryList({
                     return;
                   }
                   void deleteSubcategoryAction({ id: item.id }).then((result) => {
-                    if (result.success) router.refresh();
+                    if (result.success) {
+                      removeManyQuick([item.id]);
+                      router.refresh();
+                    }
                   });
                 }}
               />

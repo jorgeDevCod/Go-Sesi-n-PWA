@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, CalendarCheck2, History, Home, LogOut, Menu, Settings2, SlidersHorizontal } from "lucide-react";
+import { ArrowLeft, CalendarCheck2, History, Home, LogOut, Menu, Settings2, SlidersHorizontal, Trash2 } from "lucide-react";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { AppGuideModal } from "@/components/ui/AppGuideModal";
 import { WelcomeModal } from "@/components/ui/WelcomeModal";
@@ -15,6 +15,7 @@ import { usePlanningStore } from "@/features/planning/store/planning.store";
 import { PlanningManager } from "@/features/planning/components/PlanningManager";
 import { PlanContinuePrompt } from "@/features/planning/components/PlanContinuePrompt";
 import { MoodModal } from "@/features/recommendation/components/MoodModal";
+import { TrashUndoModal } from "@/features/categories/components/TrashUndoModal";
 import { useSessionStore } from "@/features/session/store/session.store";
 import { hasAnsweredMoodToday } from "@/features/recommendation/mood.storage";
 import { ResumeSessionPrompt } from "@/features/session/components/ResumeSessionPrompt";
@@ -172,6 +173,15 @@ export function AppShell({ userName, children }: { userName: string; children: R
             <History className="size-4" />
             <span className="hidden sm:inline">Historial</span>
           </Link>
+          <Link
+            href="/app/trash"
+            aria-label="Ir a la papelera"
+            title="Ir a la papelera"
+            className="flex cursor-pointer items-center gap-1.5 rounded-full border border-border px-3 py-2 text-sm font-medium text-foreground transition-colors duration-200 hover:border-accent-aprender/40 hover:bg-surface-hover hover:text-accent-aprender focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender"
+          >
+            <Trash2 className="size-4" />
+            <span className="hidden sm:inline">Papelera</span>
+          </Link>
         </div>
         <div className="flex items-center gap-2">
           <ThemeToggle />
@@ -253,6 +263,7 @@ export function AppShell({ userName, children }: { userName: string; children: R
         setStoreMoodOpen(false);
         window.dispatchEvent(new CustomEvent("gosession-expand-categories"));
       }} />
+      <TrashUndoModal />
       {!pathname.startsWith("/app/session") && <ResumeSessionPrompt userName={userName} />}
     </div>
   );

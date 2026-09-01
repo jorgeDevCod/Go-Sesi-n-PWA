@@ -5,6 +5,7 @@ import { ChevronRight } from "lucide-react";
 
 const SEGMENT_LABELS: Record<string, string> = {
   history: "Historial",
+  trash: "Papelera",
   subcategories: "Actividades",
   session: "Sesión",
   "session/new": "Nueva sesión",

@@ -3,7 +3,7 @@ import type { Prisma } from "@/lib/generated/prisma/client";
 
 export function listSubcategoriesByUser(userId: string, categoryId?: string) {
   return prisma.subcategory.findMany({
-    where: { userId, ...(categoryId ? { categoryId } : {}) },
+    where: { userId, deletedAt: null, ...(categoryId ? { categoryId } : {}) },
     orderBy: { order: "asc" },
   });
 }
@@ -38,6 +38,44 @@ export function updateSubcategory(
 
 export function deleteSubcategory(id: string) {
   return prisma.subcategory.delete({ where: { id } });
+}
+
+export function softDeleteSubcategory(id: string, userId: string) {
+  return prisma.subcategory.updateMany({
+    where: { id, userId },
+    data: { deletedAt: new Date() },
+  });
+}
+
+export function restoreSubcategory(id: string, userId: string) {
+  return prisma.subcategory.updateMany({
+    where: { id, userId },
+    data: { deletedAt: null },
+  });
+}
+
+/** Devuelve las actividades eliminadas (papelera) del usuario. */
+export function listDeletedSubcategoriesForUser(userId: string) {
+  return prisma.subcategory.findMany({
+    where: { userId, deletedAt: { not: null } },
+    orderBy: { deletedAt: "desc" },
+    include: { category: true },
+  });
+}
+
+/** Actividades en papelera dentro de una categoría (para borrar con la categoría). */
+export function listDeletedSubcategoriesForCategory(categoryId: string) {
+  return prisma.subcategory.findMany({
+    where: { categoryId, deletedAt: { not: null } },
+    select: { id: true },
+  });
+}
+
+/** Cuenta actividades activas de un conjunto de categorías (para saber si están vacías). */
+export function countActiveSubcategoriesInCategories(categoryIds: string[]) {
+  return prisma.subcategory.count({
+    where: { categoryId: { in: categoryIds }, deletedAt: null },
+  });
 }
 
 export async function updateSubcategoryOrders(
