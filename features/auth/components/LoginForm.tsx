@@ -56,6 +56,15 @@ export function LoginForm() {
           Crea una
         </Link>
       </p>
+
+      <p className="text-center text-sm">
+        <Link
+          href="/"
+          className="font-medium text-accent-aprender underline-offset-4 hover:text-accent-aprender-hover hover:underline"
+        >
+          Quiero saber más sobre la App
+        </Link>
+      </p>
     </form>
   );
 }

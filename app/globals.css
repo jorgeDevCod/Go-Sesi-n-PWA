@@ -3,13 +3,13 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  --background: #d4e6f1;
+  --background: #e9eef3;
   --foreground: #1c1c1a;
   --surface: #FFFFFF;
-  --surface-muted: #ECEFF4;
-  --surface-hover: #DDE2EA;
-  --border: #C7CDD5;
-  --border-hover: #98A2AE;
+  --surface-muted: #F1F4F8;
+  --surface-hover: #E3E8EF;
+  --border: #C9D0D9;
+  --border-hover: #9AA4B0;
   --muted-foreground: #4B5563;
 
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
@@ -33,25 +33,25 @@
    Solo varían los neutros; los acentos y las formas son compartidos con el
    resto de temas. */
 .celeste {
-  --background: #DCE7F5;
+  --background: #e9edf5;
   --foreground: #1c1c1a;
   --surface: #FFFFFF;
-  --surface-muted: #E9EDF9;
-  --surface-hover: #ffffff;
-  --border: #c2c9e0;
-  --border-hover: #98a2c7;
+  --surface-muted: #EFF2FA;
+  --surface-hover: #E2E7F2;
+  --border: #c5cce0;
+  --border-hover: #9ba4c7;
   --muted-foreground: #4a5170;
 }
 
 /* Tema verde: neutros suaves verdosos. */
 .verde {
-  --background: #EBF9EE;
+  --background: #e8f2e9;
   --foreground: #1c1c1a;
   --surface: #FFFFFF;
-  --surface-muted: #E8F5E8;
-  --surface-hover: #D8EDD9;
-  --border: #c3d5c2;
-  --border-hover: #94aa93;
+  --surface-muted: #EEF6EE;
+  --surface-hover: #E0EDE1;
+  --border: #c2d2c3;
+  --border-hover: #94a996;
   --muted-foreground: #4a5c4b;
 }
 
@@ -69,12 +69,12 @@
 
 /* Tema rosa: neutros suaves rosados. */
 .rosa {
-  --background: #f8d5e4;
-  --foreground: #2b181d;
+  --background: #f4e2eb;
+  --foreground: #241317;
   --surface: #ffffff;
-  --surface-muted: #F9E7F1;
-  --surface-hover: #F0D3E2;
-  --border: #d5aec0;
+  --surface-muted: #FAEDF3;
+  --surface-hover: #F1DCE6;
+  --border: #d3adbf;
   --border-hover: #b07f95;
   --muted-foreground: #5c3a47;
 }

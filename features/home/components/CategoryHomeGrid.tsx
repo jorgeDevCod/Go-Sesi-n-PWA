@@ -57,6 +57,7 @@ export function CategoryHomeGrid({
     }
   });
   const categoriesRef = useRef<HTMLButtonElement>(null);
+  const categoriesSectionRef = useRef<HTMLDivElement>(null);
 
   const planVersion = usePlanningStore((state) => state.planVersion);
   const prefs = useRecommendationPrefs();
@@ -181,6 +182,20 @@ export function CategoryHomeGrid({
     };
   }, []);
 
+  function handleEnergyChange(level: EnergyLevel) {
+    prefs.setEnergy(level);
+    // Hace scroll suave hasta la sección de categorías, que se reordenan
+    // según el nivel elegido.
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        categoriesSectionRef.current?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      }, 200);
+    });
+  }
+
   function handleCategoryCreated(category: CreatedCategory) {
     const newEntry: CategoryHomeData = {
       ...category,
@@ -195,16 +210,18 @@ export function CategoryHomeGrid({
       {/* Title */}
       <div className="flex flex-col items-center gap-2 text-center">
         <h1 className="font-display text-2xl font-bold leading-tight tracking-tight text-foreground sm:text-4xl my-6">
-          Bienvenido a tu espacio personal, donde podrás iniciar facilmente. ⭐
+          Bienvenido a tu espacio personal, donde Iniciar es más fácil. ⭐
         </h1>
-        <p className="max-w-md text-sm leading-relaxed text-muted-foreground">
-          Elige una categoría para empezar o planifica tus actividades o deja que Go Sesión te recomiende algo.
+        <p className="max-w-md text-sm leading-relaxed text-muted-foreground my-2">
+          Elige la categoría en la que quieres iniciar - Planifica tus Actividades - Dejar que Go te recomiende algó sefún tu energia.
         </p>
       </div>
 
       {/* Energy selector */}
       <div className="flex flex-col gap-2">
-        <p className="font-display text-sm font-semibold text-foreground">Selecciona tu nivel de energía</p>
+        <p className="font-display text-sm font-semibold text-foreground my-6 text-center">
+          ¿Cómo está tu energía hoy? Elige el nivel que mejor te represente.
+        </p>
         <div className="flex gap-2">
           {(["baja", "media", "alta"] as EnergyLevel[]).map((level) => {
             const active = energy === level;
@@ -214,7 +231,7 @@ export function CategoryHomeGrid({
               <button
                 key={level}
                 type="button"
-                onClick={() => prefs.setEnergy(level)}
+                onClick={() => handleEnergyChange(level)}
                 aria-pressed={active}
                 className="flex flex-1 cursor-pointer flex-col items-center gap-1 rounded-xl border-2 bg-surface px-3 py-2 text-sm font-semibold capitalize transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender"
                 style={
@@ -232,7 +249,7 @@ export function CategoryHomeGrid({
       </div>
 
       <DismissibleHint storageKey="gosession-hint-home-seen">
-        Elige qué quieres hacer y comienza. ¿No sabes por dónde empezar? Deja que Go Sesión elija por ti.
+      ¿No sabes por dónde empezar? No pasa nada. Deja que Go Sesión elija una actividad para ti.
       </DismissibleHint>
 
       {/* "No sé qué hacer" CTA */}
@@ -249,10 +266,10 @@ export function CategoryHomeGrid({
           </span>
           <span className="flex min-w-0 flex-col gap-1">
             <span className="text-base font-semibold leading-tight">
-              ¿No sabes qué hacer hoy? ¡Te recomiendo algo!
+              ¿No sabes qué hacer hoy? ¡Déjalo en manos de Go!
             </span>
             <span className="text-sm text-white/80 ps-1">
-             Deja que Go encuentre algo para ti
+             Go Sesión encontrará actividades adecuadas para ti.
             </span>
           </span>
         </span>
@@ -288,6 +305,7 @@ export function CategoryHomeGrid({
         </span>
       </motion.button>
 
+      <div ref={categoriesSectionRef} className="scroll-mt-20">
       <AnimatePresence initial={false}>
         {showAllCategories && (
           <motion.div
@@ -319,6 +337,7 @@ export function CategoryHomeGrid({
           </motion.div>
         )}
       </AnimatePresence>
+      </div>
 
       {/* Todays plan */}
       {planItems.length > 0 && (
