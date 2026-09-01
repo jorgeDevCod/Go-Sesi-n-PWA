@@ -302,7 +302,10 @@ export default function MarketingHomePage() {
           </h2>
           <div className="flex flex-col gap-4">
             {FAQS.map((faq) => (
-              <div key={faq.question} className="rounded-2xl border border-border p-5">
+              <div
+                key={faq.question}
+                className="rounded-2xl border border-border bg-surface p-5 shadow-sm transition-all duration-200 hover:border-border-hover hover:shadow-md"
+              >
                 <h3 className="mb-1 text-base font-semibold text-foreground">{faq.question}</h3>
                 <p className="text-sm font-normal leading-[1.6] text-muted-foreground">{faq.answer}</p>
               </div>
