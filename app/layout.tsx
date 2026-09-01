@@ -42,24 +42,24 @@ export const metadata: Metadata = {
     "Reserva tu espacio personal por sesiones. Elige una categoría, personaliza tiempos y recomendaciones por categoría y actividad (mínimo, recomendado y máximo), o deja que Go te sugiera el siguiente paso según tu energía. ¿Qué esperas? Ingresa Ya!!.",
   openGraph: {
     type: "website",
-    title: "Go Sesión — Reserva tu sesión para hacer lo que quieras o recibir recomendaciones",
+    title: "Go Sesión, un espacio para ti sin fricción",
     description:
-      "Reserva tu espacio personal por sesiones. Personaliza tiempos y recomendaciones por categoría y actividad, o deja que Go te sugiera el siguiente paso según tu energía.",
+      "Go: tu aliado para empezar a hacer lo que quieras fácilmente. Reserva sesiones, planifica tu día y deja que Go te sugiera el siguiente paso según tu energía, sin culpa ni bloqueos.",
     siteName: "Go Sesión",
     images: [
       {
         url: "/icons/512",
         width: 512,
         height: 512,
-        alt: "Go Sesión — Reserva tu sesión",
+        alt: "Go Sesión, un espacio para ti sin fricción",
       },
     ],
   },
   twitter: {
     card: "summary",
-    title: "Go Sesión — Reserva tu sesión para hacer lo que quieras o recibir recomendaciones",
+    title: "Go Sesión, un espacio para ti sin fricción",
     description:
-      "Reserva tu espacio personal por sesiones. Cero parálisis, solo fluir.",
+      "Go: tu aliado para empezar a hacer lo que quieras fácilmente. Reserva sesiones, planifica tu día y deja que Go te sugiera el siguiente paso.",
     images: ["/icons/512"],
   },
   appleWebApp: {
