@@ -10,18 +10,20 @@ export function Logo({
   showWordmark?: boolean;
 }) {
   return (
-    <span className={cn("flex items-center gap-2", className)}>
+    <span className={cn("flex items-center gap-2.5", className)}>
       <span
         aria-hidden="true"
         className={cn(
-          "flex size-8 shrink-0 items-center justify-center rounded-lg bg-accent-aprender text-xs font-bold text-white",
+          "flex size-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-accent-aprender to-accent-trabajo text-sm font-bold text-white shadow-sm",
           iconClassName,
         )}
       >
         Go
       </span>
       {showWordmark && (
-        <span className="text-lg font-semibold text-foreground">Sesión</span>
+        <span className="font-display text-lg font-bold leading-none tracking-tight text-foreground">
+          Sesión
+        </span>
       )}
     </span>
   );
