@@ -390,7 +390,7 @@ export function EnergySurvey({ onComplete }: { onComplete: (energy: EnergyLevel,
                     ← Atrás
                   </Button>
                   <Button onClick={handleComplete}>
-                    Ver recomendación
+                    ¡Muéstrame!
                   </Button>
                 </div>
                 <button

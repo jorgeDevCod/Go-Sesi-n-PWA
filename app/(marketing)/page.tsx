@@ -220,7 +220,7 @@ export default function MarketingHomePage() {
         </section>
 
         {/* Demo interactiva */}
-        <section className="mx-auto w-full max-w-md px-4 py-12">
+        <section className="mx-auto w-full max-w-md px-4 py-4">
           <EnergyDemo />
         </section>
 
@@ -319,7 +319,7 @@ export default function MarketingHomePage() {
         </section>
 
         <footer className="border-t border-border px-4 py-8 text-center text-sm text-muted-foreground">
-          Go — Tu siguiente paso, sin fricción.
+          Go Sesión - Tu Aliado para empezar @2026.
         </footer>
       </main>
     </div>
