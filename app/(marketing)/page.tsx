@@ -94,19 +94,24 @@ const TRACKING = [
 
 const STEPS = [
   {
+    title: "Regístrate e inicia sesión",
+    description:
+      "Crea tu cuenta gratis y entra en segundos. Solo te pedimos lo esencial para arrancar.",
+  },
+  {
     title: "Entra a tu espacio",
     description:
-      "Regístrate gratis. Al entrar eliges cómo empezar: personalizar, planificar, conocer la app o ir directo a lo tuyo.",
+      "Una vez dentro, elige cómo empezar: personalizar, planificar, conocer la app o ir directo a lo tuyo.",
   },
   {
     title: "Arma tu plan del día",
     description:
-      "Elige categorías y actividades por sesiones. Se muestran como desplegables en tu Home con su estado: En curso, En espera o Realizada.",
+      "Elige categorías y actividades por sesiones. Se ven en tu Home con su estado: En curso, En espera o Realizada.",
   },
   {
     title: "Inicia una sesión",
     description:
-      "Elige la duración y arranca. Pausa, reanuda y extiende cuando quieras. Go registra el tiempo real de cada sesión.",
+      "Define la duración y arranca. Pausa, reanuda y extiende cuando quieras. Go registra el tiempo real.",
   },
   {
     title: "Deja que Go te recomiende",
@@ -116,12 +121,12 @@ const STEPS = [
   {
     title: "Personaliza lo que quieras",
     description:
-      "Ajusta energía, dificultad, tiempos y recomendaciones por categoría. Todo se adapta a cómo te sientes hoy.",
+      "Ajusta energía, dificultad, tiempos y recomendaciones por categoría. Todo se adapta a ti.",
   },
   {
     title: "Revisa tu historial",
     description:
-      "Cada sesión queda registrada por día: duración, si la completaste o interrumpiste y cuánto extendiste. Tu constancia, visible.",
+      "Cada sesión queda registrada: duración, si la completaste o interrumpiste y cuánto extendiste.",
   },
   {
     title: "Llévala contigo",
