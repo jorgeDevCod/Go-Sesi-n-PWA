@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Work_Sans, Plus_Jakarta_Sans, Outfit, JetBrains_Mono } from "next/font/google";
+import { Work_Sans, Poppins, Inter, JetBrains_Mono } from "next/font/google";
 import { MotionConfig } from "framer-motion";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { ServiceWorkerRegistration } from "@/components/pwa/ServiceWorkerRegistration";
@@ -12,18 +12,18 @@ const workSans = Work_Sans({
   weight: ["400", "500", "600", "700"],
 });
 
-// Tipografía base (cuerpo, landing, descripciones). Limpia y legible.
-const plusJakartaSans = Plus_Jakarta_Sans({
-  variable: "--font-plus-jakarta",
+// Display / headlines: Poppins 700.
+const poppins = Poppins({
+  variable: "--font-poppins",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  weight: ["700"],
 });
 
-// Tipografía limpia y equilibrada: títulos, descripciones, cuerpo y encabezados.
-const outfit = Outfit({
-  variable: "--font-outfit",
+// Subheadings (600) y body (400): Inter.
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  weight: ["400", "500", "600"],
 });
 
 // Mono (números de reloj/temporizador y código).
@@ -87,7 +87,7 @@ export default function RootLayout({
     <html
       lang="es"
       suppressHydrationWarning
-      className={`${workSans.variable} ${plusJakartaSans.variable} ${outfit.variable} ${jetbrainsMono.variable} h-full antialiased`}
+      className={`${workSans.variable} ${poppins.variable} ${inter.variable} ${jetbrainsMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <ThemeProvider

@@ -128,10 +128,11 @@
   --color-accent-trabajo: var(--accent-trabajo);
   --color-accent-trabajo-hover: var(--accent-trabajo-hover);
 
-  --font-sans: var(--font-outfit);
+  --font-sans: var(--font-inter);
   --font-work: var(--font-work-sans);
-  --font-display: var(--font-outfit);
-  --font-plus-jakarta: var(--font-plus-jakarta);
+  --font-display: var(--font-poppins);
+  --font-inter: var(--font-inter);
+  --font-poppins: var(--font-poppins);
   --font-mono: var(--font-geist-mono);
 }
 

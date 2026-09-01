@@ -159,7 +159,7 @@ const FAQS = [
 
 export default function MarketingHomePage() {
   return (
-    <div className="font-plus-jakarta">
+    <div className="font-sans">
       <header className="flex items-center justify-between border-b border-border px-4 py-3 sm:px-6">
         <Link href="/" aria-label="Go — Ir al inicio" title="Go">
           <Logo />
@@ -178,16 +178,15 @@ export default function MarketingHomePage() {
       <main className="flex flex-col">
         {/* Hero */}
         <section className="mx-auto flex w-full max-w-3xl flex-col items-center gap-6 px-4 py-16 text-center">
-          <h1 className="max-w-2xl text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
+          <h1 className="font-display max-w-2xl text-4xl font-bold leading-tight tracking-[0.02em] text-foreground sm:text-5xl">
             Go Sesión
-            <br />
           </h1>
 
-          <p className="max-w-xl text-lg leading-relaxed text-muted-foreground py-2">
+          <p className="max-w-xl text-lg font-normal leading-[1.6] text-muted-foreground py-2">
             Es una plataforma diseñada para eliminar la fricción de empezar con tus planes, reducir la saturación y dejar atrás la culpa de no saber cómo iniciar, sin quedarte atrapado sobrepensando.
           </p>
 
-          <p className="text-base font-semibold text-foreground">Tú eliges cómo quieres empezar:</p>
+          <p className="text-base font-medium text-foreground">Tú eliges cómo quieres empezar:</p>
 
           <div className="flex flex-wrap items-stretch justify-center gap-3">
             {[
@@ -205,8 +204,8 @@ export default function MarketingHomePage() {
             ))}
           </div>
 
-          <p className="max-w-md text-sm leading-relaxed text-muted-foreground">
-            Personaliza tus experiencia y recomendaciones: Por energía, dificultad y disponibilidad. Go se adapta a ti.
+          <p className="max-w-md text-sm font-normal leading-[1.6] text-muted-foreground">
+            Personaliza tu experiencia y recomendaciones: por energía, dificultad y disponibilidad. Go se adapta a ti.
           </p>
 
           <div className="flex flex-wrap items-center justify-center gap-3">
@@ -222,10 +221,10 @@ export default function MarketingHomePage() {
 
         {/* Personalización */}
         <section className="mx-auto w-full max-w-4xl px-4 py-12">
-          <h2 className="mb-2 text-center text-2xl font-semibold text-foreground">
+          <h2 className="font-display mb-2 text-center text-3xl font-bold leading-tight tracking-[0.02em] text-foreground">
             Todo se adapta a ti
           </h2>
-          <p className="mb-8 text-center text-sm text-muted-foreground">
+          <p className="mb-8 text-center text-sm font-normal leading-[1.6] text-muted-foreground">
             Ajusta energía, dificultad, tiempos y recomendaciones. Go se moldea a cómo te sientes cada día.
           </p>
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -238,7 +237,7 @@ export default function MarketingHomePage() {
                   <item.icon className="size-5" />
                 </span>
                 <h3 className="mb-1.5 text-base font-semibold text-foreground">{item.title}</h3>
-                <p className="text-sm leading-relaxed text-muted-foreground">{item.description}</p>
+                <p className="text-sm font-normal leading-[1.6] text-muted-foreground">{item.description}</p>
               </div>
             ))}
           </div>
@@ -246,10 +245,10 @@ export default function MarketingHomePage() {
 
         {/* Medición e historial */}
         <section className="mx-auto w-full max-w-4xl px-4 py-12">
-          <h2 className="mb-2 text-center text-2xl font-semibold text-foreground">
+          <h2 className="font-display mb-2 text-center text-3xl font-bold leading-tight tracking-[0.02em] text-foreground">
             Mide tu avance, celebra cada paso
           </h2>
-          <p className="mb-8 text-center text-sm text-muted-foreground">
+          <p className="mb-8 text-center text-sm font-normal leading-[1.6] text-muted-foreground">
             Go no solo te ayuda a empezar: también registra tu constancia para que veas cuánto has avanzado, sin presión.
           </p>
           <div className="grid gap-5 sm:grid-cols-2">
@@ -263,7 +262,7 @@ export default function MarketingHomePage() {
                 </span>
                 <div>
                   <h3 className="mb-1 text-base font-semibold text-foreground">{item.title}</h3>
-                  <p className="text-sm text-muted-foreground">{item.description}</p>
+                  <p className="text-sm font-normal leading-[1.6] text-muted-foreground">{item.description}</p>
                 </div>
               </div>
             ))}
@@ -272,10 +271,10 @@ export default function MarketingHomePage() {
 
         {/* Cómo usar */}
         <section className="mx-auto w-full max-w-3xl px-4 py-12">
-          <h2 className="mb-2 text-center text-2xl font-semibold text-foreground">
+          <h2 className="font-display mb-2 text-center text-3xl font-bold leading-tight tracking-[0.02em] text-foreground">
             Cómo funciona Go
           </h2>
-          <p className="mb-8 text-center text-sm text-muted-foreground">
+          <p className="mb-8 text-center text-sm font-normal leading-[1.6] text-muted-foreground">
             Paso a paso para empezar a fluir en minutos.
           </p>
           <ol className="flex flex-col gap-4">
@@ -285,8 +284,8 @@ export default function MarketingHomePage() {
                   {index + 1}
                 </span>
                 <div className="rounded-2xl border border-border bg-surface p-5">
-                  <h3 className="mb-1 font-semibold text-foreground">{step.title}</h3>
-                  <p className="text-sm text-muted-foreground">{step.description}</p>
+                  <h3 className="mb-1 text-base font-semibold text-foreground">{step.title}</h3>
+                  <p className="text-sm font-normal leading-[1.6] text-muted-foreground">{step.description}</p>
                 </div>
               </li>
             ))}
@@ -298,14 +297,14 @@ export default function MarketingHomePage() {
 
         {/* FAQ */}
         <section className="mx-auto w-full max-w-2xl px-4 py-12">
-          <h2 className="mb-6 text-center text-2xl font-semibold text-foreground">
+          <h2 className="font-display mb-6 text-center text-3xl font-bold leading-tight tracking-[0.02em] text-foreground">
             Preguntas frecuentes
           </h2>
           <div className="flex flex-col gap-4">
             {FAQS.map((faq) => (
               <div key={faq.question} className="rounded-2xl border border-border p-5">
-                <h3 className="mb-1 font-semibold text-foreground">{faq.question}</h3>
-                <p className="text-sm text-muted-foreground">{faq.answer}</p>
+                <h3 className="mb-1 text-base font-semibold text-foreground">{faq.question}</h3>
+                <p className="text-sm font-normal leading-[1.6] text-muted-foreground">{faq.answer}</p>
               </div>
             ))}
           </div>
