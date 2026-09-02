@@ -256,7 +256,8 @@ export default function MarketingHomePage() {
           </h1>
 
           <p className="max-w-xl text-lg font-normal leading-[1.6] text-muted-foreground py-2">
-            Una plataforma creada para pasar de la intención a la acción, reducir la procrastinación y avanzar a tu ritmo, en un espacio pensado para ti. <a className="link-primary" href="/register" target="_blank" rel="noopener noreferrer">¡Ingresa Ya!</a>
+            Una plataforma creada para pasar de la intención a la acción, reducir la procrastinación y avanzar a tu ritmo, en un espacio pensado para ti.
+            <a className="link-primary" href="/register" target="_blank" rel="noopener noreferrer">¡Ingresa Ya!</a>
           </p>
 
           <p className="text-base font-medium text-foreground">Tú eliges cómo quieres empezar:</p>
@@ -285,6 +286,30 @@ export default function MarketingHomePage() {
             <EnterCta className="mt-2" />
           </div>
           <LandingActions />
+        </section>
+
+        {/* Beneficios */}
+        <section className="mx-auto w-full max-w-4xl px-4 py-12">
+          <h2 className="font-display mb-2 text-center text-3xl font-bold leading-tight tracking-[0.02em] text-foreground">
+            Lo que Go Sesión hace por ti
+          </h2>
+          <p className="mb-8 text-center text-sm font-normal leading-[1.6] text-muted-foreground">
+            Una herramienta para avanzar sin fricción, adaptarse a tu energía y dejar de sobrepensar.
+          </p>
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {BENEFITS.map((item) => (
+              <div
+                key={item.title}
+                className="flex flex-col items-start gap-3 rounded-3xl border border-border bg-surface p-6 text-left transition-all duration-200 hover:border-border-hover hover:shadow-md"
+              >
+                <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-accent-aprender/10 text-accent-aprender">
+                  <item.icon className="size-5" />
+                </span>
+                <h3 className="text-base font-semibold text-foreground">{item.title}</h3>
+                <p className="text-sm font-normal leading-[1.6] text-muted-foreground">{item.description}</p>
+              </div>
+            ))}
+          </div>
         </section>
 
         {/* Demo interactiva */}
@@ -363,30 +388,6 @@ export default function MarketingHomePage() {
                   <h3 className="mb-1 text-base font-semibold text-foreground">{item.title}</h3>
                   <p className="text-sm font-normal leading-[1.6] text-muted-foreground">{item.description}</p>
                 </div>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* Beneficios */}
-        <section className="mx-auto w-full max-w-4xl px-4 py-12">
-          <h2 className="font-display mb-2 text-center text-3xl font-bold leading-tight tracking-[0.02em] text-foreground">
-            Lo que Go Sesión hace por ti
-          </h2>
-          <p className="mb-8 text-center text-sm font-normal leading-[1.6] text-muted-foreground">
-            Una herramienta para avanzar sin fricción, adaptarse a tu energía y dejar de sobrepensar.
-          </p>
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {BENEFITS.map((item) => (
-              <div
-                key={item.title}
-                className="flex flex-col items-start gap-3 rounded-3xl border border-border bg-surface p-6 text-left transition-all duration-200 hover:border-border-hover hover:shadow-md"
-              >
-                <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-accent-aprender/10 text-accent-aprender">
-                  <item.icon className="size-5" />
-                </span>
-                <h3 className="text-base font-semibold text-foreground">{item.title}</h3>
-                <p className="text-sm font-normal leading-[1.6] text-muted-foreground">{item.description}</p>
               </div>
             ))}
           </div>
