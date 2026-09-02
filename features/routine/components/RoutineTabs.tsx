@@ -41,7 +41,7 @@ export function RoutineTabs({
     <div className="flex flex-col gap-6">
       <div>
         <h1 className="font-display text-3xl font-bold text-foreground">
-          Personaliza tu rutina
+          Personaliza tu Experiencia
         </h1>
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
           Aquí armamos juntos cómo Go Sesión te recomendará actividades. Elige tus categorías,
