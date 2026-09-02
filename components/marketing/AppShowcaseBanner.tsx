@@ -355,7 +355,7 @@ export function AppShowcaseBanner() {
   useEffect(() => {
     const id = setInterval(() => {
       if (!pausedRef.current) next();
-    }, 6000);
+    }, 10000);
     return () => clearInterval(id);
   }, [next]);
 

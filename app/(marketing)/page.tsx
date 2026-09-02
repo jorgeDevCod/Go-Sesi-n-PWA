@@ -27,6 +27,7 @@ import { LandingActions } from "@/components/marketing/LandingActions";
 import { EnterCta } from "@/components/marketing/EnterCta";
 import { EnergyDemo } from "@/components/marketing/EnergyDemo";
 import { AppShowcaseBanner } from "@/components/marketing/AppShowcaseBanner";
+import { AppHeroMockup } from "@/components/marketing/AppHeroMockup";
 
 const CUSTOMIZE = [
   {
@@ -262,10 +263,14 @@ export default function MarketingHomePage() {
           </p>
 
           <div className="w-full">
+            <AppHeroMockup />
+          </div>
+
+          <div className="w-full">
             <AppShowcaseBanner />
           </div>
 
-          <p className="text-base font-medium text-foreground">Tú eliges cómo quieres empezar:</p>
+          <p className="text-base font-medium text-foreground">Tú eliges cómo quieres empezar</p>
 
           <div className="flex flex-wrap items-stretch justify-center gap-3">
             {[

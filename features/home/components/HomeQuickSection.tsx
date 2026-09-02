@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Play, House } from "lucide-react";
+import { Play, House, X } from "lucide-react";
 import { DynamicIcon } from "@/components/ui/DynamicIcon";
 import { cn } from "@/lib/utils";
 import { COMPLEXITY_LABELS } from "@/services/recommendation/energy-level";
@@ -90,9 +90,9 @@ export function HomeQuickSection() {
               onClick={() => remove(item.subcategoryId)}
               aria-label={`Quitar ${item.subcategoryName} del inicio`}
               title="Quitar del inicio"
-              className="absolute -top-1.5 -right-1.5 flex size-5 cursor-pointer items-center justify-center rounded-full border border-border bg-surface text-muted-foreground opacity-0 shadow-sm transition-opacity duration-200 group-hover:opacity-100 hover:border-red-200 hover:bg-red-50 hover:text-red-500 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 dark:hover:border-red-900 dark:hover:bg-red-950"
+              className="absolute -top-2 -right-2 flex size-6 cursor-pointer items-center justify-center rounded-full border border-border bg-surface text-muted-foreground shadow-sm transition-all duration-200 hover:border-red-200 hover:bg-red-50 hover:text-red-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 dark:hover:border-red-900 dark:hover:bg-red-950"
             >
-              <House className="size-3" />
+              <X className="size-3.5" />
             </button>
           </div>
         ))}
