@@ -213,13 +213,13 @@ export function CategoryHomeGrid({
           Bienvenido a tu espacio personal, donde Iniciar es más fácil. ⭐
         </h1>
         <p className="max-w-md text-sm leading-relaxed text-muted-foreground my-2">
-          Elige la categoría en la que quieres iniciar - Planifica tus Actividades - Dejar que Go te recomiende algó sefún tu energia.
+          Un espacio donde podrás Iniciar o crear tus actividades facilmente.
         </p>
       </div>
 
       {/* Energy selector */}
       <div className="flex flex-col gap-2">
-        <p className="font-display text-sm font-semibold text-foreground my-6 text-center">
+        <p className="font-display text-sm font-semibold text-foreground my-4 text-center">
           ¿Cómo está tu energía hoy? Elige el nivel que mejor te represente.
         </p>
         <div className="flex gap-2">
