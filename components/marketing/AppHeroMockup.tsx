@@ -294,10 +294,86 @@ export function AppHeroMockup() {
                       </div>
                     </div>
                   ))}
+              </div>
+            </div>
+
+            {/* Fila 2: Personalizar experiencia — ancho completo */}
+            <div className="sm:col-span-2 flex flex-col gap-2 rounded-xl border border-border bg-background p-3">
+              <p className="text-xs font-bold text-foreground">Personalizar experiencia</p>
+              <p className="text-[9px] text-muted-foreground">
+                Elige tus categorías, actividades, niveles de energía y tiempos ideales.
+              </p>
+              <div className="flex gap-1 justify-center">
+                {[
+                  { label: "Categorías", icon: Layers, active: false },
+                  { label: "Actividades", icon: ListChecks, active: false },
+                  { label: "Recomendaciones", icon: Wand2, active: true },
+                ].map((t) => (
+                  <span
+                    key={t.label}
+                    className={cn(
+                      "flex items-center gap-1 rounded-full border px-2 py-1 text-[9px] font-medium",
+                      t.active ? "border-foreground bg-foreground text-background" : "border-border bg-surface text-foreground",
+                    )}
+                  >
+                    <t.icon className="size-3" />
+                    {t.label}
+                  </span>
+                ))}
+              </div>
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+                <div className="grid grid-cols-3 gap-1">
+                  {(["baja", "media", "alta"] as const).map((lvl) => {
+                    const active = lvl === "media";
+                    const color = ENERGY_COLORS[lvl];
+                    return (
+                      <div
+                        key={lvl}
+                        className={cn(
+                          "flex flex-col items-center gap-0.5 rounded-lg border px-1 py-1.5",
+                          active ? "border-transparent text-white" : "border-border bg-surface",
+                        )}
+                        style={active ? { backgroundColor: color } : undefined}
+                      >
+                        <BatteryMedium className="size-3" style={{ color: active ? "#fff" : color }} />
+                        <span className="text-[9px] capitalize">{lvl}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+                <div className="grid grid-cols-3 gap-1">
+                  {["Ligera", "Moderada", "Intensa"].map((d, i) => (
+                    <div
+                      key={d}
+                      className={cn(
+                        "rounded-lg border px-1 py-1 text-center text-[9px] font-semibold",
+                        i === 1 ? "border-accent-aprender bg-accent-aprender/10 text-accent-aprender" : "border-border bg-surface text-foreground",
+                      )}
+                    >
+                      {d}
+                    </div>
+                  ))}
+                </div>
+                <div className="flex items-center gap-1">
+                  {TIME_CHIPS.map((t) => (
+                    <span key={t.label} className="flex items-center gap-1 rounded-full border border-border bg-surface px-1.5 py-1">
+                      <span className="text-[9px] font-semibold text-foreground">{t.label}</span>
+                      <span className="rounded-full px-1.5 py-0.5 text-[7px] font-bold text-white" style={{ backgroundColor: t.color }}>
+                        {t.tag}
+                      </span>
+                      <Pencil className="size-2.5 text-muted-foreground" />
+                      <X className="size-2.5 text-muted-foreground" />
+                    </span>
+                  ))}
+                  <span className="flex items-center gap-1 rounded-full border border-dashed border-border px-1.5 py-1 text-[8px] text-muted-foreground">
+                    <Plus className="size-2.5" />
+                    Agregar
+                  </span>
                 </div>
               </div>
+            </div>
 
-            {/* Fila 2: Planificación + Recomendaciones */}
+            {/* Fila 3: Planificación + Recomendaciones */}
               {/* Planificación */}
               <div className="flex flex-col gap-2 rounded-xl border border-border bg-background p-3">
                 <p className="text-xs font-bold text-foreground">Planificación</p>
@@ -421,81 +497,6 @@ export function AppHeroMockup() {
                 </div>
               </div>
 
-            {/* Fila 3: Personalizar experiencia — ancho completo */}
-            <div className="sm:col-span-2 flex flex-col gap-2 rounded-xl border border-border bg-background p-3">
-              <p className="text-xs font-bold text-foreground">Personalizar experiencia</p>
-              <p className="text-[9px] text-muted-foreground">
-                Elige tus categorías, actividades, niveles de energía y tiempos ideales.
-              </p>
-              <div className="flex gap-1 justify-center">
-                {[
-                  { label: "Categorías", icon: Layers, active: false },
-                  { label: "Actividades", icon: ListChecks, active: false },
-                  { label: "Recomendaciones", icon: Wand2, active: true },
-                ].map((t) => (
-                  <span
-                    key={t.label}
-                    className={cn(
-                      "flex items-center gap-1 rounded-full border px-2 py-1 text-[9px] font-medium",
-                      t.active ? "border-foreground bg-foreground text-background" : "border-border bg-surface text-foreground",
-                    )}
-                  >
-                    <t.icon className="size-3" />
-                    {t.label}
-                  </span>
-                ))}
-              </div>
-              <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-                <div className="grid grid-cols-3 gap-1">
-                  {(["baja", "media", "alta"] as const).map((lvl) => {
-                    const active = lvl === "media";
-                    const color = ENERGY_COLORS[lvl];
-                    return (
-                      <div
-                        key={lvl}
-                        className={cn(
-                          "flex flex-col items-center gap-0.5 rounded-lg border px-1 py-1.5",
-                          active ? "border-transparent text-white" : "border-border bg-surface",
-                        )}
-                        style={active ? { backgroundColor: color } : undefined}
-                      >
-                        <BatteryMedium className="size-3" style={{ color: active ? "#fff" : color }} />
-                        <span className="text-[9px] capitalize">{lvl}</span>
-                      </div>
-                    );
-                  })}
-                </div>
-                <div className="grid grid-cols-3 gap-1">
-                  {["Ligera", "Moderada", "Intensa"].map((d, i) => (
-                    <div
-                      key={d}
-                      className={cn(
-                        "rounded-lg border px-1 py-1 text-center text-[9px] font-semibold",
-                        i === 1 ? "border-accent-aprender bg-accent-aprender/10 text-accent-aprender" : "border-border bg-surface text-foreground",
-                      )}
-                    >
-                      {d}
-                    </div>
-                  ))}
-                </div>
-                <div className="flex items-center gap-1">
-                  {TIME_CHIPS.map((t) => (
-                    <span key={t.label} className="flex items-center gap-1 rounded-full border border-border bg-surface px-1.5 py-1">
-                      <span className="text-[9px] font-semibold text-foreground">{t.label}</span>
-                      <span className="rounded-full px-1.5 py-0.5 text-[7px] font-bold text-white" style={{ backgroundColor: t.color }}>
-                        {t.tag}
-                      </span>
-                      <Pencil className="size-2.5 text-muted-foreground" />
-                      <X className="size-2.5 text-muted-foreground" />
-                    </span>
-                  ))}
-                  <span className="flex items-center gap-1 rounded-full border border-dashed border-border px-1.5 py-1 text-[8px] text-muted-foreground">
-                    <Plus className="size-2.5" />
-                    Agregar
-                  </span>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </div>
