@@ -5,6 +5,8 @@ import {
   BatteryMedium,
   CalendarCheck2,
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
   House,
   Layers,
   ListChecks,
@@ -469,6 +471,57 @@ export function AppHeroMockup() {
                       </div>
                     </div>
                   ))}
+                </div>
+
+                {/* Flechas de navegación + scrollbar */}
+                <div className="flex items-center justify-between">
+                  <span className="flex gap-1">
+                    <span className="flex size-5 items-center justify-center rounded-full border border-border text-muted-foreground"><ChevronLeft className="size-3" /></span>
+                    <span className="flex size-5 items-center justify-center rounded-full border border-border text-muted-foreground"><ChevronRight className="size-3" /></span>
+                  </span>
+                  <span className="h-1 flex-1 rounded-full bg-border">
+                    <span className="block h-1 w-1/3 rounded-full bg-accent-aprender" />
+                  </span>
+                </div>
+
+                {/* Input "¿Tienes algo más en mente?" */}
+                <div className="flex flex-col gap-1">
+                  <span className="text-[9px] text-muted-foreground">¿Tienes algo más en mente? Escribelo aquí.</span>
+                  <div className="flex items-center gap-1.5 rounded-lg border border-border bg-surface px-2 py-1.5">
+                    <span className="text-[9px] text-muted-foreground">ej: leer, estirar, revisar el presupuesto...</span>
+                  </div>
+                </div>
+
+                {/* Ocultar todas mis opciones + categoría desplegable */}
+                <div className="flex items-center gap-1 text-[9px] font-semibold text-foreground">
+                  <span className="flex items-center gap-1"><ChevronDown className="size-3 text-muted-foreground" /> Ocultar todas mis opciones</span>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <div className="flex items-center gap-2 rounded-lg border border-border bg-surface px-2 py-1.5">
+                    <span className="flex size-5 items-center justify-center rounded" style={{ backgroundColor: `${CATEGORY_TABS[0].color}22`, color: CATEGORY_TABS[0].color }}>
+                      <DynamicIcon name={CATEGORY_TABS[0].icon} className="size-3" />
+                    </span>
+                    <span className="min-w-0 flex-1 text-[10px] font-medium text-foreground">Aprender</span>
+                    <span className="text-[8px] text-muted-foreground">16 actividades</span>
+                    <ChevronDown className="size-3 text-muted-foreground" />
+                    <Plus className="size-3 text-muted-foreground" />
+                  </div>
+                  <div className="grid grid-cols-2 gap-1.5">
+                    {ACTIVITY_CARDS.slice(0, 2).map((a) => (
+                      <div key={a.name} className="flex items-center gap-1.5 rounded-lg border border-border bg-surface px-1.5 py-1.5">
+                        <span className="flex size-5 shrink-0 items-center justify-center rounded" style={{ backgroundColor: `${a.color}22`, color: a.color }}>
+                          <DynamicIcon name={a.icon} className="size-3" />
+                        </span>
+                        <span className="min-w-0 flex-1">
+                          <span className="block truncate text-[9px] font-medium text-foreground">{a.name}</span>
+                          <span className="block text-[7px] text-muted-foreground">Aprender</span>
+                        </span>
+                        <span className="shrink-0 rounded-full bg-accent-aprender/10 px-1.5 py-0.5 text-[7px] font-semibold text-accent-aprender">
+                          {a.difficulty}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </motion.div>
             </div>
