@@ -26,6 +26,7 @@ import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { LandingActions } from "@/components/marketing/LandingActions";
 import { EnterCta } from "@/components/marketing/EnterCta";
 import { EnergyDemo } from "@/components/marketing/EnergyDemo";
+import { AppShowcaseBanner } from "@/components/marketing/AppShowcaseBanner";
 
 const CUSTOMIZE = [
   {
@@ -259,6 +260,10 @@ export default function MarketingHomePage() {
             Una plataforma creada para pasar de la intención a la acción, reducir la procrastinación y avanzar a tu ritmo, en un espacio pensado para ti.
             <a className="link-primary" href="/register" target="_blank" rel="noopener noreferrer">¡Ingresa Ya!</a>
           </p>
+
+          <div className="w-full">
+            <AppShowcaseBanner />
+          </div>
 
           <p className="text-base font-medium text-foreground">Tú eliges cómo quieres empezar:</p>
 
