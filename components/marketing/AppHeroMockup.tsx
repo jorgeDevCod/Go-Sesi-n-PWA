@@ -96,8 +96,8 @@ export function AppHeroMockup() {
 
   return (
     <div className="relative mx-auto w-full max-w-5xl">
-      {/* Etiquetas flotantes de funciones — solo visible desde >=sm */}
-      <div className="pointer-events-none absolute -top-4 left-1/2 z-10 hidden w-auto -translate-x-1/2 flex-wrap justify-center gap-2 sm:top-0 sm:flex">
+      {/* Etiquetas flotantes de funciones — solo visible en pantallas grandes */}
+      <div className="pointer-events-none absolute -top-4 left-1/2 z-10 hidden w-auto -translate-x-1/2 flex-wrap justify-center gap-2 lg:top-0 lg:flex">
         {FEATURES.map((f) => (
           <span
             key={f.label}
@@ -110,7 +110,7 @@ export function AppHeroMockup() {
       </div>
 
       {/* Imagen de fondo */}
-      <div className="overflow-hidden rounded-3xl border border-border bg-background p-4 pb-6 shadow-2xl sm:p-4 sm:pb-6">
+      <div className="rounded-3xl border border-border bg-background p-4 pb-6 shadow-2xl sm:p-4 sm:pb-6">
         <div className="rounded-2xl border border-border bg-surface shadow-inner">
           {/* Encabezado tipo app */}
           <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3">
@@ -170,11 +170,10 @@ export function AppHeroMockup() {
             </div>
           </div>
 
-          <div className="flex flex-col gap-3 p-3">
+          <div className="flex gap-3 overflow-x-auto p-3 snap-x snap-mandatory min-[640px]:grid min-[640px]:grid-cols-2 min-[640px]:overflow-visible">
             {/* Fila 1: Home + Actividades */}
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              {/* Home compacta */}
-              <div className="flex flex-col gap-2 rounded-xl border border-border bg-background p-3">
+            {/* Home compacta */}
+              <div className="flex min-w-[85%] shrink-0 snap-center flex-col gap-2 rounded-xl border-2 border-border bg-background p-3 min-[640px]:min-w-0 min-[640px]:shrink min-[640px]:border min-[640px]:border-border">
                 <p className="text-xs font-bold text-foreground">Home</p>
                 <p className="text-xs font-semibold text-foreground">¡Hola de nuevo, Jorge!</p>
                 <div className="grid grid-cols-3 gap-1.5">
@@ -217,7 +216,7 @@ export function AppHeroMockup() {
               </div>
 
               {/* Actividades */}
-              <div className="flex flex-col gap-2 rounded-xl border border-border bg-background p-3">
+              <div className="flex min-w-[85%] shrink-0 snap-center flex-col gap-2 rounded-xl border-2 border-border bg-background p-3 min-[640px]:min-w-0 min-[640px]:shrink min-[640px]:border min-[640px]:border-border">
                 <p className="text-xs font-bold text-foreground">Tus Actividades</p>
                 <div className="flex flex-wrap gap-1">
                   {["Aprender", "Salud", "Entrenamiento", "Diversión"].map((c, i) => (
@@ -278,12 +277,10 @@ export function AppHeroMockup() {
                   ))}
                 </div>
               </div>
-            </div>
 
             {/* Fila 2: Planificación + Recomendaciones */}
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               {/* Planificación */}
-              <div className="flex flex-col gap-2 rounded-xl border border-border bg-background p-3">
+              <div className="flex min-w-[85%] shrink-0 snap-center flex-col gap-2 rounded-xl border-2 border-border bg-background p-3 min-[640px]:min-w-0 min-[640px]:shrink min-[640px]:border min-[640px]:border-border">
                 <p className="text-xs font-bold text-foreground">Planificación</p>
                 <p className="text-[9px] text-muted-foreground">Elige categorías y vincula las actividades que harás hoy</p>
                 <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Tus categorías</p>
@@ -344,7 +341,7 @@ export function AppHeroMockup() {
               </div>
 
               {/* Recomendaciones */}
-              <div className="flex flex-col gap-2 rounded-xl border border-border bg-background p-3">
+              <div className="flex min-w-[85%] shrink-0 snap-center flex-col gap-2 rounded-xl border-2 border-border bg-background p-3 min-[640px]:min-w-0 min-[640px]:shrink min-[640px]:border min-[640px]:border-border">
                 <p className="text-xs font-bold text-foreground">Recomendaciones</p>
                 <div className="flex items-center justify-between rounded-lg border border-border bg-surface px-2 py-1.5">
                   <span className="flex items-center gap-1.5">
@@ -404,15 +401,14 @@ export function AppHeroMockup() {
                   </div>
                 </div>
               </div>
-            </div>
 
             {/* Fila 3: Personalizar experiencia */}
-            <div className="flex flex-col gap-2 rounded-xl border border-border bg-background p-3">
+            <div className="flex min-w-[85%] shrink-0 snap-center flex-col gap-2 rounded-xl border-2 border-border bg-background p-3 min-[640px]:min-w-0 min-[640px]:shrink min-[640px]:border min-[640px]:border-border">
               <p className="text-xs font-bold text-foreground">Personalizar experiencia</p>
               <p className="text-[9px] text-muted-foreground">
                 Elige tus categorías, actividades, niveles de energía y tiempos ideales.
               </p>
-              <div className="flex gap-1">
+              <div className="flex gap-1 justify-center">
                 {[
                   { label: "Categorías", icon: Layers, active: false },
                   { label: "Actividades", icon: ListChecks, active: false },
