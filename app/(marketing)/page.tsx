@@ -277,7 +277,7 @@ export default function MarketingHomePage() {
             <AppShowcaseBanner />
           </div>
 
-          <p className="font-display text-center text-2xl font-bold leading-tight tracking-[0.02em] text-foreground">Tú eliges cómo quieres empezar</p>
+          <h2 className="font-display text-center text-2xl font-bold leading-tight tracking-[0.02em] text-foreground">Tú eliges cómo quieres empezar</h2>
 
           <div className="flex flex-wrap items-stretch justify-center gap-3">
             {[
