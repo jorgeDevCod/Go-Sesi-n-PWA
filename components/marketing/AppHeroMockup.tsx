@@ -8,6 +8,7 @@ import {
   ChevronDown,
   ChevronLeft,
   ChevronRight,
+  ChevronUp,
   History,
   House,
   Layers,
@@ -522,6 +523,31 @@ export function AppHeroMockup() {
                   <div className="flex items-center gap-1.5 rounded-lg border border-border bg-surface px-2 py-1.5">
                     <span className="text-[9px] text-muted-foreground">ej: leer, estirar, revisar el presupuesto...</span>
                   </div>
+                </div>
+                <button
+                  type="button"
+                  className="flex w-full items-center gap-1 py-0.5 text-left text-[9px] font-semibold text-foreground"
+                >
+                  Ocultar todas mis opciones
+                  <ChevronUp className="size-3 text-muted-foreground" />
+                </button>
+                <div className="flex flex-col gap-1">
+                  {[
+                    { name: "Aprender", icon: "BookOpen", color: "#6366F1", count: 16 },
+                    { name: "Salud", icon: "HeartPulse", color: "#16A34A", count: 15 },
+                  ].map((c) => (
+                    <div key={c.name} className="flex items-center gap-1.5 rounded-lg border border-border bg-surface px-2 py-1.5">
+                      <span className="flex size-5 shrink-0 items-center justify-center rounded-md" style={{ backgroundColor: `${c.color}22`, color: c.color }}>
+                        <DynamicIcon name={c.icon} className="size-3" />
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-[9px] font-semibold text-foreground">{c.name}</p>
+                        <p className="truncate text-[8px] text-muted-foreground">{c.count} actividades</p>
+                      </div>
+                      <ChevronDown className="size-3.5 text-muted-foreground" />
+                      <Plus className="size-3.5 text-muted-foreground" />
+                    </div>
+                  ))}
                 </div>
               </div>
 
