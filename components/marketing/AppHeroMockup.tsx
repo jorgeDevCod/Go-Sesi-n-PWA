@@ -112,8 +112,8 @@ export function AppHeroMockup() {
       </div>
 
       {/* Imagen de fondo */}
-      <div className="overflow-x-auto rounded-3xl border border-border bg-background p-4 pb-6 shadow-2xl sm:p-4 sm:pb-6">
-        <div className="mx-auto min-w-[1040px] w-full max-w-5xl rounded-2xl border border-border bg-surface shadow-inner">
+      <div className="rounded-3xl border border-border bg-background p-4 pb-6 shadow-2xl sm:p-4 sm:pb-6">
+        <div className="mx-auto w-full max-w-5xl rounded-2xl border border-border bg-surface shadow-inner">
           {/* Encabezado tipo app */}
           <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3">
             <Logo showWordmark />

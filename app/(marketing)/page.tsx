@@ -253,12 +253,12 @@ export default function MarketingHomePage() {
       <main className="flex flex-col">
         {/* Hero */}
         <section className="mx-auto flex w-full max-w-3xl flex-col items-center gap-6 px-4 py-16 text-center">
-          <h1 className="font-display max-w-2xl text-4xl font-bold leading-tight tracking-[0.02em] text-foreground sm:text-5xl">
+          <h1 className="font-display max-w-2xl text-3xl font-bold leading-tight tracking-[0.02em] text-foreground sm:text-4xl md:text-5xl">
             Go Sesión
           </h1>
 
           <p className="max-w-xl text-lg font-normal leading-[1.6] text-muted-foreground py-2">
-            Una plataforma creada para pasar de la intención a la acción, reducir la procrastinación y avanzar a tu ritmo, en un espacio pensado para ti.
+            Una plataforma creada para pasar de la intención a la acción, reducir la procrastinación y avanzar a tu ritmo, en un espacio pensado para ti.{" "}
             <a
               className="font-semibold text-accent-aprender transition-colors duration-200 hover:text-accent-aprender-hover"
               href="/register"
