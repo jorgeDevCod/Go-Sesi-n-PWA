@@ -5,12 +5,21 @@ describe("registerSchema", () => {
   const valid = {
     name: "Usuario",
     email: "usuario@example.com",
-    password: "Abcdef12",
-    confirmPassword: "Abcdef12",
+    password: "Abcdef1!",
+    confirmPassword: "Abcdef1!",
   };
 
   it("accepts a valid payload", () => {
     expect(registerSchema.safeParse(valid).success).toBe(true);
+  });
+
+  it("rejects a password missing a special symbol", () => {
+    const result = registerSchema.safeParse({
+      ...valid,
+      password: "Abcdef12",
+      confirmPassword: "Abcdef12",
+    });
+    expect(result.success).toBe(false);
   });
 
   it("rejects a password shorter than 8 characters", () => {

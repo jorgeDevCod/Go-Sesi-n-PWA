@@ -47,6 +47,9 @@ export function RegisterForm() {
           autoComplete="new-password"
           required
         />
+        <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">
+          La contraseña debe contener: mayúscula, minúscula, número y símbolo especial.
+        </p>
         <FieldError messages={state.fieldErrors?.password} />
       </div>
       <div>
