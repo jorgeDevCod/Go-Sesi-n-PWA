@@ -7,13 +7,30 @@ import {
   ChevronLeft,
   ChevronRight,
   Clock,
+  Gauge,
   ListChecks,
+  Palette,
   Sparkles,
   TrendingUp,
   Zap,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { ENERGY_COLORS } from "@/services/recommendation/energy-level";
+import { ENERGY_COLORS, COMPLEXITY_LABELS } from "@/services/recommendation/energy-level";
+
+const THEME_SWATCHES = [
+  { key: "celeste", label: "Celeste", color: "#e6ebfa" },
+  { key: "verde", label: "Verde", color: "#e8f2e9" },
+  { key: "rosa", label: "Rosa", color: "#f4e2eb" },
+  { key: "humo", label: "Humo", color: "#f2f2f2" },
+  { key: "blanco", label: "Blanco", color: "#ffffff" },
+  { key: "oscuro", label: "Oscuro", color: "#1c1c1f" },
+];
+
+const DIFFICULTIES = [
+  { value: "LOW", label: COMPLEXITY_LABELS.LOW },
+  { value: "MEDIUM", label: COMPLEXITY_LABELS.MEDIUM },
+  { value: "HIGH", label: COMPLEXITY_LABELS.HIGH },
+] as const;
 
 type Slide = {
   id: string;
@@ -219,6 +236,104 @@ const SLIDES: Slide[] = [
         <div className="flex items-center gap-2 rounded-xl border border-border bg-surface px-3 py-2">
           <TrendingUp className="size-4 text-green-500" />
           <span className="text-xs text-muted-foreground">+32 min hoy</span>
+        </div>
+      </div>
+    ),
+  },
+  {
+    id: "mood-difficulty",
+    badge: "Actividades",
+    title: "Dificultad y estado de ánimo por actividad",
+    description:
+      "Cada actividad guarda su dificultad (Ligera, Moderada, Intensa) y el ánimo en el que mejor encaja.",
+    bullets: ["Ligera / Moderada / Intensa", "Energía asociada", "Personalizable"],
+    render: () => (
+      <div className="flex w-full flex-col gap-3">
+        <div className="flex flex-col gap-1.5">
+          <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+            Dificultad
+          </p>
+          <div className="grid grid-cols-3 gap-2">
+            {DIFFICULTIES.map((d) => {
+              const active = d.value === "MEDIUM";
+              return (
+                <div
+                  key={d.value}
+                  className={cn(
+                    "rounded-xl border px-2 py-2 text-center text-xs font-semibold",
+                    active
+                      ? "border-accent-aprender bg-accent-aprender text-white"
+                      : "border-border bg-surface text-foreground",
+                  )}
+                >
+                  {d.label}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+            Estado de ánimo
+          </p>
+          <div className="grid grid-cols-3 gap-2">
+            {(["baja", "media", "alta"] as const).map((level) => {
+              const active = level === "media";
+              const color = ENERGY_COLORS[level];
+              return (
+                <div
+                  key={level}
+                  className={cn(
+                    "flex items-center justify-center gap-1 rounded-xl border px-2 py-2 text-xs font-semibold capitalize",
+                    active ? "border-transparent text-white" : "border-border bg-surface text-foreground",
+                  )}
+                  style={active ? { backgroundColor: color } : undefined}
+                >
+                  {active && <CheckCircle2 className="size-3" />}
+                  {level}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+        <div className="flex items-center gap-2 rounded-xl border border-border bg-surface px-3 py-2">
+          <Gauge className="size-4 text-accent-aprender" />
+          <span className="text-xs text-muted-foreground">
+            Ej.: Leer 20 páginas · Moderada · ánimo medio
+          </span>
+        </div>
+      </div>
+    ),
+  },
+  {
+    id: "themes",
+    badge: "Temas",
+    title: "Tu tema de color, a tu estilo",
+    description:
+      "Elige entre varios ambientes visuales para que Go se sienta como tú, en cualquier momento.",
+    bullets: ["6 temas de color", "Cambia al instante", "Armonioso en toda la app"],
+    render: () => (
+      <div className="flex w-full flex-col gap-2">
+        <div className="grid grid-cols-3 gap-2">
+          {THEME_SWATCHES.map((theme) => (
+            <div
+              key={theme.key}
+              className={cn(
+                "flex flex-col items-center gap-1.5 rounded-xl border border-border bg-surface p-2",
+                theme.key === "celeste" && "ring-2 ring-accent-aprender",
+              )}
+            >
+              <span
+                className="size-8 rounded-lg border border-black/10"
+                style={{ backgroundColor: theme.color }}
+              />
+              <span className="text-[10px] text-muted-foreground">{theme.label}</span>
+            </div>
+          ))}
+        </div>
+        <div className="flex items-center gap-2 rounded-xl border border-border bg-surface px-3 py-2">
+          <Palette className="size-4 text-accent-aprender" />
+          <span className="text-xs text-muted-foreground">Celeste, Verde, Rosa, Humo, Blanco u Oscuro</span>
         </div>
       </div>
     ),
