@@ -9,7 +9,7 @@ import { DurationPicker } from "@/features/session/components/DurationPicker";
 import { ConfirmScreen } from "@/features/session/components/ConfirmScreen";
 import { CountdownOverlay } from "@/features/session/components/CountdownOverlay";
 import { startSessionAction } from "@/features/session/actions/session.actions";
-import { playSoftStartSound } from "@/features/session/session-sound";
+import { playSoftStartSound, unlockAudioContext } from "@/features/session/session-sound";
 import {
   getStoredCountdownSeconds,
   setStoredCountdownSeconds,
@@ -60,6 +60,8 @@ export function StartSessionFlow({
 
   function startSessionNow() {
     if (!minutes) return;
+    // Desbloquea el audio dentro del gesto del usuario (autoplay policy).
+    unlockAudioContext();
     playSoftStartSound();
     // Pedir permiso de notificaciones al iniciar la sesión, para poder avisar
     // al terminar el tiempo o si la app queda en segundo plano.

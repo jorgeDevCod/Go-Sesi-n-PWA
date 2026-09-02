@@ -116,7 +116,7 @@ export function CompletionAlarm({
               className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-2xl bg-accent-aprender px-4 py-3 text-base font-semibold text-white shadow-sm transition-colors duration-200 hover:bg-accent-aprender-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender"
             >
               <Check className="size-5" />
-              Entendido, ¡vamos!
+              ¡Genial! Vamos por más
             </button>
           </motion.div>
         </motion.div>

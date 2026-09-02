@@ -1,5 +1,7 @@
 /** Soft, short tones via Web Audio API-no binary asset to ship. */
 
+let sharedContext: AudioContext | null = null;
+
 function getAudioContextClass(): typeof AudioContext | undefined {
   if (typeof window === "undefined") return undefined;
   return (
@@ -8,11 +10,32 @@ function getAudioContextClass(): typeof AudioContext | undefined {
   );
 }
 
+function getContext(): AudioContext | null {
+  if (!sharedContext) {
+    const AudioContextClass = getAudioContextClass();
+    if (!AudioContextClass) return null;
+    sharedContext = new AudioContextClass();
+  }
+  return sharedContext;
+}
+
+/**
+ * Debe llamarse dentro de un gesto del usuario (p. ej. al iniciar una sesión)
+ * para "desbloquear" el audio. Los navegadores (sobre todo desktop) bloquean
+ * el AudioContext hasta la primera interacción; sin esto, la alarma de fin de
+ * sesión no sonaría.
+ */
+export function unlockAudioContext() {
+  const ctx = getContext();
+  if (ctx && ctx.state === "suspended") {
+    void ctx.resume();
+  }
+}
+
 function playTones(frequencies: number[], noteDurationSec: number) {
   try {
-    const AudioContextClass = getAudioContextClass();
-    if (!AudioContextClass) return;
-    const ctx = new AudioContextClass();
+    const ctx = getContext();
+    if (!ctx) return;
 
     frequencies.forEach((frequency, index) => {
       const startAt = ctx.currentTime + index * noteDurationSec;
@@ -30,9 +53,8 @@ function playTones(frequencies: number[], noteDurationSec: number) {
       oscillator.start(startAt);
       oscillator.stop(startAt + noteDurationSec);
     });
-
-    const totalDurationMs = frequencies.length * noteDurationSec * 1000;
-    setTimeout(() => void ctx.close(), totalDurationMs + 100);
+    // Nota: no cerramos el contexto compartido (los osciladores ya se
+    // auto-detienen al llegar a `oscillator.stop`).
   } catch {
     // Audio is an optional nicety-never let it break the session flow.
   }
@@ -49,14 +71,14 @@ export function playSoftCompletionSound() {
  * callback. No-op if Web Audio is unavailable.
  */
 export function playCompletionAlarm(durationSec: number): () => void {
-  const AudioContextClass = getAudioContextClass();
-  if (!AudioContextClass) return () => {};
+  const ctx = getContext();
+  if (!ctx) return () => {};
+  // Reanuda por si el navegador lo dejó suspendido (autoplay policy).
+  if (ctx.state === "suspended") void ctx.resume();
 
-  let ctx: AudioContext | null = null;
   let stopped = false;
 
   try {
-    ctx = new AudioContextClass();
     const beep = () => {
       if (!ctx || stopped) return;
       const now = ctx.currentTime;
@@ -83,12 +105,10 @@ export function playCompletionAlarm(durationSec: number): () => void {
       stopped = true;
       clearInterval(interval);
       clearTimeout(timeout);
-      void ctx?.close();
     }
 
     return stop;
   } catch {
-    void ctx?.close();
     return () => {};
   }
 }
