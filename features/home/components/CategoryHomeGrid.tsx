@@ -209,10 +209,10 @@ export function CategoryHomeGrid({
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-4">
       {/* Title */}
       <div className="flex flex-col items-center gap-2 text-center">
-        <h1 className="font-display text-2xl font-bold leading-tight tracking-tight text-foreground sm:text-4xl mb-6">
+        <h1 className="font-display text-2xl font-bold leading-tight tracking-tight text-foreground sm:text-4xl">
           Bienvenido a tu espacio personal, donde Iniciar es más fácil. ⭐
         </h1>
-        <p className="max-w-md text-sm leading-relaxed text-muted-foreground my-2">
+        <p className="max-w-md text-sm leading-relaxed text-muted-foreground">
           Un espacio donde podrás Iniciar o crear tus actividades facilmente.
         </p>
       </div>
