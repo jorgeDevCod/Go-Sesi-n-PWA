@@ -259,7 +259,14 @@ export default function MarketingHomePage() {
 
           <p className="max-w-xl text-lg font-normal leading-[1.6] text-muted-foreground py-2">
             Una plataforma creada para pasar de la intención a la acción, reducir la procrastinación y avanzar a tu ritmo, en un espacio pensado para ti.
-            <a className="link-primary" href="/register" target="_blank" rel="noopener noreferrer">¡Ingresa Ya!</a>
+            <a
+              className="font-semibold text-accent-aprender transition-colors duration-200 hover:text-accent-aprender-hover"
+              href="/register"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              ¡Ingresa Ya!
+            </a>
           </p>
 
           <div className="w-full">

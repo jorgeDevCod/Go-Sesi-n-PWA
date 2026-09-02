@@ -5,6 +5,7 @@ import {
   BatteryMedium,
   Gauge,
   CalendarCheck2,
+  Search,
   Sparkles,
   House,
   ListChecks,
@@ -29,6 +30,8 @@ const CATEGORIES = [
   { name: "Finanzas", icon: "Wallet", color: "#D97706", count: 10 },
   { name: "Diversión", icon: "Palette", color: "#D946EF", count: 13 },
 ];
+
+const DIFFICULTIES = ["Ligera", "Moderada", "Intensa"];
 
 const ACTIVITIES = [
   { name: "Leer 20 páginas", icon: "BookOpen", color: "#6366F1", difficulty: "Moderada", energy: "Media" },
@@ -190,8 +193,30 @@ export function AppHeroMockup() {
               >
                 <p className="text-[10px] font-semibold uppercase tracking-wide text-accent-aprender">Actividades</p>
                 <p className="text-[10px] text-muted-foreground">Con dificultad y estado de ánimo</p>
+
+                {/* Barra de búsqueda */}
+                <div className="flex items-center gap-2 rounded-lg border border-border bg-surface px-2 py-1.5">
+                  <Search className="size-3 shrink-0 text-muted-foreground" />
+                  <span className="text-[9px] text-muted-foreground">Buscar actividad...</span>
+                </div>
+
+                {/* Selector de dificultad */}
+                <div className="flex flex-wrap gap-1">
+                  {DIFFICULTIES.map((d, i) => (
+                    <span
+                      key={d}
+                      className={cn(
+                        "rounded-full border px-2 py-0.5 text-[8px] font-semibold",
+                        i === 1 ? "border-accent-aprender bg-accent-aprender text-white" : "border-border bg-surface text-muted-foreground",
+                      )}
+                    >
+                      {d}
+                    </span>
+                  ))}
+                </div>
+
                 <div className="flex flex-col gap-1.5">
-                  {ACTIVITIES.slice(0, 2).map((a) => (
+                  {ACTIVITIES.map((a) => (
                     <div key={a.name} className="flex items-center gap-2 rounded-lg border border-border bg-surface px-2 py-1.5">
                       <span className="flex size-6 items-center justify-center rounded-lg" style={{ backgroundColor: `${a.color}22`, color: a.color }}>
                         <DynamicIcon name={a.icon} className="size-3" />
@@ -200,9 +225,13 @@ export function AppHeroMockup() {
                       <span className="shrink-0 rounded-full bg-accent-aprender/10 px-1.5 py-0.5 text-[8px] font-semibold text-accent-aprender">
                         {a.difficulty}
                       </span>
+                      <span className="shrink-0 rounded-full bg-surface-muted px-1.5 py-0.5 text-[8px] text-muted-foreground">
+                        {a.energy}
+                      </span>
                     </div>
                   ))}
                 </div>
+
                 <div className="flex items-center gap-2 rounded-lg bg-surface-muted px-2 py-1.5">
                   <Gauge className="size-3.5 text-accent-aprender" />
                   <span className="text-[9px] text-muted-foreground">Filtra por energía y dificultad</span>
@@ -218,7 +247,7 @@ export function AppHeroMockup() {
               className="flex flex-col gap-2 rounded-xl border border-border bg-background p-3"
             >
               <p className="text-[10px] font-semibold uppercase tracking-wide text-accent-aprender">Planificación</p>
-              <p className="text-[10px] text-muted-foreground">Tu plan para hoy · una actividad en cada sesión</p>
+              <p className="text-[10px] text-muted-foreground">Tu plan para hoy</p>
               <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3">
                 {PLAN.map((p) => (
                   <div key={p.name} className="flex items-center gap-2 rounded-lg border border-border bg-surface px-2 py-1.5">
