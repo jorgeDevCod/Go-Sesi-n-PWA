@@ -219,7 +219,7 @@ export function CategoryHomeGrid({
 
       {/* Energy selector */}
       <div className="flex flex-col gap-2">
-        <p className="font-display text-sm font-semibold text-foreground my-4 text-center">
+        <p className="font-display text-sm font-semibold text-foreground mb-2 mt-4">
           ¿Cómo está tu energía hoy? Elige el nivel que mejor te represente.
         </p>
         <div className="flex gap-2">
