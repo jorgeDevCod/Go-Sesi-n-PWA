@@ -91,8 +91,10 @@ const TIME_CHIPS = [
 ];
 
 export function AppHeroMockup() {
+  // Solo un panel abierto a la vez. El de temas arranca abierto para mostrar
+  // la capacidad de cerrarlo con una X e interactuar.
   const [menuOpen, setMenuOpen] = useState(false);
-  const [themesOpen, setThemesOpen] = useState(false);
+  const [themesOpen, setThemesOpen] = useState(true);
 
   return (
     <div className="relative mx-auto w-full max-w-5xl">
@@ -110,8 +112,8 @@ export function AppHeroMockup() {
       </div>
 
       {/* Imagen de fondo */}
-      <div className="rounded-3xl border border-border bg-background p-4 pb-6 shadow-2xl sm:p-4 sm:pb-6">
-        <div className="rounded-2xl border border-border bg-surface shadow-inner">
+      <div className="overflow-x-auto rounded-3xl border border-border bg-background p-4 pb-6 shadow-2xl sm:p-4 sm:pb-6">
+        <div className="mx-auto min-w-[1040px] w-full max-w-5xl rounded-2xl border border-border bg-surface shadow-inner">
           {/* Encabezado tipo app */}
           <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3">
             <Logo showWordmark />
@@ -128,7 +130,10 @@ export function AppHeroMockup() {
               <div className="relative">
                 <button
                   type="button"
-                  onClick={() => setThemesOpen((v) => !v)}
+                  onClick={() => {
+                    setMenuOpen(false);
+                    setThemesOpen((v) => !v);
+                  }}
                   aria-label="Cambiar tema"
                   className="flex size-6 cursor-pointer items-center justify-center rounded-full border border-border transition-colors hover:bg-surface-hover"
                 >
@@ -145,8 +150,19 @@ export function AppHeroMockup() {
                       initial={{ opacity: 0, scale: 0.9, y: 8 }}
                       animate={{ opacity: 1, scale: 1, y: 0 }}
                       exit={{ opacity: 0, scale: 0.9, y: 8 }}
-                      className="absolute right-0 top-8 z-30 w-28 rounded-xl border border-border bg-surface p-1.5 shadow-lg"
+                      className="absolute right-0 top-8 z-30 w-32 rounded-xl border border-border bg-surface p-1.5 shadow-lg"
                     >
+                      <div className="mb-1 flex items-center justify-between px-1">
+                        <span className="text-[8px] font-semibold uppercase text-accent-aprender">Temas</span>
+                        <button
+                          type="button"
+                          onClick={() => setThemesOpen(false)}
+                          aria-label="Cerrar temas"
+                          className="flex size-4 cursor-pointer items-center justify-center rounded-full text-muted-foreground hover:bg-surface-hover hover:text-foreground"
+                        >
+                          <X className="size-3" />
+                        </button>
+                      </div>
                       {THEMES.map((t) => (
                         <div key={t.label} className="flex items-center gap-1.5 rounded-lg border border-border bg-surface px-1.5 py-1">
                           <span className="size-3 rounded-full border border-border" style={{ backgroundColor: t.color }} />
@@ -161,7 +177,10 @@ export function AppHeroMockup() {
               {/* Menú hamburguesa interactivo */}
               <button
                 type="button"
-                onClick={() => setMenuOpen(true)}
+                onClick={() => {
+                  setThemesOpen(false);
+                  setMenuOpen(true);
+                }}
                 aria-label="Abrir menú"
                 className="flex size-6 cursor-pointer items-center justify-center rounded-full border border-border transition-colors hover:bg-surface-hover min-[730px]:hidden"
               >
@@ -170,10 +189,10 @@ export function AppHeroMockup() {
             </div>
           </div>
 
-          <div className="flex gap-3 overflow-x-auto p-3 snap-x snap-mandatory min-[640px]:grid min-[640px]:grid-cols-2 min-[640px]:overflow-visible">
+          <div className="grid grid-cols-1 gap-3 p-3 sm:grid-cols-2">
             {/* Fila 1: Home + Actividades */}
             {/* Home compacta */}
-              <div className="flex min-w-[85%] shrink-0 snap-center flex-col gap-2 rounded-xl border-2 border-border bg-background p-3 min-[640px]:min-w-0 min-[640px]:shrink min-[640px]:border min-[640px]:border-border">
+              <div className="flex flex-col gap-2 rounded-xl border border-border bg-background p-3">
                 <p className="text-xs font-bold text-foreground">Home</p>
                 <p className="text-xs font-semibold text-foreground">¡Hola de nuevo, Jorge!</p>
                 <div className="grid grid-cols-3 gap-1.5">
@@ -216,7 +235,7 @@ export function AppHeroMockup() {
               </div>
 
               {/* Actividades */}
-              <div className="flex min-w-[85%] shrink-0 snap-center flex-col gap-2 rounded-xl border-2 border-border bg-background p-3 min-[640px]:min-w-0 min-[640px]:shrink min-[640px]:border min-[640px]:border-border">
+              <div className="flex flex-col gap-2 rounded-xl border border-border bg-background p-3">
                 <p className="text-xs font-bold text-foreground">Tus Actividades</p>
                 <div className="flex flex-wrap gap-1">
                   {["Aprender", "Salud", "Entrenamiento", "Diversión"].map((c, i) => (
@@ -280,7 +299,7 @@ export function AppHeroMockup() {
 
             {/* Fila 2: Planificación + Recomendaciones */}
               {/* Planificación */}
-              <div className="flex min-w-[85%] shrink-0 snap-center flex-col gap-2 rounded-xl border-2 border-border bg-background p-3 min-[640px]:min-w-0 min-[640px]:shrink min-[640px]:border min-[640px]:border-border">
+              <div className="flex flex-col gap-2 rounded-xl border border-border bg-background p-3">
                 <p className="text-xs font-bold text-foreground">Planificación</p>
                 <p className="text-[9px] text-muted-foreground">Elige categorías y vincula las actividades que harás hoy</p>
                 <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Tus categorías</p>
@@ -341,7 +360,7 @@ export function AppHeroMockup() {
               </div>
 
               {/* Recomendaciones */}
-              <div className="flex min-w-[85%] shrink-0 snap-center flex-col gap-2 rounded-xl border-2 border-border bg-background p-3 min-[640px]:min-w-0 min-[640px]:shrink min-[640px]:border min-[640px]:border-border">
+              <div className="flex flex-col gap-2 rounded-xl border border-border bg-background p-3">
                 <p className="text-xs font-bold text-foreground">Recomendaciones</p>
                 <div className="flex items-center justify-between rounded-lg border border-border bg-surface px-2 py-1.5">
                   <span className="flex items-center gap-1.5">
