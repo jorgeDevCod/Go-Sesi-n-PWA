@@ -421,8 +421,8 @@ export function AppHeroMockup() {
                 </div>
               </div>
 
-            {/* Fila 3: Personalizar experiencia */}
-            <div className="flex min-w-[85%] shrink-0 snap-center flex-col gap-2 rounded-xl border-2 border-border bg-background p-3 min-[640px]:min-w-0 min-[640px]:shrink min-[640px]:border min-[640px]:border-border">
+            {/* Fila 3: Personalizar experiencia — ancho completo */}
+            <div className="sm:col-span-2 flex flex-col gap-2 rounded-xl border border-border bg-background p-3">
               <p className="text-xs font-bold text-foreground">Personalizar experiencia</p>
               <p className="text-[9px] text-muted-foreground">
                 Elige tus categorías, actividades, niveles de energía y tiempos ideales.
