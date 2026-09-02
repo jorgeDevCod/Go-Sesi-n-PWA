@@ -212,8 +212,8 @@ export function CategoryHomeGrid({
         <h1 className="font-display text-2xl font-bold leading-tight tracking-tight text-foreground sm:text-4xl">
           Bienvenido a tu espacio personal, donde Iniciar es más fácil. ⭐
         </h1>
-        <p className="max-w-md text-sm leading-relaxed text-muted-foreground">
-          Un espacio donde podrás Iniciar o crear tus actividades facilmente.
+        <p className="max-w-md text-xs leading-relaxed text-muted-foreground">
+          Elige, crea y planifica tus actividades a tu ritmo.
         </p>
       </div>
 
