@@ -10,6 +10,7 @@ import {
   House,
   Layers,
   ListChecks,
+  Menu,
   Palette,
   Pencil,
   Plus,
@@ -87,14 +88,14 @@ export function AppHeroMockup() {
   return (
     <div className="relative mx-auto w-full max-w-5xl">
       {/* Etiquetas flotantes de funciones */}
-      <div className="pointer-events-none absolute -top-3 left-1/2 z-10 flex -translate-x-1/2 flex-wrap justify-center gap-2 sm:top-0">
+      <div className="pointer-events-none absolute -top-4 left-1/2 z-10 flex w-full -translate-x-1/2 flex-wrap justify-center gap-x-2 gap-y-2 px-2 sm:top-0 sm:w-auto sm:gap-2">
         {FEATURES.map((f) => (
           <span
             key={f.label}
             className="flex items-center gap-1.5 rounded-full border border-border bg-surface px-3 py-1.5 text-xs font-semibold text-foreground shadow-md"
           >
             <f.icon className="size-3.5 text-accent-aprender" />
-            {f.label}
+            <span className="hidden sm:inline">{f.label}</span>
           </span>
         ))}
       </div>
@@ -104,7 +105,7 @@ export function AppHeroMockup() {
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: 0.7 }}
-        className="absolute right-2 top-10 z-10 hidden w-32 rounded-xl border border-border bg-surface p-2 shadow-lg sm:block"
+        className="absolute right-2 top-14 z-10 w-32 rounded-xl border border-border bg-surface p-2 shadow-lg"
       >
         <div className="mb-1.5 flex items-center justify-between">
           <span className="flex items-center gap-1 text-[9px] font-semibold uppercase tracking-wide text-accent-aprender">
@@ -127,7 +128,7 @@ export function AppHeroMockup() {
       <div className="overflow-hidden rounded-3xl border border-border bg-background p-4 pb-6 shadow-2xl sm:p-4 sm:pb-6">
         <div className="rounded-2xl border border-border bg-surface shadow-inner">
           {/* Encabezado tipo app */}
-          <div className="flex items-center justify-between border-b border-border px-4 py-3">
+          <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3">
             <Logo showWordmark />
             <div className="flex items-center gap-3">
               <span className="hidden items-center gap-1.5 rounded-full border border-border px-2.5 py-1 text-[10px] font-medium text-muted-foreground sm:flex">
@@ -137,6 +138,8 @@ export function AppHeroMockup() {
               <span className="flex size-6 items-center justify-center rounded-full bg-accent-aprender/15 text-[10px] font-semibold text-accent-aprender">
                 G
               </span>
+              {/* Menú hamburguesa: visible en móvil (<720px) */}
+              <Menu className="size-5 text-muted-foreground min-[720px]:hidden" />
             </div>
           </div>
 
