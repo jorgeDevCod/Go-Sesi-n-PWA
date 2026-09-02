@@ -106,7 +106,7 @@ export function MoodModal({
             )}
 
             <Button size="lg" onClick={handleConfirm} className="w-full">
-              Ir a mi Home
+              Ir a mi espacio
             </Button>
 
             <button
