@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import type { SessionDTO } from "@/services/session/session.dto";
-import { playSoftCompletionSound, vibrateOnCompletion } from "@/features/session/session-sound";
+import { vibrateOnCompletion } from "@/features/session/session-sound";
 
 /**
  * Fires the soft completion sound + vibration (where supported) and, only
@@ -18,7 +18,6 @@ export function useSessionCompletionEffects(session: SessionDTO | null) {
     if (firedForId.current === session.id) return;
     firedForId.current = session.id;
 
-    playSoftCompletionSound();
     vibrateOnCompletion();
 
     if (typeof Notification !== "undefined" && Notification.permission === "granted") {
