@@ -29,7 +29,7 @@ export function RegisterForm() {
   return (
     <form action={formAction} className="flex flex-col gap-4" noValidate>
       <div>
-        <Label htmlFor="name">Nombre</Label>
+        <Label htmlFor="name">Nombre Completo</Label>
         <Input id="name" name="name" type="text" autoComplete="name" required />
         <FieldError messages={state.fieldErrors?.name} />
       </div>
