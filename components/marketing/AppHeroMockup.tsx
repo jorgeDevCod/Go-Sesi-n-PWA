@@ -298,10 +298,11 @@ export function AppHeroMockup() {
             </div>
 
             {/* Fila 2: Personalizar experiencia — ancho completo */}
-            <div className="sm:col-span-2 flex flex-col gap-2 rounded-xl border border-border bg-background p-3">
-              <p className="text-xs font-bold text-foreground">Personalizar experiencia</p>
+            <div className="sm:col-span-2 flex flex-col gap-2 rounded-xl border border-border bg-background p-4">
+              <p className="text-sm font-bold text-foreground">Personaliza tu Experiencia</p>
               <p className="text-[9px] text-muted-foreground">
-                Elige tus categorías, actividades, niveles de energía y tiempos ideales.
+                Aquí armamos juntos cómo Go Sesión te recomendará actividades. Elige tus categorías, actividades,
+                niveles de energía y tiempos ideales para que cada sugerencia se ajuste totalmente a ti.
               </p>
               <div className="flex gap-1 justify-center">
                 {[
@@ -321,7 +322,15 @@ export function AppHeroMockup() {
                   </span>
                 ))}
               </div>
-              <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+              <p className="pt-1 text-center text-[10px] font-semibold text-foreground">
+                Personaliza tus recomendaciones, a tu gusto
+              </p>
+              <p className="text-center text-[8px] text-muted-foreground">
+                Define tus niveles de dificultad y energía para las recomendaciones de tus actividades de forma más
+                personalizadas. Cuanto más lo ajustes, más acertadas serán las recomendaciones.
+              </p>
+              <div className="flex flex-col gap-1">
+                <p className="text-[9px] font-semibold text-foreground">Elige el nivel de energía</p>
                 <div className="grid grid-cols-3 gap-1">
                   {(["baja", "media", "alta"] as const).map((lvl) => {
                     const active = lvl === "media";
@@ -330,23 +339,26 @@ export function AppHeroMockup() {
                       <div
                         key={lvl}
                         className={cn(
-                          "flex flex-col items-center gap-0.5 rounded-lg border px-1 py-1.5",
+                          "flex flex-col items-center gap-1 rounded-lg border px-1 py-2",
                           active ? "border-transparent text-white" : "border-border bg-surface",
                         )}
                         style={active ? { backgroundColor: color } : undefined}
                       >
-                        <BatteryMedium className="size-3" style={{ color: active ? "#fff" : color }} />
+                        <BatteryMedium className="size-3.5" style={{ color: active ? "#fff" : color }} />
                         <span className="text-[9px] capitalize">{lvl}</span>
                       </div>
                     );
                   })}
                 </div>
+              </div>
+              <div className="flex flex-col gap-1">
+                <p className="text-[9px] font-semibold text-foreground">Define la dificultad de tus actividades</p>
                 <div className="grid grid-cols-3 gap-1">
                   {["Ligera", "Moderada", "Intensa"].map((d, i) => (
                     <div
                       key={d}
                       className={cn(
-                        "rounded-lg border px-1 py-1 text-center text-[9px] font-semibold",
+                        "rounded-lg border px-1 py-2 text-center text-[9px] font-semibold",
                         i === 1 ? "border-accent-aprender bg-accent-aprender/10 text-accent-aprender" : "border-border bg-surface text-foreground",
                       )}
                     >
@@ -354,7 +366,16 @@ export function AppHeroMockup() {
                     </div>
                   ))}
                 </div>
-                <div className="flex items-center gap-1">
+              </div>
+              <div className="flex flex-col gap-1">
+                <p className="text-[9px] font-semibold text-foreground">
+                  Escoge tus tiempos para: <span className="text-accent-aprender">Energía media + Dificultad moderada</span>
+                </p>
+                <p className="text-[8px] text-muted-foreground">
+                  Ajusta el tiempo mínimo, recomendado y máximo para esta combinación. También puedes agregar tiempos
+                  personalizados. El recomendado es el que verás por defecto.
+                </p>
+                <div className="flex flex-wrap items-center gap-1">
                   {TIME_CHIPS.map((t) => (
                     <span key={t.label} className="flex items-center gap-1 rounded-full border border-border bg-surface px-1.5 py-1">
                       <span className="text-[9px] font-semibold text-foreground">{t.label}</span>
@@ -367,9 +388,16 @@ export function AppHeroMockup() {
                   ))}
                   <span className="flex items-center gap-1 rounded-full border border-dashed border-border px-1.5 py-1 text-[8px] text-muted-foreground">
                     <Plus className="size-2.5" />
-                    Agregar
+                    Agregar tiempo
                   </span>
                 </div>
+              </div>
+              <div className="flex flex-col gap-1 border-t border-border pt-1.5">
+                <p className="text-[9px] font-semibold text-foreground">¿Qué actividades quieres recomendar para estos niveles?</p>
+                <p className="text-[8px] text-muted-foreground">
+                  Abre una categoría y marca las actividades que quieras que aparezcan cuando tengas media energía y
+                  busques algo moderada.
+                </p>
               </div>
             </div>
 
