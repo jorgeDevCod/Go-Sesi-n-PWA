@@ -110,6 +110,14 @@ export function AppHeroMockup() {
                   );
                 })}
               </div>
+              {/* CTA de recomendación */}
+              <div className="flex items-center gap-2 rounded-lg bg-accent-aprender px-2 py-2 text-white">
+                <Sparkles className="size-3.5 shrink-0" />
+                <span className="min-w-0 flex-1 text-[9px] font-semibold leading-tight">
+                  ¿No sabes qué hacer hoy? ¡Te recomiendo algo!
+                </span>
+              </div>
+
               <div className="flex flex-col gap-1.5">
                 {CATEGORIES.map((c) => (
                   <div key={c.name} className="flex items-center gap-2 rounded-lg border border-border bg-surface px-2 py-1.5">
@@ -126,6 +134,27 @@ export function AppHeroMockup() {
                   </div>
                 ))}
               </div>
+
+              <p className="mt-1 text-[10px] font-semibold uppercase tracking-wide text-accent-aprender">
+                Plan para hoy
+              </p>
+              <div className="flex flex-col gap-1.5">
+                {PLAN.map((p) => (
+                  <div key={p.name} className="flex items-center gap-2 rounded-lg border border-border bg-surface px-2 py-1.5">
+                    <span className="min-w-0 flex-1 truncate text-[10px] text-foreground">{p.name}</span>
+                    <span
+                      className={cn(
+                        "shrink-0 rounded-full px-1.5 py-0.5 text-[8px] font-semibold",
+                        p.cls === "green" && "bg-green-500/15 text-green-600 dark:text-green-400",
+                        p.cls === "blue" && "bg-blue-500/15 text-blue-600 dark:text-blue-400",
+                      )}
+                    >
+                      {p.status}
+                    </span>
+                  </div>
+                ))}
+              </div>
+              <p className="text-[9px] text-muted-foreground">Una actividad en cada sesión</p>
             </motion.div>
 
             {/* Temas */}
