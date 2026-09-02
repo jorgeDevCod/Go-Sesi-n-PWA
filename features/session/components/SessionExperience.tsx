@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useActiveSession } from "@/features/session/hooks/useActiveSession";
 import { useTimer } from "@/features/session/hooks/useTimer";
 import { useSessionCompletionEffects } from "@/features/session/hooks/useSessionNotification";
+import { useAppNotifications } from "@/features/session/hooks/useAppNotifications";
 import { TimerScreen } from "@/features/session/components/TimerScreen";
 import { FinishScreen } from "@/features/session/components/FinishScreen";
 import { CompletionAlarm } from "@/features/session/components/CompletionAlarm";
@@ -30,6 +31,7 @@ export function SessionExperience({ initialSession }: { initialSession: SessionD
   useActiveSession(initialSession);
   const { session, view, isPending, pause, resume, finish, extend } = useTimer(initialSession);
   useSessionCompletionEffects(session);
+  useAppNotifications(session);
   const router = useRouter();
   const alarmSeen = useSyncExternalStore(
     subscribeNoop,

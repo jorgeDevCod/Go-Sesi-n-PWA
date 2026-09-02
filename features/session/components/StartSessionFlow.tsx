@@ -61,6 +61,11 @@ export function StartSessionFlow({
   function startSessionNow() {
     if (!minutes) return;
     playSoftStartSound();
+    // Pedir permiso de notificaciones al iniciar la sesión, para poder avisar
+    // al terminar el tiempo o si la app queda en segundo plano.
+    if (typeof Notification !== "undefined" && Notification.permission === "default") {
+      void Notification.requestPermission();
+    }
     setError(null);
     startTransition(async () => {
       const result = await startSessionAction({
