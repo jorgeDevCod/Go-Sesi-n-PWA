@@ -67,16 +67,19 @@ const TIME_CHIPS = [
   { label: "1 h", tag: "Máx", color: "#6366F1" },
 ];
 
-const PLAN_CATEGORIES = [
-  { name: "Aprender", icon: "BookOpen", color: "#6366F1", count: 2 },
-  { name: "Salud", icon: "HeartPulse", color: "#16A34A", count: 3 },
-  { name: "Entrenamiento", icon: "Dumbbell", color: "#D946EF", count: 3 },
-];
-
 const RECOMMENDATION_CARDS = [
   { name: "Revisar presupuesto", icon: "Wallet", color: "#F59E0B", cat: "Finanzas", min: 50, diff: "Moderada", top: true },
   { name: "Planificar finanzas", icon: "TrendingUp", color: "#22C55E", cat: "Finanzas", min: 50, diff: "Moderada" },
   { name: "Yoga", icon: "Flower", color: "#D946EF", cat: "Salud", min: 50, diff: "Moderada" },
+];
+
+const PLAN_ITEMS_DETAIL = [
+  { name: "Aprender", icon: "BookOpen", color: "#6366F1", count: 2, items: [
+    { name: "Programación", icon: "Code2", color: "#6366F1" },
+    { name: "Inglés", icon: "Languages", color: "#38BDF8" },
+  ] },
+  { name: "Salud", icon: "HeartPulse", color: "#16A34A", count: 3, items: null },
+  { name: "Entrenamiento", icon: "Dumbbell", color: "#D946EF", count: 3, items: null },
 ];
 
 export function AppHeroMockup() {
@@ -146,7 +149,7 @@ export function AppHeroMockup() {
                 transition={{ delay: 0.1 }}
                 className="flex flex-col gap-2 rounded-xl border border-border bg-background p-3"
               >
-                <p className="text-[10px] font-semibold uppercase tracking-wide text-accent-aprender">Home</p>
+                <p className="text-xs font-bold text-foreground">Home</p>
                 <p className="text-xs font-semibold text-foreground">¡Hola de nuevo, Jorge!</p>
                 <div className="grid grid-cols-3 gap-1.5">
                   {(["baja", "media", "alta"] as const).map((lvl) => {
@@ -267,7 +270,7 @@ export function AppHeroMockup() {
               transition={{ delay: 0.3 }}
               className="flex flex-col gap-2 rounded-xl border border-border bg-background p-3"
             >
-              <p className="text-xs font-bold text-foreground">Personaliza tu experiencia</p>
+              <p className="text-xs font-bold text-foreground">Personalizar experiencia</p>
               <p className="text-[9px] text-muted-foreground">
                 Elige tus categorías, actividades, niveles de energía y tiempos ideales.
               </p>
@@ -385,41 +388,75 @@ export function AppHeroMockup() {
                 transition={{ delay: 0.4 }}
                 className="flex flex-col gap-2 rounded-xl border border-border bg-background p-3"
               >
-                <p className="text-xs font-bold text-foreground">¡Hola Jorge! ¿Qué te gustaría hacer hoy?</p>
+                <p className="text-xs font-bold text-foreground">Planificación</p>
                 <p className="text-[9px] text-muted-foreground">Elige categorías y vincula las actividades que harás hoy</p>
                 <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Tus categorías</p>
                 <div className="flex flex-wrap gap-1">
-                  {["Aprender", "Salud", "Entrenamiento", "Diversión", "Finanzas"].map((c, i) => (
+                  {["Aprender", "Salud", "Entrenamiento", "Diversión", "Finanzas", "Descanso", "Trabajo"].map((c) => (
                     <span
                       key={c}
-                      className={cn(
-                        "rounded-full border px-2 py-0.5 text-[8px] font-medium",
-                        i < 3 ? "border-accent-aprender bg-accent-aprender/10 text-accent-aprender" : "border-border bg-surface text-foreground",
-                      )}
+                      className="flex items-center gap-1 rounded-full border border-border bg-surface px-1.5 py-0.5 text-[8px] font-medium text-foreground"
                     >
                       {c}
                     </span>
                   ))}
                 </div>
+                <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Vincular actividades</p>
+                <div className="flex flex-col gap-1">
+                  {"Aprender Salud Entrenamiento".split(" ").map((c) => (
+                    <div key={c} className="flex items-center gap-2 rounded-lg border border-border bg-surface px-2 py-1.5">
+                      <span className="min-w-0 flex-1 text-[10px] font-medium text-foreground">{c}</span>
+                      <ChevronDown className="size-3 text-muted-foreground" />
+                    </div>
+                  ))}
+                </div>
+                <span className="flex items-center gap-1 text-[9px] font-medium text-accent-aprender">
+                  <Plus className="size-3" />
+                  Crear nueva categoría
+                </span>
                 <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Tu plan para hoy</p>
                 <div className="flex flex-col gap-1.5">
-                  {PLAN_CATEGORIES.map((c) => (
-                    <div key={c.name} className="flex items-center gap-2 rounded-lg border border-border bg-surface px-2 py-1.5">
-                      <span className="flex size-5 items-center justify-center rounded" style={{ backgroundColor: `${c.color}22`, color: c.color }}>
-                        <DynamicIcon name={c.icon} className="size-3" />
-                      </span>
-                      <span className="min-w-0 flex-1 truncate text-[10px] font-medium text-foreground">{c.name}</span>
-                      <span className="rounded-full bg-surface-muted px-1.5 py-0.5 text-[8px] text-muted-foreground">{c.count}</span>
-                      <span className="flex items-center gap-0.5 rounded-full border border-border bg-surface-muted px-1.5 py-0.5 text-[8px] text-red-500">
-                        <Trash2 className="size-2.5" />
-                        Eliminar todo
-                      </span>
+                  {PLAN_ITEMS_DETAIL.map((c) => (
+                    <div key={c.name} className="rounded-lg border border-border bg-surface">
+                      <div className="flex items-center gap-2 px-2 py-1.5">
+                        <span className="flex size-5 items-center justify-center rounded" style={{ backgroundColor: `${c.color}22`, color: c.color }}>
+                          <DynamicIcon name={c.icon} className="size-3" />
+                        </span>
+                        <span className="min-w-0 flex-1 truncate text-[10px] font-medium text-foreground">{c.name}</span>
+                        <span className="rounded-full bg-surface-muted px-1.5 py-0.5 text-[8px] text-muted-foreground">{c.count}</span>
+                        <ChevronDown className="size-3 text-muted-foreground" />
+                        <span className="flex items-center gap-0.5 rounded-full border border-border bg-surface-muted px-1.5 py-0.5 text-[8px] text-red-500">
+                          <Trash2 className="size-2.5" />
+                          Eliminar todo
+                        </span>
+                      </div>
+                      {c.items && (
+                        <div className="flex flex-col border-t border-border">
+                          {c.items.map((it) => (
+                            <div key={it.name} className="flex items-center gap-2 border-b border-border px-2 py-1.5 last:border-b-0">
+                              <span className="flex size-4 items-center justify-center rounded" style={{ backgroundColor: `${it.color}22`, color: it.color }}>
+                                <DynamicIcon name={it.icon} className="size-2.5" />
+                              </span>
+                              <span className="min-w-0 flex-1 text-[9px] text-foreground">
+                                {it.name}
+                                <span className="ml-1 text-[7px] text-muted-foreground">· Actividad</span>
+                              </span>
+                              <Pencil className="size-2.5 text-muted-foreground" />
+                              <Trash2 className="size-2.5 text-muted-foreground" />
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
                 <div className="rounded-lg bg-accent-aprender px-3 py-2 text-center text-[10px] font-semibold text-white">
                   Guardar planificación
                 </div>
+                <span className="flex items-center justify-center gap-1 rounded-lg border border-border px-2 py-1.5 text-[9px] text-muted-foreground">
+                  <CalendarCheck2 className="size-3" />
+                  ¿Prefiero que me recomiendes algo?
+                </span>
               </motion.div>
 
               {/* Recomendaciones por energía */}
@@ -438,7 +475,7 @@ export function AppHeroMockup() {
                   </span>
                   <span className="rounded-full border border-border px-1.5 py-0.5 text-[8px] text-muted-foreground">Cambiar energía</span>
                 </div>
-                <p className="text-[10px] font-bold text-foreground">Recomendaciones para tu energía</p>
+                <p className="text-xs font-bold text-foreground">Recomendaciones</p>
                 <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-3">
                   {RECOMMENDATION_CARDS.map((r) => (
                     <div
