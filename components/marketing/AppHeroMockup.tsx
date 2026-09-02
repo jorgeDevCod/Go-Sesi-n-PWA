@@ -30,6 +30,7 @@ const FEATURES = [
   { label: "Actividades", icon: ListChecks },
   { label: "Planificación", icon: CalendarCheck2 },
   { label: "Recomendaciones", icon: Sparkles },
+  { label: "Personalizar", icon: Wand2 },
 ];
 
 const THEMES = [
@@ -123,7 +124,7 @@ export function AppHeroMockup() {
       </motion.div>
 
       {/* Imagen de fondo */}
-      <div className="overflow-hidden rounded-3xl border border-border bg-background p-4 shadow-2xl sm:p-4">
+      <div className="overflow-hidden rounded-3xl border border-border bg-background p-4 pb-6 shadow-2xl sm:p-4 sm:pb-6">
         <div className="rounded-2xl border border-border bg-surface shadow-inner">
           {/* Encabezado tipo app */}
           <div className="flex items-center justify-between border-b border-border px-4 py-3">
