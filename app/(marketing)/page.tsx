@@ -256,14 +256,14 @@ export default function MarketingHomePage() {
           </h1>
 
           <p className="max-w-xl text-lg font-normal leading-[1.6] text-muted-foreground py-2">
-            Una plataforma diseñada para eliminar la fricción de empezar con tus planes, reducir la saturación y dejar atrás la culpa de no saber cómo iniciar, sin quedarte atrapado sobrepensando.
+            Una plataforma creada para pasar de la intención a la acción, reducir la procrastinación y avanzar a tu ritmo, en un espacio pensado para ti. <a className="link-primary" href="/register" target="_blank" rel="noopener noreferrer">¡Ingresa Ya!</a>
           </p>
 
           <p className="text-base font-medium text-foreground">Tú eliges cómo quieres empezar:</p>
 
           <div className="flex flex-wrap items-stretch justify-center gap-3">
             {[
-              { icon: Layers, label: "Explorar o crear categorías" },
+              { icon: Layers, label: "Explora o crea Actividades" },
               { icon: CalendarCheck2, label: "Planificar actividades" },
               { icon: Sparkles, label: "Recibir una recomendación" },
             ].map(({ icon: Icon, label }) => (
