@@ -209,7 +209,7 @@ export function AppShell({ userName, children }: { userName: string; children: R
       </header>
       {!isHome && <Breadcrumbs pathname={pathname} />}
       </div>
-      <main className="flex flex-1 flex-col px-4 py-12 sm:px-6">{children}</main>
+      <main className="flex flex-1 flex-col px-4 py-8 sm:px-6">{children}</main>
       <PlanningManager />
       <MobileMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
       <AppGuideModal open={guideOpen} onClose={closeGuide} />
