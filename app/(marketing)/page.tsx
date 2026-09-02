@@ -14,6 +14,12 @@ import {
   Palette,
   Download,
   Trash2,
+  ListChecks,
+  CalendarRange,
+  CheckCircle2,
+  Target,
+  ShieldCheck,
+  Rocket,
 } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
@@ -96,6 +102,56 @@ const TRACKING = [
     title: "Tu avance, visible de un vistazo",
     description:
       "El Home te muestra tus sesiones completadas, minutos acumulados y actividades realizada contra tu plan del día. Progreso sin culpa.",
+  },
+];
+
+const PLANNING = [
+  {
+    icon: ListChecks,
+    title: "Arma tu plan del día en minutos",
+    description:
+      "Elige las categorías y actividades que harás hoy. Go las organiza por sesiones y te muestra su estado: En curso, En espera o Realizada.",
+  },
+  {
+    icon: CalendarRange,
+    title: "Tu día, con un solo vistazo",
+    description:
+      "El Home agrupa tu plan en desplegables por categoría. Ves lo que falta, lo que ya hiciste y sigues adelante sin perder el hilo.",
+  },
+  {
+    icon: CheckCircle2,
+    title: "Cada actividad, en su momento",
+    description:
+      "Planificas por sesión: qué hacer, cuánto dedicarle y en qué orden. Deja atrás la indecisión y empieza a fluir.",
+  },
+  {
+    icon: Clock,
+    title: "Lo que planeas, se cumple",
+    description:
+      "Al iniciar cada actividad, Go cronometra el tiempo real y te avisa al terminar. Tu plan deja de ser una lista y se vuelve acción.",
+  },
+];
+
+const BENEFITS = [
+  {
+    icon: Rocket,
+    title: "Empieza sin decidir todo",
+    description: "Elige una sola actividad y arranca. Nada de sobrepensar ni quedarte trabado.",
+  },
+  {
+    icon: ShieldCheck,
+    title: "Sin culpa ni presión",
+    description: "Avanza a tu ritmo. Si un día hay poca energía, Go te sugiere algo ligero.",
+  },
+  {
+    icon: Target,
+    title: "Constancia que se nota",
+    description: "Cada sesión queda registrada. Ver tu historial te motiva a seguir, un paso a la vez.",
+  },
+  {
+    icon: Sparkles,
+    title: "Sugerencias a tu medida",
+    description: "Cuando no sepas qué hacer, Go te recomienda según tu energía y tiempo disponible.",
   },
 ];
 
@@ -200,7 +256,7 @@ export default function MarketingHomePage() {
           </h1>
 
           <p className="max-w-xl text-lg font-normal leading-[1.6] text-muted-foreground py-2">
-            Es una plataforma diseñada para eliminar la fricción de empezar con tus planes, reducir la saturación y dejar atrás la culpa de no saber cómo iniciar, sin quedarte atrapado sobrepensando.
+            Una plataforma diseñada para eliminar la fricción de empezar con tus planes, reducir la saturación y dejar atrás la culpa de no saber cómo iniciar, sin quedarte atrapado sobrepensando.
           </p>
 
           <p className="text-base font-medium text-foreground">Tú eliges cómo quieres empezar:</p>
@@ -260,6 +316,32 @@ export default function MarketingHomePage() {
           </div>
         </section>
 
+        {/* Planificación */}
+        <section className="mx-auto w-full max-w-4xl px-4 py-12">
+          <h2 className="font-display mb-2 text-center text-3xl font-bold leading-tight tracking-[0.02em] text-foreground">
+            Planifica tu día y hazlo realidad
+          </h2>
+          <p className="mb-8 text-center text-sm font-normal leading-[1.6] text-muted-foreground">
+            Organiza lo que harás hoy por sesiones, con su duración y su estado. Menos decisiones, más acción.
+          </p>
+          <div className="grid gap-5 sm:grid-cols-2">
+            {PLANNING.map((item) => (
+              <div
+                key={item.title}
+                className="flex items-start gap-4 rounded-3xl border border-border bg-surface p-6 transition-all duration-200 hover:border-border-hover hover:shadow-md"
+              >
+                <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-accent-aprender/10 text-accent-aprender">
+                  <item.icon className="size-5" />
+                </span>
+                <div>
+                  <h3 className="mb-1 text-base font-semibold text-foreground">{item.title}</h3>
+                  <p className="text-sm font-normal leading-[1.6] text-muted-foreground">{item.description}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
         {/* Medición e historial */}
         <section className="mx-auto w-full max-w-4xl px-4 py-12">
           <h2 className="font-display mb-2 text-center text-3xl font-bold leading-tight tracking-[0.02em] text-foreground">
@@ -281,6 +363,30 @@ export default function MarketingHomePage() {
                   <h3 className="mb-1 text-base font-semibold text-foreground">{item.title}</h3>
                   <p className="text-sm font-normal leading-[1.6] text-muted-foreground">{item.description}</p>
                 </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Beneficios */}
+        <section className="mx-auto w-full max-w-4xl px-4 py-12">
+          <h2 className="font-display mb-2 text-center text-3xl font-bold leading-tight tracking-[0.02em] text-foreground">
+            Lo que Go Sesión hace por ti
+          </h2>
+          <p className="mb-8 text-center text-sm font-normal leading-[1.6] text-muted-foreground">
+            Una herramienta para avanzar sin fricción, adaptarse a tu energía y dejar de sobrepensar.
+          </p>
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {BENEFITS.map((item) => (
+              <div
+                key={item.title}
+                className="flex flex-col items-start gap-3 rounded-3xl border border-border bg-surface p-6 text-left transition-all duration-200 hover:border-border-hover hover:shadow-md"
+              >
+                <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-accent-aprender/10 text-accent-aprender">
+                  <item.icon className="size-5" />
+                </span>
+                <h3 className="text-base font-semibold text-foreground">{item.title}</h3>
+                <p className="text-sm font-normal leading-[1.6] text-muted-foreground">{item.description}</p>
               </div>
             ))}
           </div>
