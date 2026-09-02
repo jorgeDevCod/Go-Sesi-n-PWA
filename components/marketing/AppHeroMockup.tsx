@@ -401,15 +401,6 @@ export function AppHeroMockup() {
                     </span>
                   ))}
                 </div>
-                <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Vincular actividades</p>
-                <div className="flex flex-col gap-1">
-                  {"Aprender Salud Entrenamiento".split(" ").map((c) => (
-                    <div key={c} className="flex items-center gap-2 rounded-lg border border-border bg-surface px-2 py-1.5">
-                      <span className="min-w-0 flex-1 text-[10px] font-medium text-foreground">{c}</span>
-                      <ChevronDown className="size-3 text-muted-foreground" />
-                    </div>
-                  ))}
-                </div>
                 <span className="flex items-center gap-1 text-[9px] font-medium text-accent-aprender">
                   <Plus className="size-3" />
                   Crear nueva categoría
@@ -466,6 +457,7 @@ export function AppHeroMockup() {
                 transition={{ delay: 0.5 }}
                 className="flex flex-col gap-2 rounded-xl border border-border bg-background p-3"
               >
+                <p className="text-xs font-bold text-foreground">Recomendaciones</p>
                 <div className="flex items-center justify-between rounded-lg border border-border bg-surface px-2 py-1.5">
                   <span className="flex items-center gap-1.5">
                     <span className="flex size-6 items-center justify-center rounded-full bg-green-500/15">
@@ -475,7 +467,6 @@ export function AppHeroMockup() {
                   </span>
                   <span className="rounded-full border border-border px-1.5 py-0.5 text-[8px] text-muted-foreground">Cambiar energía</span>
                 </div>
-                <p className="text-xs font-bold text-foreground">Recomendaciones</p>
                 <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-3">
                   {RECOMMENDATION_CARDS.map((r) => (
                     <div
