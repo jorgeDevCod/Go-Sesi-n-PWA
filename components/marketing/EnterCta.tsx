@@ -8,6 +8,8 @@ export function EnterCta({ className }: { className?: string }) {
   return (
     <Link
       href="/register"
+      target="_blank"
+      rel="noopener noreferrer"
       onClick={() => track("enter_space_click")}
       className={buttonClassName({ size: "lg", className })}
     >
