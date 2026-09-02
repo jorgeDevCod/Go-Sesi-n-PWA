@@ -28,6 +28,11 @@ const CATEGORIES = [
   { name: "Diversión", icon: "Palette", color: "#D946EF", count: 13 },
 ];
 
+const QUICK = [
+  { name: "Estudiar 30 min", icon: "BookOpen", color: "#6366F1" },
+  { name: "Ejercicio ligero", icon: "Dumbbell", color: "#16A34A" },
+];
+
 const THEMES = [
   { label: "Oscuro", color: "#1c1c1f" },
   { label: "Blanco", color: "#d5d8e0" },
@@ -110,16 +115,18 @@ export function AppHeroMockup() {
                   );
                 })}
               </div>
+
               {/* CTA de recomendación */}
               <div className="flex items-center gap-2 rounded-lg bg-accent-aprender px-2 py-2 text-white">
                 <Sparkles className="size-3.5 shrink-0" />
                 <span className="min-w-0 flex-1 text-[9px] font-semibold leading-tight">
-                  ¿No sabes qué hacer hoy? ¡Te recomiendo algo!
+                  Deja que Go te recomiende algo
                 </span>
               </div>
 
+              {/* Máximo 2 categorías */}
               <div className="flex flex-col gap-1.5">
-                {CATEGORIES.map((c) => (
+                {CATEGORIES.slice(0, 2).map((c) => (
                   <div key={c.name} className="flex items-center gap-2 rounded-lg border border-border bg-surface px-2 py-1.5">
                     <span
                       className="flex size-5 items-center justify-center rounded"
@@ -135,8 +142,9 @@ export function AppHeroMockup() {
                 ))}
               </div>
 
+              {/* Actividades planificadas para hoy */}
               <p className="mt-1 text-[10px] font-semibold uppercase tracking-wide text-accent-aprender">
-                Plan para hoy
+                Actividades planificadas para hoy
               </p>
               <div className="flex flex-col gap-1.5">
                 {PLAN.map((p) => (
@@ -151,6 +159,27 @@ export function AppHeroMockup() {
                     >
                       {p.status}
                     </span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Accesos directos a tus actividades */}
+              <p className="mt-1 text-[10px] font-semibold uppercase tracking-wide text-accent-aprender">
+                Accesos directos a tus actividades
+              </p>
+              <div className="flex flex-col gap-1.5">
+                {QUICK.map((q) => (
+                  <div key={q.name} className="flex items-center gap-2 rounded-lg border border-border bg-surface px-2 py-1.5">
+                    <span
+                      className="flex size-5 items-center justify-center rounded"
+                      style={{ backgroundColor: `${q.color}22`, color: q.color }}
+                    >
+                      <DynamicIcon name={q.icon} className="size-3" />
+                    </span>
+                    <span className="min-w-0 flex-1 truncate text-[10px] font-medium text-foreground">
+                      {q.name}
+                    </span>
+                    <Sparkles className="size-3 text-accent-aprender" />
                   </div>
                 ))}
               </div>
