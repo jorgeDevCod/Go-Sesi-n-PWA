@@ -31,7 +31,7 @@ import { AppShowcaseBanner } from "@/components/marketing/AppShowcaseBanner";
 const CUSTOMIZE = [
   {
     icon: BatteryMedium,
-    title: "Energía a tu medida",
+    title: "Una experiencia basada en tu energia.",
     description:
       "Cuéntanos cómo te sientes (baja, media, alta) y Go ajusta las actividades y tiempos sugeridos a tu batería de hoy.",
   },

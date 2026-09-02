@@ -45,7 +45,7 @@ const SLIDES: Slide[] = [
   {
     id: "energy",
     badge: "Energía",
-    title: "Energía a tu medida",
+    title: "Una experiencia basada en tu energia.",
     description:
       "Cuéntanos cómo te sientes hoy y Go ajusta las actividades y tiempos a tu batería del día.",
     bullets: ["Baja, media o alta", "Sugerencias acordes", "Sin exigir de más"],
@@ -363,7 +363,7 @@ export function AppShowcaseBanner() {
 
   return (
     <div className="relative mx-auto w-full max-w-4xl">
-      <div className="overflow-hidden rounded-3xl border border-border bg-surface shadow-xl">
+      <div className="overflow-hidden rounded-3xl border border-border bg-surface shadow-xl my-4">
         <AnimatePresence mode="wait">
           <motion.div
             key={slide.id}
