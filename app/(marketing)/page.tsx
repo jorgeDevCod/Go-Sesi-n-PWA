@@ -281,7 +281,7 @@ export default function MarketingHomePage() {
 
           <div className="flex flex-wrap items-stretch justify-center gap-3">
             {[
-              { icon: Layers, label: "Explora o crea Actividades" },
+              { icon: Layers, label: "Explorar o crear categorias" },
               { icon: CalendarCheck2, label: "Planificar actividades" },
               { icon: Sparkles, label: "Recibir una recomendación" },
             ].map(({ icon: Icon, label }) => (
