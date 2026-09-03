@@ -113,3 +113,9 @@ lib/            utilidades puras, cliente Prisma, constantes
 prisma/         schema, migraciones
 proxy.ts        Middleware de autenticación (edge-safe)
 ```
+
+## Diagrama de arquitectura y flujos
+
+Muestra las capas (Presentación, Aplicación, Dominio, Datos e Infraestructura), los módulos de cada una y las conexiones principales entre vistas, features, servicios, repositorios y la base de datos.
+
+![Diagrama de arquitectura y flujos de Go Sesión](docs/architecture.png)
