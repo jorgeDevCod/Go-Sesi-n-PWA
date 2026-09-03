@@ -66,104 +66,109 @@ export function playSoftCompletionSound() {
 }
 
 /**
- * Radio AM de los 90: estática de banda con una armonía tenue que entra
- * y sale entre "estaciones", repetitiva pero con volumen moderado.
- * Reproduce durante `durationSec` segundos; devuelve un callback para
- * detenerla antes de tiempo. No-op si Web Audio no está disponible.
+ * Sonido de viento: ruido filtrado (lowpass) con la frecuencia y el volumen
+ * modulados lentamente, generando ráfagas orgánicas y suaves. Se mantiene
+ * durante `durationSec` segundos; devuelve un callback para detenerlo antes
+ * de tiempo. No-op si Web Audio no está disponible.
  */
 export function playCompletionAlarm(durationSec: number): () => void {
   const ctx = getContext();
   if (!ctx) return () => {};
+  const ac: AudioContext = ctx;
   // Reanuda por si el navegador lo dejó suspendido (autoplay policy).
-  if (ctx.state === "suspended") void ctx.resume();
+  if (ac.state === "suspended") void ac.resume();
 
-  // Buffer de ruido blanco (~1.5s) cacheado para reusar entre ciclos.
+  let stopped = false;
+
+  // Buffer de ruido blanco (2s) cacheado para alimentar el viento.
   let noiseBuffer: AudioBuffer | null = null;
   function getNoiseBuffer(): AudioBuffer | null {
     if (noiseBuffer) return noiseBuffer;
-    if (!ctx) return null;
-    const length = Math.floor(ctx.sampleRate * 1.5);
-    noiseBuffer = ctx.createBuffer(1, length, ctx.sampleRate);
+    const length = Math.floor(ac.sampleRate * 2);
+    noiseBuffer = ac.createBuffer(1, length, ac.sampleRate);
     const data = noiseBuffer.getChannelData(0);
     for (let i = 0; i < length; i++) data[i] = Math.random() * 2 - 1;
     return noiseBuffer;
   }
 
-  // Acorde consonante (C mayor suave).
-  const CHORD = [261.63, 329.63, 392.0]; // C4 E4 G4
-  const CHORD_FADE = 0.9;
-
-  let stopped = false;
-
-  function playRadioCycle() {
-    if (!ctx || stopped) return;
-    const now = ctx.currentTime;
-
-    // --- Estática AM (ruido blanco a través de un bandpass) ---
-    const buffer = getNoiseBuffer();
-    if (buffer) {
-      const noise = ctx.createBufferSource();
-      noise.buffer = buffer;
-
-      const bandpass = ctx.createBiquadFilter();
-      bandpass.type = "bandpass";
-      bandpass.frequency.value = 1000;
-      bandpass.Q.value = 0.7;
-
-      const noiseGain = ctx.createGain();
-      // Envolvente suave de la ráfaga de estática (en y fuera).
-      noiseGain.gain.setValueAtTime(0.0001, now);
-      noiseGain.gain.exponentialRampToValueAtTime(0.1, now + 0.15);
-      noiseGain.gain.exponentialRampToValueAtTime(0.0001, now + CHORD_FADE);
-
-      // Tremolo AM: seno de baja frecuencia modulando la estática.
-      const lfo = ctx.createOscillator();
-      lfo.type = "sine";
-      lfo.frequency.value = 7;
-      const lfoGain = ctx.createGain();
-      lfoGain.gain.value = 0.05;
-      const lfoDepth = ctx.createGain();
-      lfoDepth.gain.value = 0.4;
-      lfo.connect(lfoGain);
-      lfoGain.connect(lfoDepth);
-      lfoDepth.connect(noiseGain.gain);
-
-      noise.connect(bandpass);
-      bandpass.connect(noiseGain);
-      noiseGain.connect(ctx.destination);
-      noise.start(now);
-      noise.stop(now + CHORD_FADE + 0.1);
-      lfo.start(now);
-      lfo.stop(now + CHORD_FADE + 0.1);
-    }
-
-    // --- Armonía tenue (acorde que asoma entre la estática) ---
-    CHORD.forEach((freq) => {
-      const osc = ctx.createOscillator();
-      osc.type = "triangle";
-      osc.frequency.value = freq;
-      const g = ctx.createGain();
-      g.gain.setValueAtTime(0.0001, now);
-      g.gain.exponentialRampToValueAtTime(0.08, now + 0.2);
-      g.gain.exponentialRampToValueAtTime(0.0001, now + CHORD_FADE);
-      osc.connect(g);
-      g.connect(ctx.destination);
-      osc.start(now);
-      osc.stop(now + CHORD_FADE + 0.1);
-    });
-  }
-
   try {
-    // Repetir cada ~900 ms durante la duración indicada.
-    playRadioCycle();
-    const interval = setInterval(playRadioCycle, 900);
-    const timeout = setTimeout(() => stop(), durationSec * 1000);
+    const buffer = getNoiseBuffer();
+    if (!buffer) return () => {};
 
+    const noise = ac.createBufferSource();
+    noise.buffer = buffer;
+    noise.loop = true;
+
+    // Filtro lowpass: suaviza el ruido para que suene a viento, no a estática.
+    const lowpass = ac.createBiquadFilter();
+    lowpass.type = "lowpass";
+    lowpass.frequency.value = 900;
+    lowpass.Q.value = 0.5;
+
+    const windGain = ac.createGain();
+    windGain.gain.value = 0.0;
+
+    noise.connect(lowpass);
+    lowpass.connect(windGain);
+    windGain.connect(ac.destination);
+
+    // LFO que abre/cierra el filtro lentamente: da el "aire" variable del viento.
+    const cutLfo = ac.createOscillator();
+    cutLfo.type = "sine";
+    cutLfo.frequency.value = 0.4;
+    const cutDepth = ac.createGain();
+    cutDepth.gain.value = 500;
+    cutLfo.connect(cutDepth);
+    cutDepth.connect(lowpass.frequency);
+
+    // Segundo LFO (más lento) que modula el volumen: crea ráfagas orgánicas.
+    const volLfo = ac.createOscillator();
+    volLfo.type = "sine";
+    volLfo.frequency.value = 0.18;
+    const volDepth = ac.createGain();
+    volDepth.gain.value = 0.1;
+    volLfo.connect(volDepth);
+    volDepth.connect(windGain.gain);
+
+    const start = ac.currentTime;
+    // Fundido de entrada y salida suaves; nivel máximo moderado.
+    windGain.gain.setValueAtTime(0.0001, start);
+    windGain.gain.linearRampToValueAtTime(0.18, start + 1.2);
+    windGain.gain.setTargetAtTime(0.16, start + 1.5, 1.5);
+    windGain.gain.setValueAtTime(0.18, start + durationSec - 1.2);
+    windGain.gain.linearRampToValueAtTime(0.0001, start + durationSec);
+
+    noise.start(start);
+    cutLfo.start(start);
+    volLfo.start(start);
+
+    const fadeTimeout: ReturnType<typeof setTimeout> | undefined =
+      // Apaga los nodos justo tras el fade-out para no dejar recursos vivos.
+      setTimeout(() => {
+        noise.stop();
+        cutLfo.stop();
+        volLfo.stop();
+      }, durationSec * 1000 + 100);
     function stop() {
       if (stopped) return;
       stopped = true;
-      clearInterval(interval);
-      clearTimeout(timeout);
+      try {
+        const now = ac.currentTime;
+        windGain.gain.cancelScheduledValues(now);
+        windGain.gain.setTargetAtTime(0.0001, now, 0.05);
+      } catch {
+        // Ignorar; solo intentamos detener el sonido limpiamente.
+      }
+      setTimeout(() => {
+        try {
+          noise.stop();
+          cutLfo.stop();
+          volLfo.stop();
+        } catch {
+          // Ya detenidos.
+        }
+      }, 150);
+      if (fadeTimeout) clearTimeout(fadeTimeout);
     }
 
     return stop;
@@ -182,7 +187,8 @@ export function playSoftStartSound() {
 export function vibrateOnCompletion() {
   if (typeof navigator === "undefined" || typeof navigator.vibrate !== "function") return;
   try {
-    navigator.vibrate([120, 60, 120]);
+    // Vibración breve y tenue, sin el patron 120/60/120 (demasiado brusco).
+    navigator.vibrate(400);
   } catch {
     // Ignore-vibration is an optional nicety.
   }
