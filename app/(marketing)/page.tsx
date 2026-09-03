@@ -253,7 +253,7 @@ export default function MarketingHomePage() {
       <main className="flex flex-col">
         {/* Hero */}
         <section className="mx-auto flex w-full max-w-3xl flex-col items-center gap-6 px-4 py-16 text-center">
-          <h1 className="font-display max-w-2xl text-3xl font-bold leading-tight tracking-[0.02em] text-foreground sm:text-4xl md:text-5xl">
+          <h1 className="font-display max-w-2xl text-4xl font-bold leading-tight tracking-[0.02em] text-foreground sm:text-5xl md:text-6xl">
             Go Sesión
           </h1>
 
