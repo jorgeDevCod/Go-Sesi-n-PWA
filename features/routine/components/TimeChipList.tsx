@@ -25,8 +25,12 @@ const ROLES: { key: FixedRole; label: string }[] = [
   { key: "max", label: "Máx" },
 ];
 
-const HOURS = [0, 1, 2, 3, 4];
+const HOURS = [0, 1, 2, 3, 4, 5, 6, 7, 8];
 const MINUTES = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55];
+
+// Máximo permitido para una actividad: 8h 59min (539 min).
+const MAX_MINUTES = 8 * 60 + 59;
+const MAX_ERROR = "No podemos usar tiempos que excedan las 8h 59min para una actividad.";
 
 function formatValue(value: number): string {
   if (value >= 60) {
@@ -73,6 +77,9 @@ export function TimeChipList({
   const [pickedRole, setPickedRole] = useState<FixedRole>("rec");
   const [replaceTarget, setReplaceTarget] = useState<FixedRole>("rec");
   const [error, setError] = useState<string | null>(null);
+  const [customMode, setCustomMode] = useState<"pick" | "type">("pick");
+  const [freeHours, setFreeHours] = useState(0);
+  const [freeMinutes, setFreeMinutes] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const controls = useAnimationControls();
 
@@ -106,7 +113,7 @@ export function TimeChipList({
 
   function commitEdit(originalValue: number, raw: string) {
     const value = parseInt(raw, 10);
-    if (Number.isNaN(value) || value < 1 || value > 240) {
+    if (Number.isNaN(value) || value < 1 || value > MAX_MINUTES) {
       setEditingValue(null);
       return;
     }
@@ -186,14 +193,15 @@ export function TimeChipList({
   }
 
   function openCustom() {
-    setHours(0);
-    setMinutes(15);
+    setCustomMode("pick");
+    setFreeHours(0);
+    setFreeMinutes(0);
     setPanel("custom");
     clearError();
   }
 
   function confirmAdd() {
-    if (currentValue < 1 || currentValue > 240) return;
+    if (currentValue < 1 || currentValue > MAX_MINUTES) return;
     if (chips.some((c) => c.value === currentValue)) {
       triggerError("Este tiempo ya existe, agregue otro.");
       return;
@@ -215,7 +223,7 @@ export function TimeChipList({
   }
 
   function confirmReplace() {
-    if (currentValue < 1 || currentValue > 240) return;
+    if (currentValue < 1 || currentValue > MAX_MINUTES) return;
     if (chips.some((c) => c.role !== replaceTarget && c.value === currentValue)) {
       triggerError("Este tiempo ya existe, agregue otro.");
       return;
@@ -240,14 +248,43 @@ export function TimeChipList({
   }
 
   function confirmCustom() {
-    if (currentValue < 1 || currentValue > 240) return;
-    const exists = chips.some((c) => c.value === currentValue);
+    if (customMode === "type") {
+      const total = freeHours * 60 + freeMinutes;
+      if (total > MAX_MINUTES) {
+        triggerError(MAX_ERROR);
+        setFreeHours(0);
+        setFreeMinutes(0);
+        return;
+      }
+      if (total < 1) return;
+      if (chips.some((c) => c.value === total)) {
+        triggerError("Este tiempo ya existe, agregue otro.");
+        return;
+      }
+      onChange(
+        [...chips, { value: total, role: null, custom: true, previousRole: null as ChipRole }].sort(
+          (a, b) => a.value - b.value,
+        ),
+      );
+      setPanel("none");
+      clearError();
+      return;
+    }
+    const value = hours * 60 + minutes;
+    if (value > MAX_MINUTES) {
+      triggerError(MAX_ERROR);
+      setHours(0);
+      setMinutes(0);
+      return;
+    }
+    if (value < 1) return;
+    const exists = chips.some((c) => c.value === value);
     if (exists) {
       triggerError("Este tiempo ya existe, agregue otro.");
       return;
     }
     onChange(
-      [...chips, { value: currentValue, role: null, custom: true, previousRole: null as ChipRole }].sort(
+      [...chips, { value, role: null, custom: true, previousRole: null as ChipRole }].sort(
         (a, b) => a.value - b.value,
       ),
     );
@@ -344,7 +381,7 @@ export function TimeChipList({
                     if (e.key === "Escape") setEditingValue(null);
                   }}
                   min={1}
-                  max={240}
+                  max={MAX_MINUTES}
                   autoFocus
                 />
               ) : (
@@ -516,15 +553,71 @@ export function TimeChipList({
 
         {panel === "custom" && (
           <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-accent-aprender/60 bg-surface p-3 shadow-sm">
-            {clockPicker()}
-            <span className="flex items-center gap-1 rounded-full bg-surface-hover px-2 py-0.5 text-[10px] font-semibold text-foreground">
-              <Star className="size-2.5" />
-              Mi elección
-            </span>
+            {customMode === "pick" ? (
+              <button
+                type="button"
+                onClick={() => {
+                  setCustomMode("type");
+                  setFreeHours(0);
+                  setFreeMinutes(0);
+                  clearError();
+                }}
+                className="flex cursor-pointer items-center gap-1.5 rounded-full border border-accent-aprender/50 bg-accent-aprender/5 px-3 py-1.5 text-xs font-medium text-accent-aprender transition-colors hover:bg-accent-aprender/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender"
+              >
+                <Star className="size-3.5" />
+                Mi tiempo
+              </button>
+            ) : (
+              <>
+                <Clock className="size-4 text-accent-aprender" />
+                <div className="flex items-center gap-1">
+                  <input
+                    type="number"
+                    value={freeHours}
+                    min={0}
+                    max={8}
+                    onChange={(e) => {
+                      const v = Math.max(0, Number(e.target.value));
+                      if (v > 8) {
+                        triggerError(MAX_ERROR);
+                        setFreeHours(0);
+                        setFreeMinutes(0);
+                        return;
+                      }
+                      setFreeHours(v);
+                      clearError();
+                    }}
+                    aria-label="Horas"
+                    className="w-14 rounded-lg border border-border bg-surface px-2 py-1 text-center text-sm outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none focus-visible:ring-2 focus-visible:ring-accent-aprender"
+                  />
+                  <span className="text-xs text-muted-foreground">h</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <input
+                    type="number"
+                    value={freeMinutes}
+                    min={0}
+                    max={59}
+                    onChange={(e) => {
+                      const v = Math.max(0, Number(e.target.value));
+                      if (v > 59) {
+                        setFreeMinutes(59);
+                        return;
+                      }
+                      setFreeMinutes(v);
+                      clearError();
+                    }}
+                    aria-label="Minutos"
+                    className="w-14 rounded-lg border border-border bg-surface px-2 py-1 text-center text-sm outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none focus-visible:ring-2 focus-visible:ring-accent-aprender"
+                  />
+                  <span className="text-xs text-muted-foreground">min</span>
+                </div>
+              </>
+            )}
             <button
               type="button"
               onClick={confirmCustom}
-              disabled={currentValue < 1}
+              disabled={customMode === "type" ? freeHours * 60 + freeMinutes < 1 : currentValue < 1}
               className="cursor-pointer rounded-full bg-accent-aprender px-3 py-1 text-xs font-semibold text-white transition-colors hover:bg-accent-aprender-hover disabled:opacity-50"
             >
               Agregar
