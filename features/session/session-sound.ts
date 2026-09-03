@@ -66,9 +66,10 @@ export function playSoftCompletionSound() {
 }
 
 /**
- * Reproduces an audible alarm (chime) that repeats for `durationSec` seconds,
- * so the user notices the session finished. Stops early via the returned
- * callback. No-op if Web Audio is unavailable.
+ * Radio AM de los 90: estática de banda con una armonía tenue que entra
+ * y sale entre "estaciones", repetitiva pero con volumen moderado.
+ * Reproduce durante `durationSec` segundos; devuelve un callback para
+ * detenerla antes de tiempo. No-op si Web Audio no está disponible.
  */
 export function playCompletionAlarm(durationSec: number): () => void {
   const ctx = getContext();
@@ -76,28 +77,86 @@ export function playCompletionAlarm(durationSec: number): () => void {
   // Reanuda por si el navegador lo dejó suspendido (autoplay policy).
   if (ctx.state === "suspended") void ctx.resume();
 
+  // Buffer de ruido blanco (~1.5s) cacheado para reusar entre ciclos.
+  let noiseBuffer: AudioBuffer | null = null;
+  function getNoiseBuffer(): AudioBuffer | null {
+    if (noiseBuffer) return noiseBuffer;
+    if (!ctx) return null;
+    const length = Math.floor(ctx.sampleRate * 1.5);
+    noiseBuffer = ctx.createBuffer(1, length, ctx.sampleRate);
+    const data = noiseBuffer.getChannelData(0);
+    for (let i = 0; i < length; i++) data[i] = Math.random() * 2 - 1;
+    return noiseBuffer;
+  }
+
+  // Acorde consonante (C mayor suave).
+  const CHORD = [261.63, 329.63, 392.0]; // C4 E4 G4
+  const CHORD_FADE = 0.9;
+
   let stopped = false;
 
-  try {
-    const beep = () => {
-      if (!ctx || stopped) return;
-      const now = ctx.currentTime;
-      const oscillator = ctx.createOscillator();
-      const gain = ctx.createGain();
-      oscillator.type = "sine";
-      oscillator.frequency.value = 880;
-      gain.gain.setValueAtTime(0.0001, now);
-      gain.gain.exponentialRampToValueAtTime(0.2, now + 0.05);
-      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.35);
-      oscillator.connect(gain);
-      gain.connect(ctx.destination);
-      oscillator.start(now);
-      oscillator.stop(now + 0.4);
-    };
+  function playRadioCycle() {
+    if (!ctx || stopped) return;
+    const now = ctx.currentTime;
 
-    // Primer pitido y luego un intervalo repetitivo.
-    beep();
-    const interval = setInterval(beep, 700);
+    // --- Estática AM (ruido blanco a través de un bandpass) ---
+    const buffer = getNoiseBuffer();
+    if (buffer) {
+      const noise = ctx.createBufferSource();
+      noise.buffer = buffer;
+
+      const bandpass = ctx.createBiquadFilter();
+      bandpass.type = "bandpass";
+      bandpass.frequency.value = 1000;
+      bandpass.Q.value = 0.7;
+
+      const noiseGain = ctx.createGain();
+      // Envolvente suave de la ráfaga de estática (en y fuera).
+      noiseGain.gain.setValueAtTime(0.0001, now);
+      noiseGain.gain.exponentialRampToValueAtTime(0.1, now + 0.15);
+      noiseGain.gain.exponentialRampToValueAtTime(0.0001, now + CHORD_FADE);
+
+      // Tremolo AM: seno de baja frecuencia modulando la estática.
+      const lfo = ctx.createOscillator();
+      lfo.type = "sine";
+      lfo.frequency.value = 7;
+      const lfoGain = ctx.createGain();
+      lfoGain.gain.value = 0.05;
+      const lfoDepth = ctx.createGain();
+      lfoDepth.gain.value = 0.4;
+      lfo.connect(lfoGain);
+      lfoGain.connect(lfoDepth);
+      lfoDepth.connect(noiseGain.gain);
+
+      noise.connect(bandpass);
+      bandpass.connect(noiseGain);
+      noiseGain.connect(ctx.destination);
+      noise.start(now);
+      noise.stop(now + CHORD_FADE + 0.1);
+      lfo.start(now);
+      lfo.stop(now + CHORD_FADE + 0.1);
+    }
+
+    // --- Armonía tenue (acorde que asoma entre la estática) ---
+    CHORD.forEach((freq) => {
+      const osc = ctx.createOscillator();
+      osc.type = "triangle";
+      osc.frequency.value = freq;
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(0.0001, now);
+      g.gain.exponentialRampToValueAtTime(0.08, now + 0.2);
+      g.gain.exponentialRampToValueAtTime(0.0001, now + CHORD_FADE);
+      osc.connect(g);
+      g.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + CHORD_FADE + 0.1);
+    });
+  }
+
+  try {
+    // Repetir cada ~900 ms durante la duración indicada.
+    playRadioCycle();
+    const interval = setInterval(playRadioCycle, 900);
     const timeout = setTimeout(() => stop(), durationSec * 1000);
 
     function stop() {
