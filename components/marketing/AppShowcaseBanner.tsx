@@ -362,7 +362,7 @@ export function AppShowcaseBanner() {
   const slide = SLIDES[index];
 
   return (
-    <div className="relative mx-auto w-full max-w-4xl">
+    <div className="relative mx-auto w-full max-w-4xl my-4">
       <div className="overflow-hidden rounded-3xl border border-border bg-surface shadow-xl my-4">
         <AnimatePresence mode="wait">
           <motion.div
