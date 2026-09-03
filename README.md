@@ -114,8 +114,8 @@ prisma/         schema, migraciones
 proxy.ts        Middleware de autenticación (edge-safe)
 ```
 
-## Diagrama de arquitectura y flujos
+## Diagrama de datos (ERD)
 
-Muestra las capas (Presentación, Aplicación, Dominio, Datos e Infraestructura), los módulos de cada una y las conexiones principales entre vistas, features, servicios, repositorios y la base de datos.
+Esquema relacional en PostgreSQL: entidades (`User`, `Category`, `Subcategory`, `FocusSession`, `DailyPlan`, `PlanItem`), sus campos, claves (`PK`/`UQ`/`FK`) y las relaciones 1:N entre ellas.
 
-![Diagrama de arquitectura y flujos de Go Sesión](docs/architecture.png)
+![Diagrama de datos de Go Sesión](docs/erd.png)
