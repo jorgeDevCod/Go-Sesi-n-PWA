@@ -1,6 +1,6 @@
 # Go Sesión
 
-PWA de enfoque personal. "Reserva tu espacio y haz que cada momento cuente."
+PWA de enfoque personal. "Reserva tu espacio de tiempo para hacer lo que quiereas o simplemente recibe recomendaciones según tu energia y tiempo."
 
 Aplicación de sesiones de enfoque: elige una actividad, define un tiempo mínimo/recomendado/máximo, inicia el cronómetro y avanza sin fricción. Incluye recomendaciones personalizadas por energía y dificultad, plan del día, historial, accesos rápidos al home y PWA instalable.
 
