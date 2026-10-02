@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, CalendarCheck2, History, Home, LogOut, Menu, Settings2, SlidersHorizontal, Trash2 } from "lucide-react";
+import { ArrowLeft, CalendarCheck2, History, Home, LogOut, Menu, Settings2, SlidersHorizontal, Trash2, UserRound } from "lucide-react";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { AppGuideModal } from "@/components/ui/AppGuideModal";
 import { WelcomeModal } from "@/components/ui/WelcomeModal";
@@ -17,70 +17,19 @@ import { PlanContinuePrompt } from "@/features/planning/components/PlanContinueP
 import { MoodModal } from "@/features/recommendation/components/MoodModal";
 import { TrashUndoModal } from "@/features/categories/components/TrashUndoModal";
 import { useSessionStore } from "@/features/session/store/session.store";
-import { hasAnsweredMoodToday } from "@/features/recommendation/mood.storage";
+import { useServerPrefsSync } from "@/features/preferences/hooks/useServerPrefsSync";
+import { useOnboardingMachine } from "@/features/onboarding/hooks/useOnboardingMachine";
+import { useOfflineFlush } from "@/features/offline/hooks/useOfflineFlush";
 import { ResumeSessionPrompt } from "@/features/session/components/ResumeSessionPrompt";
-import { useOnboardingStore } from "@/features/onboarding/store/onboarding.store";
-import { getTodayPlanAction, saveTodayPlanAction } from "@/features/planning/actions/planning.actions";
-import { todayKey } from "@/lib/day";
-
-const GUIDE_STORAGE_KEY = "gosession-guide-seen";
-const WELCOME_STORAGE_PREFIX = "gosession-welcome-seen";
-
-function getWelcomeKey() {
-  return `${WELCOME_STORAGE_PREFIX}-${todayKey()}`;
-}
 
 export function AppShell({ userName, children }: { userName: string; children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const isHome = pathname === "/app/home";
   const [menuOpen, setMenuOpen] = useState(false);
-  const [guideOpen, setGuideOpen] = useState(false);
-  const [planContinueOpen, setPlanContinueOpen] = useState(false);
-  // Cuando el usuario opta por no continuar la planificación, la guía se
-  // muestra antes de redirigir al home.
-  const [redirectAfterGuide, setRedirectAfterGuide] = useState(false);
-  const [welcomeOpen, setWelcomeOpen] = useState(() => {
-    if (typeof window === "undefined") return false;
-    try {
-      return window.localStorage.getItem(getWelcomeKey()) !== "1";
-    } catch {
-      return true;
-    }
-  });
-  const storeMoodOpen = useOnboardingStore((state) => state.moodOpen);
-  const setStoreMoodOpen = useOnboardingStore((state) => state.setMoodOpen);
-
-  const closeGuide = useCallback(() => {
-    setGuideOpen(false);
-    try {
-      window.sessionStorage.setItem(GUIDE_STORAGE_KEY, "1");
-    } catch {
-      // Storage unavailable.
-    }
-    if (redirectAfterGuide) {
-      setRedirectAfterGuide(false);
-      router.push("/app/home");
-    }
-  }, [router, redirectAfterGuide]);
-
-  const closeWelcome = useCallback(() => {
-    setWelcomeOpen(false);
-    try {
-      window.localStorage.setItem(getWelcomeKey(), "1");
-    } catch {
-      // Storage unavailable.
-    }
-    useOnboardingStore.getState().setWelcomeDone(true);
-  }, []);
-
-  const markWelcomeDismissedForToday = useCallback(() => {
-    try {
-      window.localStorage.setItem(getWelcomeKey(), "1");
-    } catch {
-      // Storage unavailable.
-    }
-  }, []);
+  // Onboarding post-login con una sola máquina de estados (mismo
+  // comportamiento que el cableado disperso anterior).
+  const onboarding = useOnboardingMachine();
 
   const handleBack = useCallback(() => {
     if (window.history.length > 1) {
@@ -94,9 +43,15 @@ export function AppShell({ userName, children }: { userName: string; children: R
     void useSessionStore.persist.rehydrate();
   }, []);
 
+  // Sincroniza prefs y ánimo con el servidor (best-effort, una vez).
+  useServerPrefsSync();
+
+  // Drena la cola offline al entrar y al recuperar la red.
+  useOfflineFlush();
+
   const clearOnboardingKeys = useCallback(() => {
     try {
-      window.sessionStorage.removeItem(GUIDE_STORAGE_KEY);
+      window.sessionStorage.removeItem("gosession-guide-seen");
       // La guarda de bienvenida es por-día ("No mostrar más hoy") y NO se
       // limpia al cerrar sesión: persiste hasta el día siguiente.
       window.sessionStorage.removeItem("gosession-categories-auto-opened");
@@ -182,6 +137,15 @@ export function AppShell({ userName, children }: { userName: string; children: R
             <Trash2 className="size-4" />
             <span className="hidden sm:inline">Papelera</span>
           </Link>
+          <Link
+            href="/app/account"
+            aria-label="Ir a cuenta"
+            title="Ir a cuenta"
+            className="flex cursor-pointer items-center gap-1.5 rounded-full border border-border px-3 py-2 text-sm font-medium text-foreground transition-colors duration-200 hover:border-accent-aprender/40 hover:bg-surface-hover hover:text-accent-aprender focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender"
+          >
+            <UserRound className="size-4" />
+            <span className="hidden sm:inline">Cuenta</span>
+          </Link>
         </div>
         <div className="flex items-center gap-2">
           <ThemeToggle />
@@ -212,57 +176,22 @@ export function AppShell({ userName, children }: { userName: string; children: R
       <main className="flex flex-1 flex-col px-4 py-8 sm:px-6">{children}</main>
       <PlanningManager />
       <MobileMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
-      <AppGuideModal open={guideOpen} onClose={closeGuide} />
+      <AppGuideModal open={onboarding.showGuide} onClose={onboarding.closeGuide} />
       <WelcomeModal
-        open={welcomeOpen}
+        open={onboarding.showWelcome}
         userName={userName}
-        onPersonalize={() => {
-          closeWelcome();
-          router.push("/app/routine");
-        }}
-        onPlan={() => {
-          closeWelcome();
-          usePlanningStore.getState().open();
-        }}
-        onLearn={() => {
-          closeWelcome();
-          getTodayPlanAction().then((result) => {
-            if (result.success && result.plan && result.plan.items.length > 0) {
-              setPlanContinueOpen(true);
-            } else {
-              setGuideOpen(true);
-            }
-          });
-        }}
-        onSkip={() => {
-          closeWelcome();
-          try { sessionStorage.setItem("gosession-show-categories", "1"); } catch {}
-          usePlanningStore.getState().bumpPlanVersion();
-          if (!hasAnsweredMoodToday()) {
-            setStoreMoodOpen(true);
-          }
-        }}
-        onDontShowToday={markWelcomeDismissedForToday}
+        onPersonalize={onboarding.choosePersonalize}
+        onPlan={onboarding.choosePlan}
+        onLearn={() => void onboarding.chooseLearn()}
+        onSkip={onboarding.chooseSkip}
+        onDontShowToday={onboarding.dismissToday}
       />
       <PlanContinuePrompt
-        open={planContinueOpen}
-        onKeepPlan={() => {
-          setPlanContinueOpen(false);
-          setGuideOpen(true);
-        }}
-        onStartFresh={async () => {
-          setPlanContinueOpen(false);
-          await saveTodayPlanAction([]);
-          try { sessionStorage.setItem("gosession-show-categories", "1"); } catch {}
-          // Mostrar el modal informativo antes de ir al home.
-          setRedirectAfterGuide(true);
-          setGuideOpen(true);
-        }}
+        open={onboarding.showPlanContinue}
+        onKeepPlan={onboarding.keepPlan}
+        onStartFresh={() => void onboarding.startFresh()}
       />
-      <MoodModal open={storeMoodOpen} userName={userName} onClose={() => {
-        setStoreMoodOpen(false);
-        window.dispatchEvent(new CustomEvent("gosession-expand-categories"));
-      }} />
+      <MoodModal open={onboarding.showMood} userName={userName} onClose={onboarding.closeMood} />
       <TrashUndoModal />
       {!pathname.startsWith("/app/session") && <ResumeSessionPrompt userName={userName} />}
     </div>

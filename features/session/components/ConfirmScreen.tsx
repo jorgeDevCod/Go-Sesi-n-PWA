@@ -20,6 +20,7 @@ export function ConfirmScreen({
   isPending,
   icon,
   color,
+  modeLine,
 }: {
   subcategoryName: string;
   categoryName?: string;
@@ -31,6 +32,7 @@ export function ConfirmScreen({
   isPending: boolean;
   icon?: string;
   color?: string;
+  modeLine?: string;
 }) {
   return (
     <div className="flex flex-col items-center gap-6 text-center">
@@ -53,6 +55,9 @@ export function ConfirmScreen({
           <span className="font-medium text-foreground">{subcategoryName}</span>
           {categoryName && <span> · {categoryName}</span>}. ¡Tú puedes!
         </p>
+        {modeLine && (
+          <p className="max-w-xs text-xs leading-relaxed text-muted-foreground">{modeLine}</p>
+        )}
       </div>
 
       <div className="flex flex-col items-center gap-2">

@@ -77,7 +77,6 @@ export function CategoryHomeGrid({
           title: item.title,
           icon: item.icon,
           color: item.color,
-          completed: item.completed,
           categoryId: item.categoryId,
           categoryName: item.categoryName,
           categoryIcon: item.categoryIcon,

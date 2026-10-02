@@ -20,7 +20,8 @@ import { StartSessionFlow } from "@/features/session/components/StartSessionFlow
 import { RecommendedActivityCard } from "@/features/session/components/RecommendedActivityCard";
 import { EnergySurvey } from "@/features/recommendation/components/EnergySurvey";
 import { useRecommendationPrefs, recommendationOverridesFromPrefs } from "@/features/recommendation/store/recommendation.store";
-import { getRecommendationsAction } from "@/features/session/actions/recommendation.actions";
+import { getRecommendationsAction, saveFeedbackAction } from "@/features/session/actions/recommendation.actions";
+import { enqueueOffline, isOnline } from "@/features/offline/queue-flush";
 import {
   createSubcategoryAction,
   deleteSubcategoryAction,
@@ -86,6 +87,7 @@ export function RecommendationScreen({
   const [chosenReason, setChosenReason] = useState<string | undefined>(undefined);
   const [actionError, setActionError] = useState<string | null>(null);
   const [isPending, startDeleteTransition] = useTransition();
+  const [feedbackPendingId, setFeedbackPendingId] = useState<string | null>(null);
   const [modalCreate, setModalCreate] = useState<{
     categoryId: string;
     categoryName: string;
@@ -155,8 +157,38 @@ export function RecommendationScreen({
     });
   }, [prefs.energy, prefs.preferredMinutes, startTransition, overrides, moodAnsweredToday]);
 
-  function startActivity(item: PickableSubcategory, minutes?: number, reason?: string) {
-    setChosen(item);
+  function applyFeedbackLocally(subcategoryId: string, value: 1 | -1 | null) {
+    setRecommendations((prev) =>
+      value === -1
+        ? prev.filter((rec) => rec.subcategoryId !== subcategoryId)
+        : prev.map((rec) =>
+            rec.subcategoryId === subcategoryId ? { ...rec, feedback: value } : rec,
+          ),
+    );
+  }
+
+  function handleFeedback(subcategoryId: string, value: 1 | -1 | null) {
+    // Sin red: se encola (idempotente) y se refleja de inmediato.
+    if (!isOnline()) {
+      enqueueOffline("feedback", { subcategoryId, value }, `feedback:${subcategoryId}`);
+      applyFeedbackLocally(subcategoryId, value);
+      return;
+    }
+    setActionError(null);
+    setFeedbackPendingId(subcategoryId);
+    startDeleteTransition(async () => {
+      const result = await saveFeedbackAction({ subcategoryId, value });
+      setFeedbackPendingId(null);
+      if (!result.success) {
+        setActionError(result.error);
+        return;
+      }
+      // 👎 desaparece de inmediato; 👍 se marca (el re-ranking llega al recargar).
+      applyFeedbackLocally(subcategoryId, value);
+    });
+  }
+
+  function startActivity(item: PickableSubcategory, minutes?: number, reason?: string) {    setChosen(item);
     setChosenMinutes(
       minutes ?? (energy ? effectiveRecommendedDuration(energy, overrides) : undefined),
     );
@@ -350,6 +382,9 @@ export function RecommendationScreen({
                 recommendation={rec}
                 highlighted={index === 0}
                 isPending={isPending}
+                feedback={rec.feedback ?? null}
+                feedbackPending={feedbackPendingId === rec.subcategoryId}
+                onFeedback={(value) => handleFeedback(rec.subcategoryId, value)}
                 onStart={() =>
                   startActivity(
                     {

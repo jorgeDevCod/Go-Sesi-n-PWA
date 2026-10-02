@@ -31,7 +31,6 @@ export type PlannedItem = {
   title: string;
   icon: string;
   color: string;
-  completed: boolean;
   categoryId: string | null;
   categoryName: string;
   categoryIcon: string;

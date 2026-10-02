@@ -12,8 +12,8 @@ type ThemeOption = {
 };
 
 const THEMES: ThemeOption[] = [
-  { key: "dark", label: "Oscuro", swatch: "#26262B" },
   { key: "blanco", label: "Blanco", swatch: "#FFFFFF" },
+  { key: "dark", label: "Oscuro", swatch: "#26262B" },
   { key: "humo", label: "Blanco humo", swatch: "#E9E9E6" },
   { key: "rosa", label: "Rosa", swatch: "#F2A9C4" },
   { key: "celeste", label: "Celeste", swatch: "#8A97E0" },

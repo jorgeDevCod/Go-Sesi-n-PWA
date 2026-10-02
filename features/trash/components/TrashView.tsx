@@ -4,6 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Trash2, RotateCcw, Check, X, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { ConfirmModal } from "@/components/ui/ConfirmModal";
+import { InfoModal } from "@/components/ui/InfoModal";
 import { DynamicIcon } from "@/components/ui/DynamicIcon";
 import { cn } from "@/lib/utils";
 import {
@@ -25,6 +27,9 @@ export function TrashView({ initialItems }: { initialItems: TrashItem[] }) {
   const [selectMode, setSelectMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [note, setNote] = useState<string | null>(null);
+  const [confirmTarget, setConfirmTarget] = useState<"empty" | "selected" | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [infoCount, setInfoCount] = useState(0);
 
   function toggleSelect(id: string) {
     setSelectedIds((prev) => {
@@ -61,27 +66,48 @@ export function TrashView({ initialItems }: { initialItems: TrashItem[] }) {
     }
   }
 
-  async function handleEmpty() {
-    if (typeof window !== "undefined" && !window.confirm("¿Vaciar toda la papelera? Esta acción no se puede deshacer.")) {
-      return;
-    }
+  async function runEmpty() {
+    const count = items.length;
+    setIsDeleting(true);
     const result = await trashEmptyAction();
+    setIsDeleting(false);
     if (result.success) {
       setNote("Papelera vaciada.");
       cancelSelect();
+      setConfirmTarget(null);
+      setInfoCount(count);
       router.refresh();
     }
   }
 
-  async function handlePermanentDelete() {
+  async function runPermanentDelete() {
+    const count = selectedItems.length;
+    setIsDeleting(true);
     const result = await trashPermanentDeleteAction({
       items: selectedItems.map((i) => ({ kind: i.kind, id: i.id })),
     });
+    setIsDeleting(false);
     if (result.success) {
       const failed = result.failed.length;
-      setNote(failed > 0 ? `Se eliminaron permanentemente ${selectedItems.length - failed}; ${failed} no se pudieron (tienen sesiones).` : `Se eliminaron permanentemente ${selectedItems.length}.`);
+      setNote(
+        failed > 0
+          ? `Se eliminaron permanentemente ${count - failed}; ${failed} no se pudieron (tienen sesiones).`
+          : `Se eliminaron permanentemente ${count}.`,
+      );
       cancelSelect();
+      setConfirmTarget(null);
+      setInfoCount(count - failed);
       router.refresh();
+    }
+  }
+
+  function confirmDelete() {
+    if (confirmTarget === "empty") {
+      void runEmpty();
+      return;
+    }
+    if (confirmTarget === "selected") {
+      void runPermanentDelete();
     }
   }
 
@@ -132,7 +158,7 @@ export function TrashView({ initialItems }: { initialItems: TrashItem[] }) {
                 <Button
                   variant="danger"
                   size="md"
-                  onClick={handlePermanentDelete}
+                  onClick={() => setConfirmTarget("selected")}
                   disabled={selectedIds.size === 0}
                   className="gap-2"
                 >
@@ -154,7 +180,7 @@ export function TrashView({ initialItems }: { initialItems: TrashItem[] }) {
                   <RotateCcw className="size-4" />
                   Restaurar todas
                 </Button>
-                <Button variant="danger" size="md" onClick={handleEmpty} className="gap-2">
+                <Button variant="danger" size="md" onClick={() => setConfirmTarget("empty")} className="gap-2">
                   <Trash2 className="size-4" />
                   Vaciar papelera
                 </Button>
@@ -218,6 +244,35 @@ export function TrashView({ initialItems }: { initialItems: TrashItem[] }) {
           </div>
         </>
       )}
+
+      <ConfirmModal
+        open={confirmTarget !== null}
+        onClose={() => setConfirmTarget(null)}
+        title={confirmTarget === "empty" ? "Vaciar toda la papelera" : "Eliminar permanentemente"}
+        message={
+          confirmTarget === "empty"
+            ? `¿Estás totalmente seguro de vaciar la papelera? Se eliminarán permanentemente los ${items.length} elementos y esta acción no se puede deshacer.`
+            : `¿Estás totalmente seguro de eliminar permanentemente ${selectedIds.size} elemento(s)? Esta acción no se puede deshacer.`
+        }
+        variant="danger"
+        confirmLabel="Sí, eliminar"
+        isPending={isDeleting}
+        onConfirm={confirmDelete}
+      />
+
+      <InfoModal
+        open={infoCount > 0}
+        onClose={() => setInfoCount(0)}
+        title="Eliminación permanente completada"
+        message={
+          <>
+            Se eliminaron <strong className="text-foreground">{infoCount}</strong> elemento(s) de forma
+            definitiva. A partir de aquí ya no pueden recuperarse. Recuerda que los elementos en la papelera
+            solo se conservan hasta {TRASH_RETENTION_DAYS} días antes de purgarse automáticamente.
+          </>
+        }
+        confirmLabel="Entendido"
+      />
     </div>
   );
 }

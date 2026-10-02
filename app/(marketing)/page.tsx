@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
+import { LandingNav } from "@/components/marketing/LandingNav";
 import { LandingActions } from "@/components/marketing/LandingActions";
 import { EnterCta } from "@/components/marketing/EnterCta";
 import { EnergyDemo } from "@/components/marketing/EnergyDemo";
@@ -235,18 +236,24 @@ const FAQS = [
 export default function MarketingHomePage() {
   return (
     <div className="font-sans">
-      <header className="sticky top-0 z-40 flex items-center justify-between border-b border-border bg-background px-4 py-3 shadow-sm sm:px-6">
-        <Link href="/" aria-label="Go — Ir al inicio" title="Go">
-          <Logo />
-        </Link>
-        <div className="flex items-center gap-2">
-          <ThemeToggle />
-          <Link
-            href="/login"
-            className="text-sm font-medium text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
-          >
-            Iniciar sesión
+      <header className="sticky top-0 z-40 flex flex-col border-b border-border bg-background px-4 py-3 shadow-sm sm:px-6">
+        <div className="flex items-center justify-between">
+          <Link href="/" aria-label="Go — Ir al inicio" title="Go">
+            <Logo />
           </Link>
+          <LandingNav variant="desktop" />
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <Link
+              href="/login"
+              className="text-sm font-medium text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+            >
+              Iniciar sesión
+            </Link>
+          </div>
+        </div>
+        <div className="pt-2">
+          <LandingNav variant="mobile" />
         </div>
       </header>
 
@@ -306,7 +313,7 @@ export default function MarketingHomePage() {
         </section>
 
         {/* Beneficios */}
-        <section className="mx-auto w-full max-w-4xl px-4 py-12">
+        <section id="beneficios" className="mx-auto w-full max-w-4xl scroll-mt-32 px-4 py-12 md:scroll-mt-20">
           <h2 className="font-display mb-2 text-center text-3xl font-bold leading-tight tracking-[0.02em] text-foreground">
             Lo que Go Sesión hace por ti
           </h2>
@@ -335,7 +342,7 @@ export default function MarketingHomePage() {
         </section>
 
         {/* Personalización */}
-        <section className="mx-auto w-full max-w-4xl px-4 py-12">
+        <section id="personalizar" className="mx-auto w-full max-w-4xl scroll-mt-32 px-4 py-12 md:scroll-mt-20">
           <h2 className="font-display mb-2 text-center text-3xl font-bold leading-tight tracking-[0.02em] text-foreground">
             Todo se adapta a ti
           </h2>
@@ -359,7 +366,7 @@ export default function MarketingHomePage() {
         </section>
 
         {/* Planificación */}
-        <section className="mx-auto w-full max-w-4xl px-4 py-12">
+        <section id="planificar" className="mx-auto w-full max-w-4xl scroll-mt-32 px-4 py-12 md:scroll-mt-20">
           <h2 className="font-display mb-2 text-center text-3xl font-bold leading-tight tracking-[0.02em] text-foreground">
             Planifica tu día y hazlo realidad
           </h2>
@@ -385,7 +392,7 @@ export default function MarketingHomePage() {
         </section>
 
         {/* Medición e historial */}
-        <section className="mx-auto w-full max-w-4xl px-4 py-12">
+        <section id="avance" className="mx-auto w-full max-w-4xl scroll-mt-32 px-4 py-12 md:scroll-mt-20">
           <h2 className="font-display mb-2 text-center text-3xl font-bold leading-tight tracking-[0.02em] text-foreground">
             Mide tu avance, celebra cada paso
           </h2>
@@ -411,7 +418,7 @@ export default function MarketingHomePage() {
         </section>
 
         {/* Cómo usar */}
-        <section className="mx-auto w-full max-w-3xl px-4 py-12">
+        <section id="como-funciona" className="mx-auto w-full max-w-3xl scroll-mt-32 px-4 py-12 md:scroll-mt-20">
           <h2 className="font-display mb-2 text-center text-3xl font-bold leading-tight tracking-[0.02em] text-foreground">
             Cómo funciona Go
           </h2>
@@ -437,7 +444,7 @@ export default function MarketingHomePage() {
         </section>
 
         {/* FAQ */}
-        <section className="mx-auto w-full max-w-2xl px-4 py-12">
+        <section id="faq" className="mx-auto w-full max-w-2xl scroll-mt-32 px-4 py-12 md:scroll-mt-20">
           <h2 className="font-display mb-6 text-center text-3xl font-bold leading-tight tracking-[0.02em] text-foreground">
             Preguntas frecuentes
           </h2>

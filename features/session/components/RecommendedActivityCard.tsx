@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { CheckCircle2, Pencil, Play, Trash2 } from "lucide-react";
+import { CheckCircle2, Pencil, Play, ThumbsDown, ThumbsUp, Trash2 } from "lucide-react";
 import { DynamicIcon } from "@/components/ui/DynamicIcon";
 import { Button } from "@/components/ui/Button";
 import { COMPLEXITY_LABELS } from "@/services/recommendation/energy-level";
@@ -15,6 +15,9 @@ export function RecommendedActivityCard({
   onStart,
   onEdit,
   onDelete,
+  feedback,
+  onFeedback,
+  feedbackPending,
 }: {
   recommendation: Recommendation;
   highlighted: boolean;
@@ -22,6 +25,9 @@ export function RecommendedActivityCard({
   onStart: () => void;
   onEdit: () => void;
   onDelete: () => void;
+  feedback?: 1 | -1 | null;
+  onFeedback?: (value: 1 | -1 | null) => void;
+  feedbackPending?: boolean;
 }) {
   const rec = recommendation;
   return (
@@ -52,6 +58,42 @@ export function RecommendedActivityCard({
           <p className="line-clamp-1 text-xs text-muted-foreground">{rec.categoryName}</p>
         </div>
         <div className="flex shrink-0 gap-0.5">
+          {onFeedback && (
+            <>
+              <motion.button
+                type="button"
+                onClick={() => onFeedback(feedback === 1 ? null : 1)}
+                disabled={feedbackPending}
+                aria-label="Me gusta esta recomendación"
+                aria-pressed={feedback === 1}
+                title="Me gusta"
+                whileTap={{ scale: 0.9 }}
+                transition={{ duration: 0.08 }}
+                className={cn(
+                  "shrink-0 cursor-pointer rounded-lg p-1.5 transition-colors duration-200 hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender",
+                  feedback === 1 ? "text-accent-aprender" : "text-muted-foreground",
+                )}
+              >
+                <ThumbsUp className={cn("size-3.5", feedback === 1 && "fill-current")} />
+              </motion.button>
+              <motion.button
+                type="button"
+                onClick={() => onFeedback(feedback === -1 ? null : -1)}
+                disabled={feedbackPending}
+                aria-label="No me gusta esta recomendación"
+                aria-pressed={feedback === -1}
+                title="No me gusta"
+                whileTap={{ scale: 0.9 }}
+                transition={{ duration: 0.08 }}
+                className={cn(
+                  "shrink-0 cursor-pointer rounded-lg p-1.5 transition-colors duration-200 hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender",
+                  feedback === -1 ? "text-red-500" : "text-muted-foreground",
+                )}
+              >
+                <ThumbsDown className={cn("size-3.5", feedback === -1 && "fill-current")} />
+              </motion.button>
+            </>
+          )}
           <motion.button
             type="button"
             onClick={onEdit}

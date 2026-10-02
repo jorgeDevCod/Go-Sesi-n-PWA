@@ -21,6 +21,11 @@ model User {
   subcategories Subcategory[]
   focusSessions FocusSession[]
   dailyPlans    DailyPlan[]
+  preference    UserPreference?
+  moods         DailyMood[]
+  feedbacks     RecommendationFeedback[]
+  resetToken    PasswordResetToken?
+  pushSubscriptions PushSubscription[]
 
   @@map("users")
 }
@@ -80,6 +85,7 @@ model Subcategory {
 
   focusSessions FocusSession[]
   planItems     PlanItem[]
+  feedbacks     RecommendationFeedback[]
 
   @@unique([userId, categoryId, name])
   @@index([userId, categoryId, order])
@@ -93,9 +99,16 @@ enum SessionStatus {
   INTERRUPTED
 }
 
+enum SessionMode {
+  CLASSIC
+  POMODORO
+}
+
 model FocusSession {
   id             String        @id @default(cuid())
   status         SessionStatus @default(ACTIVE)
+  mode           SessionMode   @default(CLASSIC)
+  pomodoroConfig Json?
   startedAt      DateTime      @default(now())
   endedAt        DateTime?
   plannedMinutes Int
@@ -118,6 +131,76 @@ model FocusSession {
   @@index([userId, status])
   @@index([userId, startedAt])
   @@map("focus_sessions")
+}
+
+model UserPreference {
+  id               String   @id @default(cuid())
+  energy           String?
+  preferredMinutes Int?
+  dontAskAgain     Boolean  @default(false)
+  data             Json     @default("{}")
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_preferences")
+}
+
+model RecommendationFeedback {
+  id        String   @id @default(cuid())
+  value     Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  subcategoryId String
+  subcategory   Subcategory @relation(fields: [subcategoryId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, subcategoryId])
+  @@map("recommendation_feedbacks")
+}
+
+model PushSubscription {
+  id        String   @id @default(cuid())
+  endpoint  String   @unique
+  keys      Json
+  createdAt DateTime @default(now())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("push_subscriptions")
+}
+
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("password_reset_tokens")
+}
+
+model DailyMood {
+  id        String   @id @default(cuid())
+  date      DateTime
+  energy    String
+  createdAt DateTime @default(now())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+  @@map("daily_moods")
 }
 
 model DailyPlan {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useTransition, useMemo } from "react";
+import { useState, useEffect, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
@@ -63,7 +63,6 @@ export function PlanningModal({
   const [selectedItems, setSelectedItems] = useState<PlanItem[]>(existingItems);
   const [localCategories, setLocalCategories] = useState<PlanningCategory[]>(categories);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [expandedCatId, setExpandedCatId] = useState<string | null>(null);
   const [expandedGroupId, setExpandedGroupId] = useState<string | null>(null);
   const [creatingForCategoryId, setCreatingForCategoryId] = useState<string | null>(null);
 
@@ -84,8 +83,12 @@ export function PlanningModal({
   if (open && !wasOpen) {
     setWasOpen(true);
     setSelectedItems(existingItems);
-    setExpandedCatId(null);
-    setExpandedGroupId(null);
+    // Auto-expande la primera categoría que ya tiene actividades en el plan
+    // para ahorrar un clic al abrir.
+    const firstWithItems = categories.find((cat) =>
+      existingItems.some((item) => item.categoryId === cat.id),
+    );
+    setExpandedGroupId(firstWithItems?.id ?? null);
   } else if (!open && wasOpen) {
     setWasOpen(false);
   }
@@ -108,23 +111,6 @@ export function PlanningModal({
     setLocalCategories(categories);
   }
 
-  const grouped = useMemo(() => {
-    const groups = new Map<string, { category: PlanningCategory; items: PlanItem[] }>();
-    for (const category of localCategories) {
-      groups.set(category.id, { category, items: [] });
-    }
-    for (const item of selectedItems) {
-      if (item.categoryId) {
-        const group = groups.get(item.categoryId);
-        if (group) group.items.push(item);
-        else groups.set(item.categoryId, { category: { id: item.categoryId, name: item.title, icon: item.icon, color: item.color, subcategories: [] }, items: [item] });
-      }
-    }
-    return [...groups.values()].filter((group) =>
-      group.items.some((item) => item.subcategoryId !== null),
-    );
-  }, [selectedItems, localCategories]);
-
   function toggleCategory(cat: PlanningCategory) {
     const turningOn = !isSelected(cat.id);
     setSelectedItems((prev) => {
@@ -144,9 +130,6 @@ export function PlanningModal({
         },
       ];
     });
-    setExpandedCatId((prev) =>
-      turningOn ? cat.id : prev === cat.id ? null : prev,
-    );
     setExpandedGroupId((prev) =>
       turningOn ? cat.id : prev === cat.id ? null : prev,
     );
@@ -215,7 +198,6 @@ export function PlanningModal({
 
   function handleDeleteAll(cat: PlanningCategory) {
     setSelectedItems((prev) => prev.filter((item) => item.categoryId !== cat.id));
-    setExpandedCatId((prev) => (prev === cat.id ? null : prev));
     setExpandedGroupId((prev) => (prev === cat.id ? null : prev));
   }
 
@@ -281,7 +263,6 @@ export function PlanningModal({
       ];
     });
 
-    setExpandedCatId(cat.id);
     setExpandedGroupId(cat.id);
     setCreatingForCategoryId(null);
   }
@@ -326,6 +307,8 @@ export function PlanningModal({
   }
 
   if (typeof document === "undefined") return null;
+
+  const selectedCats = localCategories.filter((cat) => isSelected(cat.id));
 
   return createPortal(
     <AnimatePresence>
@@ -399,118 +382,6 @@ export function PlanningModal({
               </div>
             </div>
 
-            {/* Vincular actividades (categorías seleccionadas) */}
-            {localCategories.some((cat) => isSelected(cat.id)) && (
-              <div>
-                <p className="mb-2 text-sm font-medium text-foreground">Vincular actividades</p>
-                <div className="flex flex-col gap-2">
-                  {localCategories
-                    .filter((cat) => isSelected(cat.id))
-                    .map((cat) => {
-                      const isExpanded = expandedCatId === cat.id;
-                      return (
-                        <div
-                          key={cat.id}
-                          className="overflow-hidden rounded-2xl border border-border bg-surface-muted"
-                        >
-                          <button
-                            type="button"
-                            onClick={() => setExpandedCatId(isExpanded ? null : cat.id)}
-                            aria-expanded={isExpanded}
-                            className="flex w-full cursor-pointer items-center gap-2 px-3 py-2.5 text-left transition-colors duration-200 hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender"
-                          >
-                            <span
-                              className="flex size-6 shrink-0 items-center justify-center rounded-lg"
-                              style={{ backgroundColor: `${cat.color}33` }}
-                            >
-                              <DynamicIcon name={cat.icon} className="size-3.5" style={{ color: cat.color }} />
-                            </span>
-                            <span className="min-w-0 flex-1 truncate text-sm font-medium text-foreground">
-                              {cat.name}
-                            </span>
-                            <motion.span
-                              animate={{ rotate: isExpanded ? 180 : 0 }}
-                              transition={{ duration: 0.2 }}
-                              className="shrink-0 text-muted-foreground"
-                            >
-                              <ChevronDown className="size-4" />
-                            </motion.span>
-                          </button>
-
-                          <AnimatePresence initial={false}>
-                            {isExpanded && (
-                              <motion.div
-                                initial={{ height: 0, opacity: 0 }}
-                                animate={{ height: "auto", opacity: 1 }}
-                                exit={{ height: 0, opacity: 0 }}
-                                transition={{ duration: 0.2, ease: "easeOut" }}
-                                className="overflow-hidden"
-                              >
-                                <div className="flex flex-col gap-2 border-t border-border p-3">
-                                  <div className="flex flex-wrap gap-1.5">
-                                    {cat.subcategories.length === 0 ? (
-                                      <p className="text-xs text-muted-foreground">
-                                        Esta categoría no tiene actividades todavía.
-                                      </p>
-                                    ) : (
-                                      cat.subcategories.map((sub) => {
-                                        const linked = isActivitySelected(sub.id);
-                                        return (
-                                          <div key={sub.id} className="relative">
-                                            <button
-                                              type="button"
-                                              onClick={() => toggleActivity(cat, sub)}
-                                              aria-pressed={linked}
-                                              className={cn(
-                                                "flex cursor-pointer items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender",
-                                                linked
-                                                  ? "border-accent-aprender bg-accent-aprender/10 text-accent-aprender"
-                                                  : "border-border bg-surface text-foreground hover:bg-surface-hover",
-                                              )}
-                                            >
-                                              <span
-                                                className="flex size-5 items-center justify-center rounded"
-                                                style={{ backgroundColor: `${sub.color}33` }}
-                                              >
-                                                <DynamicIcon name={sub.icon} className="size-3" style={{ color: sub.color }} />
-                                              </span>
-                                              {sub.name}
-                                            </button>
-                                            {linked && (
-                                              <button
-                                                type="button"
-                                                onClick={() => toggleActivity(cat, sub)}
-                                                aria-label={`Quitar ${sub.name}`}
-                                                title="Quitar actividad"
-                                                className="absolute -top-1.5 -right-1.5 flex size-4 cursor-pointer items-center justify-center rounded-full bg-red-400 text-white shadow-sm transition-colors hover:bg-red-500 focus-visible:outline-none"
-                                              >
-                                                <X className="size-2.5" />
-                                              </button>
-                                            )}
-                                          </div>
-                                        );
-                                      })
-                                    )}
-                                  </div>
-                                  <button
-                                    type="button"
-                                    onClick={() => setCreatingForCategoryId(cat.id)}
-                                    className="flex cursor-pointer items-center gap-1.5 self-start rounded-full border border-dashed border-border px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:border-accent-aprender/40 hover:text-accent-aprender focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender"
-                                  >
-                                    <Plus className="size-3.5" />
-                                    Crear actividad personalizada
-                                  </button>
-                                </div>
-                              </motion.div>
-                            )}
-                          </AnimatePresence>
-                        </div>
-                      );
-                    })}
-                </div>
-              </div>
-            )}
-
             {/* Add new category inline */}
             <div>
               {!showNewCategory ? (
@@ -567,10 +438,10 @@ export function PlanningModal({
               )}
             </div>
 
-            {/* Selected items grouped by category */}
+            {/* Tu plan para hoy — sección unificada (elegir + revisar en un solo lugar) */}
             <div>
               <p className="mb-2 text-sm font-medium text-foreground">Tu plan para hoy</p>
-              {grouped.length === 0 ? (
+              {selectedCats.length === 0 ? (
                 <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-border bg-surface-muted p-6 text-center">
                   <span className="flex size-10 items-center justify-center rounded-xl bg-accent-aprender/10 text-accent-aprender">
                     <CalendarCheck2 className="size-5" />
@@ -579,30 +450,28 @@ export function PlanningModal({
                     Aún no has elegido nada para hoy
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    Selecciona categorías arriba y vincula las actividades que quieres realizar. Tu plan
-                    aparecerá aquí con cada categoría y sus actividades listas para empezar.
+                    Toca las categorías de arriba y luego marca las actividades que quieres hacer. Tu plan
+                    aparecerá aquí listo para empezar.
                   </p>
                 </div>
               ) : (
                 <div className="flex flex-col gap-3">
-                  {grouped.map(({ category, items }) => {
-                    const visibleItems = items.filter((item) => item.subcategoryId !== null);
-
+                  {selectedCats.map((category) => {
+                    const isExpanded = expandedGroupId === category.id;
+                    const linkedItems = selectedItems.filter(
+                      (item) => item.categoryId === category.id && item.subcategoryId !== null,
+                    );
                     return (
                       <div
                         key={category.id}
                         className="overflow-hidden rounded-2xl border border-border bg-surface-muted"
                       >
-                        {/* Category header: toggle + delete */}
+                        {/* Header: expandir + eliminar todo */}
                         <div className="flex items-center gap-1 border-b border-border bg-surface">
                           <button
                             type="button"
-                            onClick={() =>
-                              setExpandedGroupId(
-                                expandedGroupId === category.id ? null : category.id,
-                              )
-                            }
-                            aria-expanded={expandedGroupId === category.id}
+                            onClick={() => setExpandedGroupId(isExpanded ? null : category.id)}
+                            aria-expanded={isExpanded}
                             className="flex min-w-0 flex-1 cursor-pointer items-center gap-2 px-3 py-2 text-left transition-colors duration-200 hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender"
                           >
                             <span
@@ -614,13 +483,13 @@ export function PlanningModal({
                             <span className="min-w-0 flex-1 truncate text-sm font-semibold text-foreground">
                               {category.name}
                             </span>
-                            {visibleItems.length > 0 && (
+                            {linkedItems.length > 0 && (
                               <span className="shrink-0 rounded-full bg-surface-hover px-1.5 py-0.5 text-[10px] text-muted-foreground">
-                                {visibleItems.length}
+                                {linkedItems.length}
                               </span>
                             )}
                             <motion.span
-                              animate={{ rotate: expandedGroupId === category.id ? 180 : 0 }}
+                              animate={{ rotate: isExpanded ? 180 : 0 }}
                               transition={{ duration: 0.2 }}
                               className="shrink-0 text-muted-foreground"
                             >
@@ -639,9 +508,9 @@ export function PlanningModal({
                           </button>
                         </div>
 
-                        {/* Body: activities + vincular (solo visible si expandido) */}
+                        {/* Body: actividades (marcar/quitar) + crear + revisar */}
                         <AnimatePresence initial={false}>
-                          {expandedGroupId === category.id && (
+                          {isExpanded && (
                             <motion.div
                               key="body"
                               initial={{ height: 0, opacity: 0 }}
@@ -650,69 +519,117 @@ export function PlanningModal({
                               transition={{ duration: 0.2, ease: "easeOut" }}
                               className="overflow-hidden"
                             >
-                              <div className="flex flex-col">
-                                {visibleItems.length === 0 ? (
-                                  <p className="px-3 py-2 text-xs text-muted-foreground">
-                                    Sin actividades vinculadas todavía.
-                                  </p>
-                                ) : (
-                                  visibleItems.map((item) => {
-                                    const isEditing = editingId === item.id;
-                                    return (
-                                      <div
-                                        key={item.id}
-                                        className="flex items-center gap-2 border-b border-border px-3 py-2 transition-colors duration-200 last:border-b-0"
-                                      >
-                                        {isEditing ? (
-                                          <>
-                                            <Input
-                                              value={editTitle}
-                                              onChange={(event) => setEditTitle(event.target.value)}
-                                              maxLength={40}
-                                              className="h-8 text-sm"
-                                            />
-                                            <Button size="md" onClick={saveEdit} disabled={!editTitle.trim()}>
-                                              <Check className="size-3.5" />
-                                            </Button>
-                                          </>
-                                        ) : (
-                                          <>
+                              <div className="flex flex-col gap-2 border-t border-border p-3">
+                                <div className="flex flex-wrap gap-1.5">
+                                  {category.subcategories.length === 0 ? (
+                                    <p className="text-xs text-muted-foreground">
+                                      Esta categoría no tiene actividades todavía.
+                                    </p>
+                                  ) : (
+                                    category.subcategories.map((sub) => {
+                                      const linked = isActivitySelected(sub.id);
+                                      return (
+                                        <div key={sub.id} className="relative">
+                                          <button
+                                            type="button"
+                                            onClick={() => toggleActivity(category, sub)}
+                                            aria-pressed={linked}
+                                            className={cn(
+                                              "flex cursor-pointer items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender",
+                                              linked
+                                                ? "border-accent-aprender bg-accent-aprender/10 text-accent-aprender"
+                                                : "border-border bg-surface text-foreground hover:bg-surface-hover",
+                                            )}
+                                          >
                                             <span
-                                              className="flex size-7 shrink-0 items-center justify-center rounded-lg"
-                                              style={{ backgroundColor: `${item.color}33` }}
+                                              className="flex size-5 items-center justify-center rounded"
+                                              style={{ backgroundColor: `${sub.color}33` }}
                                             >
-                                              <DynamicIcon name={item.icon} className="size-3.5" style={{ color: item.color }} />
+                                              <DynamicIcon name={sub.icon} className="size-3" style={{ color: sub.color }} />
                                             </span>
-                                            <span className="min-w-0 flex-1 truncate text-sm font-medium text-foreground">
-                                              {item.title}
-                                              <span className="ml-1 text-[10px] text-muted-foreground">
-                                                · Actividad
-                                              </span>
-                                            </span>
+                                            {sub.name}
+                                          </button>
+                                          {linked && (
                                             <button
                                               type="button"
-                                              onClick={() => startEdit(item)}
-                                              className="flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-lg text-muted-foreground transition-colors duration-200 hover:bg-surface-hover hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender"
-                                              aria-label="Editar"
-                                            >
-                                              <Pencil className="size-3.5" />
-                                            </button>
-                                            <button
-                                              type="button"
-                                              onClick={() => handleRemoveActivity(item)}
-                                              className="flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-lg text-muted-foreground transition-colors duration-200 hover:bg-red-50 hover:text-red-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 dark:hover:bg-red-950"
-                                              aria-label="Quitar actividad"
+                                              onClick={() => toggleActivity(category, sub)}
+                                              aria-label={`Quitar ${sub.name}`}
                                               title="Quitar actividad"
+                                              className="absolute -top-1.5 -right-1.5 flex size-4 cursor-pointer items-center justify-center rounded-full bg-red-400 text-white shadow-sm transition-colors hover:bg-red-500 focus-visible:outline-none"
                                             >
-                                              <Trash2 className="size-3.5" />
+                                              <X className="size-2.5" />
                                             </button>
-                                          </>
-                                        )}
-                                      </div>
-                                    );
-                                  })
-                                )}
+                                          )}
+                                        </div>
+                                      );
+                                    })
+                                  )}
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => setCreatingForCategoryId(category.id)}
+                                  className="flex cursor-pointer items-center gap-1.5 self-start rounded-full border border-dashed border-border px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:border-accent-aprender/40 hover:text-accent-aprender focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender"
+                                >
+                                  <Plus className="size-3.5" />
+                                  Crear actividad personalizada
+                                </button>
 
+                                {linkedItems.length > 0 && (
+                                  <div className="flex flex-col overflow-hidden rounded-xl border border-border bg-surface">
+                                    {linkedItems.map((item) => {
+                                      const isEditing = editingId === item.id;
+                                      return (
+                                        <div
+                                          key={item.id}
+                                          className="flex items-center gap-2 border-b border-border px-3 py-2 transition-colors duration-200 last:border-b-0"
+                                        >
+                                          {isEditing ? (
+                                            <>
+                                              <Input
+                                                value={editTitle}
+                                                onChange={(event) => setEditTitle(event.target.value)}
+                                                maxLength={40}
+                                                className="h-8 text-sm"
+                                              />
+                                              <Button size="md" onClick={saveEdit} disabled={!editTitle.trim()}>
+                                                <Check className="size-3.5" />
+                                              </Button>
+                                            </>
+                                          ) : (
+                                            <>
+                                              <span
+                                                className="flex size-7 shrink-0 items-center justify-center rounded-lg"
+                                                style={{ backgroundColor: `${item.color}33` }}
+                                              >
+                                                <DynamicIcon name={item.icon} className="size-3.5" style={{ color: item.color }} />
+                                              </span>
+                                              <span className="min-w-0 flex-1 truncate text-sm font-medium text-foreground">
+                                                {item.title}
+                                              </span>
+                                              <button
+                                                type="button"
+                                                onClick={() => startEdit(item)}
+                                                className="flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-lg text-muted-foreground transition-colors duration-200 hover:bg-surface-hover hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender"
+                                                aria-label="Editar"
+                                              >
+                                                <Pencil className="size-3.5" />
+                                              </button>
+                                              <button
+                                                type="button"
+                                                onClick={() => handleRemoveActivity(item)}
+                                                className="flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-lg text-muted-foreground transition-colors duration-200 hover:bg-red-50 hover:text-red-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 dark:hover:bg-red-950"
+                                                aria-label="Quitar actividad"
+                                                title="Quitar actividad"
+                                              >
+                                                <Trash2 className="size-3.5" />
+                                              </button>
+                                            </>
+                                          )}
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+                                )}
                               </div>
                             </motion.div>
                           )}

@@ -24,10 +24,10 @@ import {
   SubcategoryNotFoundError,
 } from "./subcategory.errors";
 
-/** Moviliza un item a la papelera aplicando el límite de 50 y la retención de 15 días. */
-async function enforceTrashLimits(userId: string) {
+/** Purga permanente de lo que supere la retención (exportada para test). */
+export async function purgeExpiredTrashItems(userId: string, now: Date = new Date()) {
   // Retención: purga permanentemente lo que supere los 15 días.
-  const retentionCutoff = new Date(Date.now() - TRASH_RETENTION_DAYS * 24 * 60 * 60 * 1000);
+  const retentionCutoff = new Date(now.getTime() - TRASH_RETENTION_DAYS * 24 * 60 * 60 * 1000);
   await prisma.$transaction([
     prisma.subcategory.deleteMany({
       where: { userId, deletedAt: { not: null, lt: retentionCutoff } },
@@ -36,7 +36,10 @@ async function enforceTrashLimits(userId: string) {
       where: { userId, deletedAt: { not: null, lt: retentionCutoff } },
     }),
   ]);
+}
 
+/** Aplica el tope de 50 purgando los más antiguos (exportada para test). */
+export async function enforceTrashMaxItems(userId: string) {
   // Límite 50: si se supera, se purgan permanentemente los más antiguos.
   const [categoryCount, subcategoryCount] = await countDeletedForUser(userId);
   let excess = categoryCount + subcategoryCount - TRASH_MAX_ITEMS;
@@ -65,6 +68,12 @@ async function enforceTrashLimits(userId: string) {
   }
 }
 
+/** Límite + retención tras cada eliminación (el tope solo crece al eliminar). */
+async function enforceTrashLimits(userId: string) {
+  await purgeExpiredTrashItems(userId);
+  await enforceTrashMaxItems(userId);
+}
+
 export async function softDeleteCategoryToTrash(id: string, userId: string) {
   const category = await findCategoryById(id);
   if (!category) throw new CategoryNotFoundError();
@@ -88,6 +97,9 @@ export async function softDeleteManySubcategoriesToTrash(ids: string[], userId: 
 }
 
 export async function listTrash(userId: string): Promise<TrashItem[]> {
+  // GC perezoso: la retención ya no depende de que el usuario vuelva a
+  // eliminar; abrir la papelera purga lo vencido antes de listar.
+  await purgeExpiredTrashItems(userId);
   const [categories, subcategories] = await Promise.all([
     prisma.category.findMany({
       where: { userId, deletedAt: { not: null } },

@@ -12,6 +12,8 @@ export type Recommendation = {
   energyLevel?: EnergyLevel;
   complexity?: Complexity;
   categoryComplexity?: Complexity;
+  /** Feedback explícito del usuario (7B), si existe. */
+  feedback?: 1 | -1 | null;
 };
 
 export interface RecommendationService {
@@ -20,6 +22,7 @@ export interface RecommendationService {
     energy?: EnergyLevel,
     preferredMinutes?: number,
     overrides?: EnergyOverrides,
+    options?: { nowMs?: number },
   ): Promise<Recommendation | null>;
   getRecommendations(
     userId: string,
@@ -27,5 +30,6 @@ export interface RecommendationService {
     preferredMinutes?: number,
     limit?: number,
     overrides?: EnergyOverrides,
+    options?: { nowMs?: number },
   ): Promise<Recommendation[]>;
 }

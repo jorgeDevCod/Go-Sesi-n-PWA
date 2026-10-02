@@ -6,13 +6,14 @@ import { Check, CheckSquare, Pencil, Plus, Trash2, X } from "lucide-react";
 import { DynamicIcon } from "@/components/ui/DynamicIcon";
 import { Button } from "@/components/ui/Button";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
+import { InfoModal } from "@/components/ui/InfoModal";
 import { CategoryModal } from "@/features/categories/components/CategoryModal";
 import { updateCategoryAction } from "@/features/categories/actions/category.actions";
 import { deleteCategoryAction } from "@/features/categories/actions/category.actions";
 import { createCategoryAction } from "@/features/categories/actions/category.actions";
 import { COMPLEXITY_LABELS } from "@/services/recommendation/energy-level";
+import { TRASH_RETENTION_DAYS } from "@/services/categories/trash.types";
 import { cn } from "@/lib/utils";
-import { useTrashUndoStore } from "@/features/categories/store/trash-undo.store";
 import type { RoutineCategory } from "@/features/routine/components/RoutineTabs";
 
 export function CategoriesTab({ categories }: { categories: RoutineCategory[] }) {
@@ -27,7 +28,8 @@ export function CategoriesTab({ categories }: { categories: RoutineCategory[] })
   const [selectMode, setSelectMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [blockedCategory, setBlockedCategory] = useState<RoutineCategory | null>(null);
-  const setUndo = useTrashUndoStore((s) => s.set);
+  const [bulkTarget, setBulkTarget] = useState<"selected" | "all" | null>(null);
+  const [infoCount, setInfoCount] = useState(0);
 
   const isModalOpen = editCategory !== null || showCreateModal;
 
@@ -65,24 +67,29 @@ export function CategoriesTab({ categories }: { categories: RoutineCategory[] })
         setList((prev) => prev.filter((c) => c.id !== id));
       }
       if (deletedIds.length > 0) {
-        setUndo({ kind: "category", count: deletedIds.length, ids: deletedIds });
         cancelSelectMode();
         setDeletePassword("");
+        setBulkTarget(null);
+        setInfoCount(deletedIds.length);
         router.refresh();
       }
     });
   }
 
   function deleteSelected() {
-    const ids = Array.from(selectedIds);
-    if (ids.length === 0) return;
-    setConfirmingDelete(null); // no usar ConfirmModal por lotes; eliminar directo
-    void runDeleteCats(ids);
+    if (selectedIds.size === 0) return;
+    setBulkTarget("selected");
   }
 
   function deleteAll() {
-    setConfirmingDelete(null);
-    void runDeleteCats(list.map((c) => c.id));
+    if (list.length === 0) return;
+    setBulkTarget("all");
+  }
+
+  function confirmBulkDelete() {
+    if (!bulkTarget) return;
+    const ids = bulkTarget === "selected" ? Array.from(selectedIds) : list.map((c) => c.id);
+    void runDeleteCats(ids);
   }
 
   function executeDelete() {
@@ -101,6 +108,7 @@ export function CategoriesTab({ categories }: { categories: RoutineCategory[] })
       setList((prev) => prev.filter((c) => c.id !== cat.id));
       setConfirmingDelete(null);
       setDeletePassword("");
+      setInfoCount(1);
       router.refresh();
     });
   }
@@ -311,6 +319,35 @@ export function CategoriesTab({ categories }: { categories: RoutineCategory[] })
         onConfirm={() => setBlockedCategory(null)}
         confirmLabel="Entendido"
         cancelLabel="Cerrar"
+      />
+
+      <ConfirmModal
+        open={bulkTarget !== null}
+        onClose={() => setBulkTarget(null)}
+        title={bulkTarget === "all" ? "Eliminar todas las categorías" : "Eliminar categorías seleccionadas"}
+        message={
+          bulkTarget === "all"
+            ? `¿Estás seguro de que deseas eliminar las ${list.length} categorías? Todas se moverán a la papelera.`
+            : `¿Estás seguro de que deseas eliminar las ${selectedIds.size} categorías seleccionadas? Se moverán a la papelera.`
+        }
+        variant="danger"
+        confirmLabel="Sí, eliminar"
+        isPending={isDeleting}
+        onConfirm={confirmBulkDelete}
+      />
+
+      <InfoModal
+        open={infoCount > 0}
+        onClose={() => setInfoCount(0)}
+        title={infoCount === 1 ? "Categoría enviada a la papelera" : "Categorías enviadas a la papelera"}
+        message={
+          <>
+            Puedes recuperarlas desde la <strong className="text-foreground">papelera</strong> cuando quieras.
+            Tienes hasta <strong className="text-foreground">{TRASH_RETENTION_DAYS} días</strong> para
+            restablecerlas; pasado ese plazo se eliminarán definitivamente.
+          </>
+        }
+        confirmLabel="Entendido"
       />
     </div>
   );

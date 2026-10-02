@@ -25,8 +25,11 @@ export function CompletionAlarm({
 }) {
   const [remaining, setRemaining] = useState(ALARM_SECONDS);
   const stopAlarmRef = useRef<(() => void) | null>(null);
-  const msgIndex = useRef(Math.floor(Math.random() * MESSAGES.length));
-  const message = MESSAGES[msgIndex.current];
+  // useState perezoso: se calcula una vez y es valor de render, sin refs
+  // en render ni funciones impuras fuera del inicializador.
+  const [message] = useState(
+    () => MESSAGES[Math.floor(Math.random() * MESSAGES.length)],
+  );
 
   useEffect(() => {
     stopAlarmRef.current = playCompletionAlarm(ALARM_SECONDS);

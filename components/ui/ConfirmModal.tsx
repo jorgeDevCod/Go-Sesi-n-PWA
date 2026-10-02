@@ -3,7 +3,7 @@
 import { useEffect, useRef, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 
@@ -123,6 +123,7 @@ export function ConfirmModal({
                 disabled={isPending || !canConfirm}
                 onClick={onConfirm}
               >
+                {isPending && <Loader2 className="size-4 animate-spin" />}
                 {isPending ? "Eliminando..." : confirmLabel}
               </Button>
               <Button type="button" variant="ghost" disabled={isPending} onClick={onClose}>

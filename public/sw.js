@@ -12,6 +12,26 @@ self.addEventListener("activate", (event) => {
   event.waitUntil(self.clients.claim());
 });
 
+// Si el servidor envía un push (fase 6B), muestra la notificación. Sin
+// suscripción registrada no llega nada: inerte hasta el opt-in del usuario.
+self.addEventListener("push", (event) => {
+  let payload = {};
+  try {
+    payload = event.data ? event.data.json() : {};
+  } catch {
+    payload = {};
+  }
+
+  const title = payload.title || "Go Sesión";
+  event.waitUntil(
+    self.registration.showNotification(title, {
+      body: payload.body || "Tu espacio de enfoque te espera.",
+      icon: "/icons/192",
+      data: { action: "open", sessionId: payload.sessionId },
+    }),
+  );
+});
+
 // Si el usuario pulsa una notificación, enfoca la app (o la abre). Cada
 // notificación lleva un dato con la acción y el id de sesión para decidir
 // a dónde navegar.

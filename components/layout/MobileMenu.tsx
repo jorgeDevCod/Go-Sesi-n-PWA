@@ -12,6 +12,7 @@ import {
   Settings2,
   SlidersHorizontal,
   Trash2,
+  UserRound,
   X,
 } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
@@ -57,6 +58,7 @@ export function MobileMenu({ open, onClose }: { open: boolean; onClose: () => vo
     { label: "Historial", icon: History, href: "/app/history" },
     { label: "Papelera", icon: Trash2, href: "/app/trash" },
     { label: "Personaliza tu rutina como más te acomode.", icon: SlidersHorizontal, href: "/app/routine" },
+    { label: "Cuenta", icon: UserRound, href: "/app/account" },
   ];
 
   function handleNavigate(href: string) {

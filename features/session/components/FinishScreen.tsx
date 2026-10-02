@@ -33,6 +33,12 @@ export function FinishScreen({
             <p className="text-muted-foreground">
               {session.categoryName} · {session.subcategoryName} · {actualMinutes} minutos
             </p>
+            {session.mode === "POMODORO" && session.pomodoroConfig && (
+              <p className="text-xs text-muted-foreground">
+                Pomodoro {session.pomodoroConfig.focusMin}/{session.pomodoroConfig.breakMin} ×{" "}
+                {session.pomodoroConfig.cycles} · solo enfoque
+              </p>
+            )}
             <p className="max-w-sm text-sm leading-relaxed text-muted-foreground">
               Cada minuto cuenta y hoy diste un paso más. Tu esfuerzo se suma.
             </p>
@@ -97,6 +103,12 @@ export function FinishScreen({
             <p className="text-muted-foreground">
               {session.categoryName} · {session.subcategoryName} · {actualMinutes} minutos avanzados
             </p>
+            {session.mode === "POMODORO" && session.pomodoroConfig && (
+              <p className="text-xs text-muted-foreground">
+                Pomodoro {session.pomodoroConfig.focusMin}/{session.pomodoroConfig.breakMin} ×{" "}
+                {session.pomodoroConfig.cycles} · solo enfoque
+              </p>
+            )}
             <p className="max-w-sm text-sm leading-relaxed text-muted-foreground">
               El progreso también se celebra, no todo tiene que ser perfecto. Avanzaste{" "}
               {actualMinutes} minutos y eso cuenta.

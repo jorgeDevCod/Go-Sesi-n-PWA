@@ -92,7 +92,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <ThemeProvider
           attribute="class"
-          defaultTheme="dark"
+          defaultTheme="celeste"
           themes={["celeste", "verde", "humo", "rosa", "blanco", "dark"]}
           disableTransitionOnChange
         >

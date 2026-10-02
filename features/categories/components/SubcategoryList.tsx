@@ -19,7 +19,6 @@ import {
 } from "@dnd-kit/sortable";
 import { Plus, Search, Trash2, CheckSquare, X } from "lucide-react";
 import {
-  deleteSubcategoryAction,
   deleteManySubcategoriesAction,
   reorderSubcategoriesAction,
 } from "@/features/categories/actions/subcategory.actions";
@@ -31,11 +30,18 @@ import { SubcategoryItem } from "@/features/categories/components/SubcategoryIte
 import { ActivityModal } from "@/features/categories/components/ActivityModal";
 import { ActivityFilters } from "@/features/categories/components/ActivityFilters";
 import { useHomeQuickStore } from "@/features/home/store/home-quick.store";
-import { useTrashUndoStore } from "@/features/categories/store/trash-undo.store";
 import { Button } from "@/components/ui/Button";
+import { ConfirmModal } from "@/components/ui/ConfirmModal";
+import { InfoModal } from "@/components/ui/InfoModal";
+import { TRASH_RETENTION_DAYS } from "@/services/categories/trash.types";
 import { cn } from "@/lib/utils";
 import type { Complexity } from "@/lib/constants/default-subcategories";
 import type { EnergyLevel } from "@/services/recommendation/energy-level";
+
+type DeleteTarget =
+  | { type: "selected" }
+  | { type: "all" }
+  | { type: "one"; id: string; name: string };
 
 export function SubcategoryList({
   categoryId,
@@ -62,7 +68,6 @@ export function SubcategoryList({
   const setItems = useSubcategoryStore((s) => s.setItems);
   const reorder = useSubcategoryStore((s) => s.reorder);
   const removeManyQuick = useHomeQuickStore((s) => s.removeMany);
-  const setUndo = useTrashUndoStore((s) => s.set);
   const items = useSubcategoryStore(
     (s) => s.itemsByCategory[categoryId] ?? initialItems,
   );
@@ -75,6 +80,9 @@ export function SubcategoryList({
   const [search, setSearch] = useState("");
   const [selectMode, setSelectMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [deleteTarget, setDeleteTarget] = useState<DeleteTarget | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [infoCount, setInfoCount] = useState(0);
   const previousOrderRef = useRef<SubcategoryItemType[] | null>(null);
 
   useEffect(() => {
@@ -95,28 +103,52 @@ export function SubcategoryList({
     setSelectedIds(new Set());
   }
 
-  async function deleteSelected() {
-    const ids = Array.from(selectedIds);
+  async function runDelete(ids: string[]) {
     if (ids.length === 0) return;
+    setIsDeleting(true);
     const result = await deleteManySubcategoriesAction({ ids });
+    setIsDeleting(false);
     if (result.success) {
       removeManyQuick(ids);
-      setUndo({ kind: "subcategory", count: ids.length, ids });
       cancelSelectMode();
+      setDeleteTarget(null);
+      setInfoCount(ids.length);
       router.refresh();
     }
   }
 
-  async function deleteAll() {
-    const allIds = items.map((item) => item.id);
-    const result = await deleteManySubcategoriesAction({ ids: allIds });
-    if (result.success) {
-      removeManyQuick(allIds);
-      setUndo({ kind: "subcategory", count: allIds.length, ids: allIds });
-      cancelSelectMode();
-      router.refresh();
+  function confirmDelete() {
+    if (!deleteTarget) return;
+    if (deleteTarget.type === "one") {
+      void runDelete([deleteTarget.id]);
+      return;
     }
+    if (deleteTarget.type === "selected") {
+      void runDelete(Array.from(selectedIds));
+      return;
+    }
+    void runDelete(items.map((item) => item.id));
   }
+
+  const deleteModalCopy = (() => {
+    if (!deleteTarget) return { title: "", message: "" };
+    if (deleteTarget.type === "one") {
+      return {
+        title: `Eliminar "${deleteTarget.name}"`,
+        message: "¿Estás seguro de que deseas eliminar esta actividad? Se moverá a la papelera.",
+      };
+    }
+    if (deleteTarget.type === "all") {
+      return {
+        title: "Eliminar todas las actividades",
+        message: `¿Estás seguro de que deseas eliminar las ${items.length} actividades de "${categoryName}"? Todas se moverán a la papelera.`,
+      };
+    }
+    return {
+      title: "Eliminar actividades seleccionadas",
+      message: `¿Estás seguro de que deseas eliminar las ${selectedIds.size} actividades seleccionadas? Se moverán a la papelera.`,
+    };
+  })();
 
   const filteredItems = items.filter((item) => {
     const energyMatch =
@@ -194,7 +226,7 @@ export function SubcategoryList({
               <Button
                 variant="secondary"
                 size="md"
-                onClick={deleteSelected}
+                onClick={() => setDeleteTarget({ type: "selected" })}
                 disabled={selectedIds.size === 0}
                 className={cn(
                   "gap-2",
@@ -219,7 +251,7 @@ export function SubcategoryList({
               <Button
                 variant="secondary"
                 size="md"
-                onClick={deleteAll}
+                onClick={() => setDeleteTarget({ type: "all" })}
                 className="gap-2"
               >
                 <Trash2 className="size-4" />
@@ -263,20 +295,7 @@ export function SubcategoryList({
                 selected={selectedIds.has(item.id)}
                 onToggleSelect={toggleSelect}
                 onEdit={() => setEditing(item)}
-                onDelete={() => {
-                  if (
-                    typeof window !== "undefined" &&
-                    !window.confirm(`¿Eliminar "${item.name}"?`)
-                  ) {
-                    return;
-                  }
-                  void deleteSubcategoryAction({ id: item.id }).then((result) => {
-                    if (result.success) {
-                      removeManyQuick([item.id]);
-                      router.refresh();
-                    }
-                  });
-                }}
+                onDelete={() => setDeleteTarget({ type: "one", id: item.id, name: item.name })}
               />
             ))}
           </ul>
@@ -322,6 +341,31 @@ export function SubcategoryList({
         onClose={() => setEditing(null)}
         onSaved={() => router.refresh()}
         showEnergy={showEnergyInModal}
+      />
+
+      <ConfirmModal
+        open={deleteTarget !== null}
+        onClose={() => setDeleteTarget(null)}
+        title={deleteModalCopy.title}
+        message={deleteModalCopy.message}
+        variant="danger"
+        confirmLabel="Sí, eliminar"
+        isPending={isDeleting}
+        onConfirm={confirmDelete}
+      />
+
+      <InfoModal
+        open={infoCount > 0}
+        onClose={() => setInfoCount(0)}
+        title={infoCount === 1 ? "Actividad enviada a la papelera" : "Actividades enviadas a la papelera"}
+        message={
+          <>
+            Puedes recuperarlas desde la <strong className="text-foreground">papelera</strong> cuando quieras.
+            Tienes hasta <strong className="text-foreground">{TRASH_RETENTION_DAYS} días</strong> para
+            restablecerlas; pasado ese plazo se eliminarán definitivamente.
+          </>
+        }
+        confirmLabel="Entendido"
       />
     </div>
   );

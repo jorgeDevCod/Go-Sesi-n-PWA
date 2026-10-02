@@ -45,6 +45,14 @@ vi.mock("@/features/categories/components/TrashUndoModal", () => ({
   TrashUndoModal: () => null,
 }));
 
+vi.mock("@/features/preferences/hooks/useServerPrefsSync", () => ({
+  useServerPrefsSync: () => {},
+}));
+
+vi.mock("@/features/offline/hooks/useOfflineFlush", () => ({
+  useOfflineFlush: () => {},
+}));
+
 vi.mock("@/features/session/store/session.store", () => ({
   useSessionStore: {
     persist: { rehydrate: vi.fn() },

@@ -13,8 +13,10 @@ import { listCategoriesWithSubcategoryCount } from "@/repositories/category.repo
 import { listSubcategoriesByUser } from "@/repositories/subcategory.repository";
 import {
   getPracticedCategoryIdsToday,
+  getPracticedSubcategoryIdsToday,
   findActiveByUserId,
 } from "@/repositories/focus-session.repository";
+import { deriveItemPracticed } from "@/services/planning/daily-plan.service";
 
 export type ActionResult = { success: true } | { success: false; error: string };
 
@@ -66,13 +68,15 @@ export type PlanningContextActionResult =
 export async function getPlanningContextAction(): Promise<PlanningContextActionResult> {
   try {
     const userId = await requireUserId();
-    const [user, categories, subcategories, plan, practicedIds] = await Promise.all([
-      findUserById(userId),
-      listCategoriesWithSubcategoryCount(userId),
-      listSubcategoriesByUser(userId),
-      getTodayPlan(userId),
-      getPracticedCategoryIdsToday(userId, new Date()),
-    ]);
+    const [user, categories, subcategories, plan, practicedCategoryIds, practicedSubcategoryIds] =
+      await Promise.all([
+        findUserById(userId),
+        listCategoriesWithSubcategoryCount(userId),
+        listSubcategoriesByUser(userId),
+        getTodayPlan(userId),
+        getPracticedCategoryIdsToday(userId, new Date()),
+        getPracticedSubcategoryIdsToday(userId, new Date()),
+      ]);
 
     const subcategoriesByCategory = new Map<string, { id: string; name: string; icon: string; color: string }[]>();
     for (const sub of subcategories) {
@@ -100,7 +104,7 @@ export async function getPlanningContextAction(): Promise<PlanningContextActionR
             color: item.color,
             categoryId: item.categoryId,
             subcategoryId: item.subcategoryId,
-            practiced: item.categoryId ? practicedIds.has(item.categoryId) : false,
+            practiced: deriveItemPracticed(item, practicedSubcategoryIds, practicedCategoryIds),
           })) ?? [],
       },
     };
@@ -120,7 +124,6 @@ export async function getTodayPlanAction(): Promise<
           icon: string;
           color: string;
           order: number;
-          completed: boolean;
           categoryId: string | null;
           categoryName: string;
           categoryIcon: string;
@@ -140,9 +143,10 @@ export async function getTodayPlanAction(): Promise<
 > {
   try {
     const userId = await requireUserId();
-    const [plan, practicedIds, activeSession] = await Promise.all([
+    const [plan, practicedCategoryIds, practicedSubcategoryIds, activeSession] = await Promise.all([
       getTodayPlan(userId),
       getPracticedCategoryIdsToday(userId, new Date()),
+      getPracticedSubcategoryIdsToday(userId, new Date()),
       findActiveByUserId(userId),
     ]);
 
@@ -167,13 +171,12 @@ export async function getTodayPlanAction(): Promise<
           icon: item.icon,
           color: item.color,
           order: item.order,
-          completed: item.completed,
           categoryId: item.categoryId,
           categoryName: item.category?.name ?? "",
           categoryIcon: item.category?.icon ?? item.icon,
           categoryColor: item.category?.color ?? item.color,
           subcategoryId: item.subcategoryId,
-          practiced: item.categoryId ? practicedIds.has(item.categoryId) : false,
+          practiced: deriveItemPracticed(item, practicedSubcategoryIds, practicedCategoryIds),
         })),
       },
       activeSession: active,
@@ -205,10 +208,11 @@ export async function saveTodayPlanAction(
 
 export async function updatePlanItemAction(
   itemId: string,
-  data: { title?: string; icon?: string; color?: string; completed?: boolean },
+  data: { title?: string; icon?: string; color?: string },
 ): Promise<ActionResult> {
   try {
-    await updatePlanItemDetails(itemId, data);
+    const userId = await requireUserId();
+    await updatePlanItemDetails(itemId, userId, data);
     revalidatePath("/app/home");
     return { success: true };
   } catch (error) {
@@ -218,7 +222,8 @@ export async function updatePlanItemAction(
 
 export async function deletePlanItemAction(itemId: string): Promise<ActionResult> {
   try {
-    await removePlanItem(itemId);
+    const userId = await requireUserId();
+    await removePlanItem(itemId, userId);
     revalidatePath("/app/home");
     return { success: true };
   } catch (error) {

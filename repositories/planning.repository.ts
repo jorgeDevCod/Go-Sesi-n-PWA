@@ -25,6 +25,15 @@ export function findPlanByUserAndDate(userId: string, date: Date) {
   });
 }
 
+/** Todos los planes del usuario (para exportar datos), más recientes primero. */
+export function listPlansForUser(userId: string) {
+  return prisma.dailyPlan.findMany({
+    where: { userId },
+    orderBy: { date: "desc" },
+    include: { items: { orderBy: { order: "asc" } } },
+  });
+}
+
 export type PlanItemWrite = {
   title: string;
   icon: string;
@@ -76,9 +85,17 @@ export function updatePlanItems(planId: string, items: PlanItemWrite[]) {
   });
 }
 
+export function findPlanItemById(itemId: string) {
+  return prisma.planItem.findUnique({
+    where: { id: itemId },
+    include: { plan: { select: { userId: true } } },
+  });
+}
+
 export function updatePlanItem(
   itemId: string,
-  data: { title?: string; icon?: string; color?: string; completed?: boolean },
+  // Sin `completed`: el badge Realizada se deriva de sesiones reales (1B).
+  data: { title?: string; icon?: string; color?: string },
 ) {
   return prisma.planItem.update({
     where: { id: itemId },

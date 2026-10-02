@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import type { Prisma } from "@/lib/generated/prisma/client";
+import { dayStartUtcInTimeZone } from "@/lib/day";
 
 export function findActiveByUserId(userId: string) {
   return prisma.focusSession.findFirst({
@@ -58,15 +59,15 @@ export async function getLastSubcategoryName(userId: string): Promise<string | n
 
 /**
  * Category ids that had at least one session (completed or interrupted)
- * started on the same calendar day as `date` (UTC-midnight day boundary,
- * matching the daily plan's `getTodayDate`). Used to derive "practicada
- * hoy" on the daily plan.
+ * started on the same calendar day as `date` in `timeZone` (misma frontera
+ * que el plan diario). Usado para derivar "practicada hoy" en el plan.
  */
 export async function getPracticedCategoryIdsToday(
   userId: string,
   date: Date,
+  timeZone: string = process.env.APP_TIMEZONE ?? "America/Lima",
 ): Promise<Set<string>> {
-  const start = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  const start = dayStartUtcInTimeZone(date, timeZone);
   const end = new Date(start.getTime() + 24 * 60 * 60 * 1000);
 
   const rows = await prisma.focusSession.findMany({
@@ -79,6 +80,55 @@ export async function getPracticedCategoryIdsToday(
   });
 
   return new Set(rows.map((row) => row.subcategory.categoryId));
+}
+
+/**
+ * Subcategoría ids con al menos una sesión (completada o interrumpida)
+ * iniciada el mismo día calendario que `date` en `timeZone`. Es la base
+ * del badge "Realizada" por actividad: la versión por categoría marcaba
+ * todas las actividades aunque solo se hubiera hecho una.
+ */
+export async function getPracticedSubcategoryIdsToday(
+  userId: string,
+  date: Date,
+  timeZone: string = process.env.APP_TIMEZONE ?? "America/Lima",
+): Promise<Set<string>> {
+  const start = dayStartUtcInTimeZone(date, timeZone);
+  const end = new Date(start.getTime() + 24 * 60 * 60 * 1000);
+
+  const rows = await prisma.focusSession.findMany({
+    where: {
+      userId,
+      status: { in: ["COMPLETED", "INTERRUPTED"] },
+      startedAt: { gte: start, lt: end },
+    },
+    select: { subcategoryId: true },
+  });
+
+  return new Set(rows.map((row) => row.subcategoryId));
+}
+
+/**
+ * Completadas vs interrumpidas por actividad (solo historial cerrado).
+ * Para la señal "tasa de completado" de la recomendación v2.
+ */
+export async function getCompletionBySubcategory(
+  userId: string,
+): Promise<Map<string, { completed: number; total: number }>> {
+  const rows = await prisma.focusSession.groupBy({
+    by: ["subcategoryId", "status"],
+    where: { userId, status: { in: ["COMPLETED", "INTERRUPTED"] } },
+    _count: { _all: true },
+  });
+
+  const map = new Map<string, { completed: number; total: number }>();
+  for (const row of rows) {
+    const current = map.get(row.subcategoryId) ?? { completed: 0, total: 0 };
+    current.total += row._count._all;
+    if (row.status === "COMPLETED") current.completed += row._count._all;
+    map.set(row.subcategoryId, current);
+  }
+  return map;
 }
 
 export function findById(id: string) {

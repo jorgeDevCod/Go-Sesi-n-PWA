@@ -18,7 +18,10 @@ import {
  * briefly read as null even though a server-rendered initial session exists,
  * which would incorrectly trigger a "no active session" redirect.
  */
-export function useTimer(fallbackSession?: SessionDTO | null) {
+export function useTimer(
+  fallbackSession?: SessionDTO | null,
+  options?: { autoComplete?: boolean },
+) {
   const storeSession = useSessionStore((s) => s.session);
   const session = storeSession ?? fallbackSession ?? null;
   const skewMs = useSessionStore((s) => s.skewMs);
@@ -34,6 +37,9 @@ export function useTimer(fallbackSession?: SessionDTO | null) {
   const [nowMs, setNowMs] = useState(() => fallbackSession?.serverNowMs ?? Date.now());
   const [isPending, startTransition] = useTransition();
   const autoCompletingForId = useRef<string | null>(null);
+  // En pomodoro el PomodoroTimer decide el fin (fase done); el auto-complete
+  // clásico se desactiva para no duplicar la llamada. Defecto true = intacto.
+  const autoComplete = options?.autoComplete ?? true;
 
   useEffect(() => {
     const interval = setInterval(() => setNowMs(Date.now()), 1000);
@@ -54,6 +60,7 @@ export function useTimer(fallbackSession?: SessionDTO | null) {
   }, [session, skewMs, nowMs]);
 
   useEffect(() => {
+    if (!autoComplete) return;
     if (!session || session.status !== "ACTIVE") return;
     if (!view || !view.hasReachedTarget || view.isPaused) return;
     if (autoCompletingForId.current === session.id) return;
@@ -63,7 +70,7 @@ export function useTimer(fallbackSession?: SessionDTO | null) {
       const result = await completeSessionAction({ id: session.id });
       if (result.success) setSession(result.session);
     });
-  }, [session, view, setSession]);
+  }, [session, view, setSession, autoComplete]);
 
   function pause() {
     if (!session) return;

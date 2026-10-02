@@ -12,6 +12,9 @@
 
 # testing
 /coverage
+/test-results
+/playwright-report
+/playwright/.cache
 
 # next.js
 /.next/
@@ -47,3 +50,5 @@ next-env.d.ts
 # project-local docs / agent context (no versionar)
 /MEMORY.md
 /AGENTS.md
+
+/docs/mapa-funcional-pwa.md
