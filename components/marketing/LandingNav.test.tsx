@@ -22,9 +22,9 @@ describe("LandingNav", () => {
     document.body.innerHTML = "";
   });
 
-  it("muestra los 6 tabs con sus anclas", () => {
+  it("muestra los 7 tabs con sus anclas", () => {
     render(<LandingNav variant="desktop" />);
-    expect(LANDING_TABS).toHaveLength(6);
+    expect(LANDING_TABS).toHaveLength(7);
     for (const tab of LANDING_TABS) {
       expect(screen.getByRole("link", { name: tab.label })).toHaveAttribute(
         "href",

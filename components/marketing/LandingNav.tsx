@@ -10,9 +10,9 @@ export const LANDING_TABS = [
   { id: "planificar", label: "Planificar" },
   { id: "avance", label: "Avance" },
   { id: "como-funciona", label: "Ayuda" },
+  { id: "faq", label: "Preguntas" },
 ] as const;
 
-// El FAQ comparte el tab Ayuda (queda a un scroll de Cómo funciona).
 const SECTION_TO_TAB: Record<string, string> = {
   empezar: "empezar",
   beneficios: "beneficios",
@@ -20,7 +20,7 @@ const SECTION_TO_TAB: Record<string, string> = {
   planificar: "planificar",
   avance: "avance",
   "como-funciona": "como-funciona",
-  faq: "como-funciona",
+  faq: "faq",
 };
 
 const OBSERVED_SECTIONS = ["empezar", "beneficios", "personalizar", "planificar", "avance", "como-funciona", "faq"];
