@@ -3,7 +3,7 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  --background: #e9eef3;
+  --background: #e6ebf2;
   --foreground: #1c1c1a;
   --surface: #FFFFFF;
   --surface-muted: #F1F4F8;
@@ -33,10 +33,10 @@
    Solo varían los neutros; los acentos y las formas son compartidos con el
    resto de temas. */
 .celeste {
-  --background: #e9edf5;
+  --background: #e3e9f6;
   --foreground: #1c1c1a;
   --surface: #FFFFFF;
-  --surface-muted: #EFF2FA;
+  --surface-muted: #edf1fa;
   --surface-hover: #E2E7F2;
   --border: #c5cce0;
   --border-hover: #9ba4c7;
@@ -45,10 +45,10 @@
 
 /* Tema verde: neutros suaves verdosos. */
 .verde {
-  --background: #e8f2e9;
+  --background: #e0efe2;
   --foreground: #1c1c1a;
   --surface: #FFFFFF;
-  --surface-muted: #EEF6EE;
+  --surface-muted: #eaf4eb;
   --surface-hover: #E0EDE1;
   --border: #c2d2c3;
   --border-hover: #94a996;
@@ -57,7 +57,7 @@
 
 /* Tema blanco humo: neutro claro, casi blanco. */
 .humo {
-  --background: #F2F2F2;
+  --background: #efeeea;
   --foreground: #1c1c1a;
   --surface: #FFFFFF;
   --surface-muted: #EBEAEE;
@@ -69,7 +69,7 @@
 
 /* Tema rosa: neutros suaves rosados. */
 .rosa {
-  --background: #f4e2eb;
+  --background: #f3dee9;
   --foreground: #241317;
   --surface: #ffffff;
   --surface-muted: #FAEDF3;
@@ -81,10 +81,10 @@
 
 /* Tema blanco: puro y minimalista. */
 .blanco {
-  --background: #FFFFFF;
+  --background: #fbfcfe;
   --foreground: #16161c;
   --surface: #ffffff;
-  --surface-muted: #F0F2F7;
+  --surface-muted: #eef1f6;
   --surface-hover: #E2E6EF;
   --border: #d5d8e0;
   --border-hover: #a3a9b8;
@@ -92,7 +92,7 @@
 }
 
 .dark {
-  --background: #030202;
+  --background: #101014;
   --foreground: #f0f0ed;
   --surface: #1c1c1f;
   --surface-muted: #2a2a2e;

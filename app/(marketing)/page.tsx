@@ -280,7 +280,7 @@ export default function MarketingHomePage() {
             <AppHeroMockup />
           </div>
 
-          <div className="w-full">
+          <div id="empezar" className="w-full scroll-mt-32 md:scroll-mt-20">
             <AppShowcaseBanner />
           </div>
 

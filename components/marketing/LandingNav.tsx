@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 
 export const LANDING_TABS = [
+  { id: "empezar", label: "Empezar" },
   { id: "beneficios", label: "Beneficios" },
   { id: "personalizar", label: "Personalizar" },
   { id: "planificar", label: "Planificar" },
@@ -13,6 +14,7 @@ export const LANDING_TABS = [
 
 // El FAQ comparte el tab Ayuda (queda a un scroll de Cómo funciona).
 const SECTION_TO_TAB: Record<string, string> = {
+  empezar: "empezar",
   beneficios: "beneficios",
   personalizar: "personalizar",
   planificar: "planificar",
@@ -21,7 +23,7 @@ const SECTION_TO_TAB: Record<string, string> = {
   faq: "como-funciona",
 };
 
-const OBSERVED_SECTIONS = ["beneficios", "personalizar", "planificar", "avance", "como-funciona", "faq"];
+const OBSERVED_SECTIONS = ["empezar", "beneficios", "personalizar", "planificar", "avance", "como-funciona", "faq"];
 
 function scrollToSection(id: string) {
   const el = document.getElementById(id);
