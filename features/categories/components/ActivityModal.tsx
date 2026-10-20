@@ -366,26 +366,26 @@ export function ActivityModal({
                   </div>
                 )}
 
-                <IconColorPicker
-                  icon={icon}
-                  onIconChange={setIcon}
-                  color={color}
-                  onColorChange={setColor}
-                />
-
                 {isEditing && (
-                  <div className="rounded-2xl border border-border bg-surface-muted p-3">
+                  <div className="rounded-2xl border border-accent-apprendre/40 bg-accent-aprender/5 p-3">
                     <button
                       type="button"
                       onClick={() => setShowPomodoro((v) => !v)}
                       aria-expanded={showPomodoro}
                       className="flex w-full cursor-pointer items-center justify-between gap-2 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender"
                     >
-                      <span className="text-sm font-medium text-foreground">
-                        Pomodoro de esta actividad
+                      <span className="flex flex-col gap-0.5">
+                        <span className="text-sm font-semibold text-foreground">
+                          Pomodoro de esta actividad
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          {pomodoroConfig
+                            ? `${pomodoroConfig.focusMin} min foco · ${pomodoroConfig.breakMin} min descanso · ${pomodoroConfig.cycles} ciclos`
+                            : "Usa el nivel pre-programado o define el tuyo"}
+                        </span>
                       </span>
-                      <span className="text-xs font-medium text-accent-apprendre">
-                        {showPomodoro ? "Ocultar" : pomodoroConfig ? "Configurado" : "Configurar"}
+                      <span className="shrink-0 text-xs font-medium text-accent-aprender">
+                        {showPomodoro ? "Cerrar" : pomodoroConfig ? "Editar" : "Configurar"}
                       </span>
                     </button>
 
@@ -420,6 +420,13 @@ export function ActivityModal({
                     )}
                   </div>
                 )}
+
+                <IconColorPicker
+                  icon={icon}
+                  onIconChange={setIcon}
+                  color={color}
+                  onColorChange={setColor}
+                />
 
                 {error && (
                   <p className="text-sm text-red-500" role="alert">

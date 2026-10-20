@@ -395,7 +395,7 @@ export function StartSessionFlow({
                           : "border-border bg-surface text-muted-foreground hover:bg-surface-hover"
                       }`}
                     >
-                      {seconds === 0 ? "Sin" : `${seconds}s`}
+                      {seconds === 0 ? "Sin cuenta" : `${seconds}s`}
                     </button>
                   ))}
                 </div>

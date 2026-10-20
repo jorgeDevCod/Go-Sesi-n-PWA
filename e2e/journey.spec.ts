@@ -32,9 +32,9 @@ test("registro → sesión → fin → historial", async ({ page }) => {
   await expect(startButton).toBeVisible({ timeout: 30_000 });
   await startButton.click();
 
-  // 4. Confirmar sin cuenta regresiva y arrancar.
-  await page.getByRole("button", { name: "Sin cuenta regresiva" }).click();
-  await page.getByRole("button", { name: "COMENZAR" }).click();
+  // 4. Pantalla de tiempo: sin cuenta regresiva y arrancar.
+  await page.getByRole("button", { name: "Sin cuenta" }).click();
+  await page.getByRole("button", { name: /Comenzar/ }).click();
 
   // 5. Timer: pausa, reanuda y finaliza antes de tiempo.
   await expect(page).toHaveURL(/\/app\/session$/, { timeout: 30_000 });

@@ -165,6 +165,8 @@ export async function permanentlyDeleteTrashItems(
           ? await findCategoryById(item.id)
           : await findSubcategoryById(item.id);
       if (!existing) continue;
+      // Nunca borres items de otro usuario (aunque conozca el id).
+      if (existing.userId !== userId) continue;
 
       if (item.kind === "subcategory") {
         // Borra permanentemente: si tiene sesiones (Restrict), Prisma falla con P2003.

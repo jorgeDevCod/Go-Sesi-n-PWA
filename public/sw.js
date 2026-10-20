@@ -40,7 +40,6 @@ self.addEventListener("notificationclick", (event) => {
 
   const data = event.notification.data ?? {};
   const action = event.action ?? data.action ?? "open";
-  const sessionId = data.sessionId;
 
   const url =
     action === "finish"

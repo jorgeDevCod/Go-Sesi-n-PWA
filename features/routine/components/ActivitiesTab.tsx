@@ -59,6 +59,16 @@ export function ActivitiesTab({
         })}
       </div>
 
+      <RoutineTimePresets />
+
+      {current && (
+        <ActivityPomodoroEditor
+          key={current.id}
+          items={itemsByCategory[current.id] ?? []}
+          categoryName={current.name}
+        />
+      )}
+
       {current ? (
           <SubcategoryList
             key={current.id}
@@ -75,16 +85,6 @@ export function ActivitiesTab({
         <p className="rounded-xl border border-dashed border-border bg-surface-muted p-6 text-center text-sm text-muted-foreground">
           Crea primero una categoría en la pestaña &quot;Categorías&quot;.
         </p>
-      )}
-
-      <RoutineTimePresets />
-
-      {current && (
-        <ActivityPomodoroEditor
-          key={current.id}
-          items={itemsByCategory[current.id] ?? []}
-          categoryName={current.name}
-        />
       )}
     </div>
   );
