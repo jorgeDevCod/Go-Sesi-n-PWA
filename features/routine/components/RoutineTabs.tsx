@@ -22,6 +22,16 @@ export type RoutineCategory = {
 
 type TabKey = "categories" | "activities" | "recommendations";
 
+/** Traducción entre la URL (?tab=) y la clave interna. */
+export const TAB_BY_PARAM: Record<string, TabKey> = {
+  categorias: "categories",
+  categories: "categories",
+  actividades: "activities",
+  activities: "activities",
+  recomendaciones: "recommendations",
+  recommendations: "recommendations",
+};
+
 const TABS: { key: TabKey; label: string; icon: LucideIcon }[] = [
   { key: "categories", label: "Categorías", icon: Layers },
   { key: "activities", label: "Actividades", icon: ListChecks },
@@ -31,11 +41,20 @@ const TABS: { key: TabKey; label: string; icon: LucideIcon }[] = [
 export function RoutineTabs({
   categories,
   itemsByCategory,
+  initialTab,
 }: {
   categories: RoutineCategory[];
   itemsByCategory: Record<string, SubcategoryItem[]>;
-}) {
-  const [active, setActive] = useState<TabKey>("categories");
+  /** Pestaña inicial (deep-link `?tab=actividades`). */
+  initialTab?: TabKey;
+}) {  const [active, setActive] = useState<TabKey>(initialTab ?? "categories");
+  const [requestedTab, setRequestedTab] = useState<TabKey | undefined>(initialTab);
+
+  // Si cambia la pestaña pedida por la URL, la aplicamos (sin leer en render).
+  if (requestedTab !== initialTab) {
+    setRequestedTab(initialTab);
+    if (initialTab) setActive(initialTab);
+  }
 
   return (
     <div className="flex flex-col gap-6">

@@ -50,9 +50,19 @@ export function PushSettings() {
 
   if (!PUBLIC_KEY) {
     return (
-      <p className="text-sm text-muted-foreground">
-        Notificaciones no configuradas en este entorno.
-      </p>
+      <div className="flex flex-col gap-3 rounded-2xl border border-border bg-surface p-5">
+        <div className="flex items-start gap-3">
+          <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-accent-aprender/10 text-accent-aprender">
+            <BellOff className="size-5" />
+          </span>
+          <div className="flex min-w-0 flex-col gap-1 text-left">
+            <p className="font-medium text-foreground">Notificaciones push</p>
+            <p className="text-sm leading-relaxed text-muted-foreground">
+              Notificaciones no configuradas en este entorno.
+            </p>
+          </div>
+        </div>
+      </div>
     );
   }
 

@@ -53,59 +53,74 @@ export function AccountView({ userName, email }: { userName: string; email: stri
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-md flex-col gap-6">
-      <div className="flex flex-col items-center gap-1 rounded-2xl border border-border bg-surface p-6 text-center">
-        <p className="text-lg font-semibold text-foreground">{userName}</p>
-        <p className="text-sm text-muted-foreground">{email}</p>
-      </div>
-
-      <div className="flex flex-col gap-3 rounded-2xl border border-border bg-surface p-6">
-        <div className="flex items-start gap-3">
-          <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-accent-aprender/10 text-accent-aprender">
-            <Download className="size-5" />
+    <div className="mx-auto flex w-full max-w-md flex-col gap-4 md:max-w-3xl lg:max-w-5xl">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        {/* Perfil */}
+        <div className="flex flex-col items-center gap-1 rounded-2xl border border-border bg-surface p-6 text-center md:col-span-2 md:flex-row md:items-center md:gap-4 md:text-left">
+          <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-accent-aprender/10 text-lg font-bold text-accent-aprender">
+            {userName.trim().charAt(0).toUpperCase() || "G"}
           </span>
-          <div className="flex flex-col gap-1 text-left">
-            <p className="font-medium text-foreground">Exportar mis datos</p>
-            <p className="text-sm leading-relaxed text-muted-foreground">
-              Descarga tus categorías, actividades, sesiones y planes en formato JSON.
-            </p>
+          <div className="min-w-0">
+            <p className="truncate text-lg font-semibold text-foreground">{userName}</p>
+            <p className="truncate text-sm text-muted-foreground">{email}</p>
           </div>
         </div>
-        <Button onClick={handleExport} disabled={isPending} className="w-full">
-          {isPending ? "Preparando..." : "Descargar JSON"}
-        </Button>
-        {error && (
-          <p className="text-center text-sm text-red-500" role="alert">
-            {error}
-          </p>
-        )}
-      </div>
 
-      <PushSettings />
-
-      <div className="flex flex-col gap-3 rounded-2xl border border-red-200 bg-surface p-6 dark:border-red-900">
-        <div className="flex items-start gap-3">
-          <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-red-500/10 text-red-500">
-            <Trash2 className="size-5" />
-          </span>
-          <div className="flex flex-col gap-1 text-left">
-            <p className="font-medium text-foreground">Eliminar cuenta</p>
-            <p className="text-sm leading-relaxed text-muted-foreground">
-              Borra tu cuenta y todo su contenido para siempre. No hay vuelta atrás.
-            </p>
+        {/* Exportar datos */}
+        <div className="flex flex-col gap-3 rounded-2xl border border-border bg-surface p-5">
+          <div className="flex items-start gap-3">
+            <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-accent-aprender/10 text-accent-aprender">
+              <Download className="size-5" />
+            </span>
+            <div className="flex min-w-0 flex-col gap-1 text-left">
+              <p className="font-medium text-foreground">Exportar mis datos</p>
+              <p className="text-sm leading-relaxed text-muted-foreground">
+                Descarga tus categorías, actividades, sesiones y planes en formato JSON.
+              </p>
+            </div>
           </div>
+          <Button
+            onClick={handleExport}
+            disabled={isPending}
+            className="w-full sm:w-auto sm:self-start"
+          >
+            {isPending ? "Preparando..." : "Descargar JSON"}
+          </Button>
+          {error && (
+            <p className="text-sm text-red-500" role="alert">
+              {error}
+            </p>
+          )}
         </div>
-        <Button
-          variant="danger"
-          onClick={() => {
-            setPassword("");
-            setDeleteError(null);
-            setConfirmOpen(true);
-          }}
-          className="w-full"
-        >
-          Eliminar mi cuenta
-        </Button>
+
+        {/* Notificaciones push */}
+        <PushSettings />
+
+        {/* Eliminar cuenta */}
+        <div className="flex flex-col gap-3 rounded-2xl border border-red-200 bg-surface p-5 md:col-span-2 dark:border-red-900">
+          <div className="flex items-start gap-3">
+            <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-red-500/10 text-red-500">
+              <Trash2 className="size-5" />
+            </span>
+            <div className="flex min-w-0 flex-col gap-1 text-left">
+              <p className="font-medium text-foreground">Eliminar cuenta</p>
+              <p className="text-sm leading-relaxed text-muted-foreground">
+                Borra tu cuenta y todo su contenido para siempre. No hay vuelta atrás.
+              </p>
+            </div>
+          </div>
+          <Button
+            variant="danger"
+            onClick={() => {
+              setPassword("");
+              setDeleteError(null);
+              setConfirmOpen(true);
+            }}
+            className="w-full sm:w-auto sm:self-start"
+          >
+            Eliminar mi cuenta
+          </Button>
+        </div>
       </div>
 
       <ConfirmModal

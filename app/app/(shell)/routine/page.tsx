@@ -3,16 +3,22 @@ import { auth } from "@/auth";
 import { listCategoriesForUser } from "@/repositories/category.repository";
 import { listSubcategories } from "@/services/categories/list-subcategories.service";
 import { parseActivityPomodoroConfig } from "@/services/categories/activity-pomodoro.service";
-import { RoutineTabs } from "@/features/routine/components/RoutineTabs";
+import { RoutineTabs, TAB_BY_PARAM } from "@/features/routine/components/RoutineTabs";
 import type { SubcategoryItem } from "@/features/categories/store/subcategory.store";
 
 export const metadata: Metadata = {
   title: "Personaliza tu rutina como más te acomode.",
 };
 
-export default async function RoutinePage() {
+export default async function RoutinePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ tab?: string }>;
+}) {
   const session = await auth();
   const userId = session!.user.id;
+  const { tab } = await searchParams;
+  const initialTab = tab ? TAB_BY_PARAM[tab] : undefined;
 
   const [categories, subcategories] = await Promise.all([
     listCategoriesForUser(userId),
@@ -41,7 +47,11 @@ export default async function RoutinePage() {
 
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-6">
-      <RoutineTabs categories={categories} itemsByCategory={itemsByCategory} />
+      <RoutineTabs
+        categories={categories}
+        itemsByCategory={itemsByCategory}
+        initialTab={initialTab}
+      />
     </div>
   );
 }

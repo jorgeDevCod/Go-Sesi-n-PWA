@@ -54,7 +54,6 @@ export function SessionWizard({
   const [selected, setSelected] = useState<SubcategoryOption | null>(
     () => subcategories.find((s) => s.id === startWithId) ?? null,
   );
-  const [selectedEnergies, setSelectedEnergies] = useState<EnergyLevel[]>([]);
   const [selectedDifficulties, setSelectedDifficulties] = useState<Complexity[]>([]);
 
   const energy = prefs.energy;
@@ -71,15 +70,11 @@ export function SessionWizard({
 
   const filtered = useMemo(() => {
     return ordered.filter((sub) => {
-      const energyMatch =
-        selectedEnergies.length === 0 ||
-        (sub.energyLevel !== null && sub.energyLevel !== undefined &&
-          selectedEnergies.includes(sub.energyLevel));
       const difficultyMatch =
         selectedDifficulties.length === 0 || selectedDifficulties.includes(sub.complexity);
-      return energyMatch && difficultyMatch;
+      return difficultyMatch;
     });
-  }, [ordered, selectedEnergies, selectedDifficulties]);
+  }, [ordered, selectedDifficulties]);
 
   if (subcategories.length === 0) {
     return (
@@ -141,13 +136,7 @@ export function SessionWizard({
             </h2>
 
             <ActivityFilters
-              selectedEnergies={selectedEnergies}
               selectedDifficulties={selectedDifficulties}
-              onToggleEnergy={(level) =>
-                setSelectedEnergies((prev) =>
-                  prev.includes(level) ? prev.filter((l) => l !== level) : [...prev, level],
-                )
-              }
               onToggleDifficulty={(value) =>
                 setSelectedDifficulties((prev) =>
                   prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value],
@@ -157,8 +146,7 @@ export function SessionWizard({
 
             {filtered.length === 0 && (
               <p className="rounded-2xl border border-dashed border-border bg-surface-muted p-6 text-center text-sm text-muted-foreground">
-                No hay actividades que coincidan con estos filtros. Prueba con otra energía o
-                dificultad.
+                No hay actividades que coincidan con este filtro. Prueba con otra dificultad.
               </p>
             )}
 

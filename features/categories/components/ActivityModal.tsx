@@ -17,6 +17,14 @@ import {
 } from "@/features/categories/actions/subcategory.actions";
 import { EnergyPicker } from "@/components/ui/EnergyPicker";
 import { cn } from "@/lib/utils";
+import { PomodoroConfigurator } from "@/features/session/components/PomodoroConfigurator";
+import {
+  POMODORO_TIER_BY_ENERGY,
+  POMODORO_TIER_LABELS,
+  pomodoroPresetFor,
+  type PomodoroConfig,
+} from "@/services/session/pomodoro";
+import { useRecommendationPrefs } from "@/features/recommendation/store/recommendation.store";
 
 const COMPLEXITY_OPTIONS: { value: Complexity; label: string; hint: string }[] = [
   { value: "LOW", label: "Baja", hint: "Ligera" },
@@ -38,6 +46,8 @@ export type ActivityModalInitial = {
   complexity: Complexity;
   energyLevel?: EnergyLevel | null;
   energyComplexity?: Complexity | null;
+  /** Cronómetro pomodoro propio de la actividad (null = nivel pre-programado). */
+  pomodoroConfig?: PomodoroConfig | null;
 };
 
 export type CreatedSubcategory = {
@@ -92,6 +102,9 @@ export function ActivityModal({
   const [complexity, setComplexity] = useState<Complexity>("MEDIUM");
   const [energyLevel, setEnergyLevel] = useState<EnergyLevel | null>(null);
   const [energyComplexity, setEnergyComplexity] = useState<Complexity | null>(null);
+  const [pomodoroConfig, setPomodoroConfig] = useState<PomodoroConfig | null>(null);
+  const [showPomodoro, setShowPomodoro] = useState(false);
+  const prefs = useRecommendationPrefs();
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -105,6 +118,8 @@ export function ActivityModal({
     setComplexity(initial?.complexity ?? categoryComplexity ?? "MEDIUM");
     setEnergyLevel(initial?.energyLevel ?? null);
     setEnergyComplexity(initial?.energyComplexity ?? null);
+    setPomodoroConfig(initial?.pomodoroConfig ?? null);
+    setShowPomodoro(false);
     setSelectedCategoryId(null);
     setError(null);
   } else if (!open && wasOpen) {
@@ -168,6 +183,7 @@ export function ActivityModal({
           complexity,
           energyLevel: resolvedEnergyLevel,
           energyComplexity: resolvedEnergyComplexity,
+          pomodoroConfig,
         });
         if (!result.success) {
           setError(result.error ?? "No se pudo guardar. Intenta de nuevo.");
@@ -356,6 +372,54 @@ export function ActivityModal({
                   color={color}
                   onColorChange={setColor}
                 />
+
+                {isEditing && (
+                  <div className="rounded-2xl border border-border bg-surface-muted p-3">
+                    <button
+                      type="button"
+                      onClick={() => setShowPomodoro((v) => !v)}
+                      aria-expanded={showPomodoro}
+                      className="flex w-full cursor-pointer items-center justify-between gap-2 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender"
+                    >
+                      <span className="text-sm font-medium text-foreground">
+                        Pomodoro de esta actividad
+                      </span>
+                      <span className="text-xs font-medium text-accent-apprendre">
+                        {showPomodoro ? "Ocultar" : pomodoroConfig ? "Configurado" : "Configurar"}
+                      </span>
+                    </button>
+
+                    {showPomodoro && (
+                      <div className="mt-3 flex flex-col gap-3">
+                        <PomodoroConfigurator
+                          config={
+                            pomodoroConfig ??
+                            pomodoroPresetFor(
+                              POMODORO_TIER_BY_ENERGY[energyLevel ?? "media"],
+                              prefs.pomodoroPresets,
+                            )
+                          }
+                          onChange={setPomodoroConfig}
+                          showReset={Boolean(pomodoroConfig)}
+                          resetLabel="Usar el nivel pre-programado"
+                          onReset={() => setPomodoroConfig(null)}
+                        />
+                        {!pomodoroConfig && (
+                          <p className="text-xs leading-relaxed text-muted-foreground">
+                            Sin cronómetro propio se usará el nivel{" "}
+                            {POMODORO_TIER_LABELS[
+                              POMODORO_TIER_BY_ENERGY[energyLevel ?? "media"]
+                            ].toLowerCase()}{" "}
+                            ({pomodoroPresetFor(
+                              POMODORO_TIER_BY_ENERGY[energyLevel ?? "media"],
+                              prefs.pomodoroPresets,
+                            ).focusMin} min de foco).
+                          </p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 {error && (
                   <p className="text-sm text-red-500" role="alert">

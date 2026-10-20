@@ -14,6 +14,16 @@ const complexity = z.enum(["LOW", "MEDIUM", "HIGH"]);
 const energyLevel = z.enum(["baja", "media", "alta"]).nullish();
 const energyComplexity = complexity.nullish();
 
+/** Cronómetro pomodoro de una actividad (repeticiones, descanso y foco). */
+export const activityPomodoroSchema = z.object({
+  focusMin: z.number().int().min(5).max(180),
+  breakMin: z.number().int().min(0).max(60),
+  cycles: z.number().int().min(1).max(12),
+  autoStart: z.boolean(),
+  longBreakMin: z.number().int().min(0).max(90).optional(),
+  skipBreaks: z.boolean().optional(),
+});
+
 export const createSubcategorySchema = z.object({
   categoryId: cuid,
   name,
@@ -35,6 +45,7 @@ export const updateSubcategorySchema = z
     complexity: complexity.optional(),
     energyLevel: energyLevel,
     energyComplexity: energyComplexity,
+    pomodoroConfig: activityPomodoroSchema.nullable().optional(),
   })
   .refine(
     (data) =>
@@ -43,7 +54,8 @@ export const updateSubcategorySchema = z
       data.color !== undefined ||
       data.complexity !== undefined ||
       data.energyLevel !== undefined ||
-      data.energyComplexity !== undefined,
+      data.energyComplexity !== undefined ||
+      data.pomodoroConfig !== undefined,
     { message: "Debes modificar al menos un campo." },
   );
 
@@ -59,16 +71,6 @@ export const reorderSubcategoriesSchema = z.object({
 });
 
 export type ReorderSubcategoriesInput = z.infer<typeof reorderSubcategoriesSchema>;
-
-/** Cronómetro pomodoro de una actividad (repeticiones, descanso y foco). */
-export const activityPomodoroSchema = z.object({
-  focusMin: z.number().int().min(5).max(180),
-  breakMin: z.number().int().min(0).max(60),
-  cycles: z.number().int().min(1).max(12),
-  autoStart: z.boolean(),
-  longBreakMin: z.number().int().min(0).max(90).optional(),
-  skipBreaks: z.boolean().optional(),
-});
 
 export const setActivityPomodoroSchema = z.object({
   id: cuid,

@@ -27,7 +27,7 @@ import {
   type SubcategoryItem as SubcategoryItemType,
 } from "@/features/categories/store/subcategory.store";
 import { SubcategoryItem } from "@/features/categories/components/SubcategoryItem";
-import { ActivityModal } from "@/features/categories/components/ActivityModal";
+import { ActivityModal, type ActivityModalInitial } from "@/features/categories/components/ActivityModal";
 import { ActivityFilters } from "@/features/categories/components/ActivityFilters";
 import { useHomeQuickStore } from "@/features/home/store/home-quick.store";
 import { Button } from "@/components/ui/Button";
@@ -36,7 +36,6 @@ import { InfoModal } from "@/components/ui/InfoModal";
 import { TRASH_RETENTION_DAYS } from "@/services/categories/trash.types";
 import { cn } from "@/lib/utils";
 import type { Complexity } from "@/lib/constants/default-subcategories";
-import type { EnergyLevel } from "@/services/recommendation/energy-level";
 
 type DeleteTarget =
   | { type: "selected" }
@@ -73,9 +72,8 @@ export function SubcategoryList({
   );
 
   const [createOpen, setCreateOpen] = useState(false);
-  const [editing, setEditing] = useState<SubcategoryItemType | null>(null);
+  const [editing, setEditing] = useState<ActivityModalInitial | null>(null);
   const [reorderError, setReorderError] = useState<string | null>(null);
-  const [selectedEnergies, setSelectedEnergies] = useState<EnergyLevel[]>([]);
   const [selectedDifficulties, setSelectedDifficulties] = useState<Complexity[]>([]);
   const [search, setSearch] = useState("");
   const [selectMode, setSelectMode] = useState(false);
@@ -151,16 +149,12 @@ export function SubcategoryList({
   })();
 
   const filteredItems = items.filter((item) => {
-    const energyMatch =
-      selectedEnergies.length === 0 ||
-      (item.energyLevel !== null && item.energyLevel !== undefined &&
-        selectedEnergies.includes(item.energyLevel));
     const difficultyMatch =
       selectedDifficulties.length === 0 || selectedDifficulties.includes(item.complexity);
     const searchMatch =
       search.trim().length === 0 ||
       item.name.toLowerCase().includes(search.trim().toLowerCase());
-    return energyMatch && difficultyMatch && searchMatch;
+    return difficultyMatch && searchMatch;
   });
 
   const sensors = useSensors(
@@ -192,13 +186,7 @@ export function SubcategoryList({
     <div className="flex flex-col gap-4">
       {showFilters && (
         <ActivityFilters
-          selectedEnergies={selectedEnergies}
           selectedDifficulties={selectedDifficulties}
-          onToggleEnergy={(level) =>
-            setSelectedEnergies((prev) =>
-              prev.includes(level) ? prev.filter((l) => l !== level) : [...prev, level],
-            )
-          }
           onToggleDifficulty={(value) =>
             setSelectedDifficulties((prev) =>
               prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value],
@@ -294,7 +282,18 @@ export function SubcategoryList({
                 selectMode={selectMode}
                 selected={selectedIds.has(item.id)}
                 onToggleSelect={toggleSelect}
-                onEdit={() => setEditing(item)}
+                onEdit={() =>
+                  setEditing({
+                    id: item.id,
+                    name: item.name,
+                    icon: item.icon,
+                    color: item.color,
+                    complexity: item.complexity,
+                    energyLevel: item.energyLevel ?? null,
+                    energyComplexity: item.energyComplexity ?? null,
+                    pomodoroConfig: item.pomodoroConfig ?? null,
+                  })
+                }
                 onDelete={() => setDeleteTarget({ type: "one", id: item.id, name: item.name })}
               />
             ))}
@@ -310,8 +309,8 @@ export function SubcategoryList({
 
       {filteredItems.length === 0 && !createOpen && (
         <p className="rounded-2xl border border-dashed border-border bg-surface-muted p-6 text-center text-sm text-muted-foreground">
-          {selectedEnergies.length > 0 || selectedDifficulties.length > 0
-            ? "No hay actividades que coincidan con estos filtros. Prueba con otra energía o dificultad."
+          {selectedDifficulties.length > 0
+            ? "No hay actividades que coincidan con este filtro. Prueba con otra dificultad."
             : "Todavía no tienes Actividades aquí. Agrega la primera cuando quieras."}
         </p>
       )}
