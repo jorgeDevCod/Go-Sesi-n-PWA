@@ -3,11 +3,14 @@
 import { useState } from "react";
 import { DynamicIcon } from "@/components/ui/DynamicIcon";
 import { SubcategoryList } from "@/features/categories/components/SubcategoryList";
+import { SegmentedTabs } from "@/features/routine/components/SegmentedTabs";
 import { RoutineTimePresets } from "@/features/routine/components/RoutineTimePresets";
 import { ActivityPomodoroEditor } from "@/features/routine/components/ActivityPomodoroEditor";
 import { cn } from "@/lib/utils";
 import type { RoutineCategory } from "@/features/routine/components/RoutineTabs";
 import type { SubcategoryItem } from "@/features/categories/store/subcategory.store";
+
+type TimeTab = "niveles" | "actividad";
 
 export function ActivitiesTab({
   categories,
@@ -17,14 +20,13 @@ export function ActivitiesTab({
   itemsByCategory: Record<string, SubcategoryItem[]>;
 }) {
   const [selected, setSelected] = useState(categories[0]?.id ?? "");
+  const [timeTab, setTimeTab] = useState<TimeTab>("niveles");
   const current = categories.find((c) => c.id === selected) ?? categories[0];
 
   return (
     <div className="flex flex-col gap-6">
       <div className="text-sm leading-relaxed text-muted-foreground text-center">
-        <p>
-          Selecciona una categoría para ver sus actividades.
-        </p>
+        <p>Selecciona una categoría para ver sus actividades.</p>
         <span>
           Aquí puedes crear, editar, reordenar o
           eliminar tus actividades con las que luego armarás tus sesiones de enfoque.
@@ -59,15 +61,32 @@ export function ActivitiesTab({
         })}
       </div>
 
-      <RoutineTimePresets />
-
-      {current && (
-        <ActivityPomodoroEditor
-          key={current.id}
-          items={itemsByCategory[current.id] ?? []}
-          categoryName={current.name}
+      {/* Tiempos: un solo editor por tabs (niveles o actividad). */}
+      <div className="flex flex-col gap-3">
+        <SegmentedTabs
+          ariaLabel="Tiempos"
+          size="md"
+          value={timeTab}
+          onChange={setTimeTab}
+          tabs={[
+            { key: "niveles", label: "Tiempos por nivel" },
+            { key: "actividad", label: "Pomodoro por actividad" },
+          ]}
         />
-      )}
+        {timeTab === "niveles" ? (
+          <RoutineTimePresets />
+        ) : current ? (
+          <ActivityPomodoroEditor
+            key={current.id}
+            items={itemsByCategory[current.id] ?? []}
+            categoryName={current.name}
+          />
+        ) : (
+          <p className="rounded-2xl border border-dashed border-border bg-surface-muted p-6 text-center text-sm text-muted-foreground">
+            Crea primero una categoría en la pestaña &quot;Categorías&quot;.
+          </p>
+        )}
+      </div>
 
       {current ? (
           <SubcategoryList
