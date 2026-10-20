@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { reorderIds } from "@/lib/order";
 import type { Complexity } from "@/lib/constants/default-subcategories";
 import type { EnergyLevel } from "@/services/recommendation/energy-level";
+import type { PomodoroConfig } from "@/services/session/pomodoro";
 
 export type SubcategoryItem = {
   id: string;
@@ -13,6 +14,8 @@ export type SubcategoryItem = {
   complexity: Complexity;
   energyLevel?: EnergyLevel | null;
   energyComplexity?: Complexity | null;
+  /** Cronómetro pomodoro propio de la actividad (null = nivel pre-programado). */
+  pomodoroConfig?: PomodoroConfig | null;
 };
 
 type SubcategoryStore = {

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { auth } from "@/auth";
 import { listCategoriesForUser } from "@/repositories/category.repository";
 import { listSubcategories } from "@/services/categories/list-subcategories.service";
+import { parseActivityPomodoroConfig } from "@/services/categories/activity-pomodoro.service";
 import { RoutineTabs } from "@/features/routine/components/RoutineTabs";
 import type { SubcategoryItem } from "@/features/categories/store/subcategory.store";
 
@@ -34,6 +35,7 @@ export default async function RoutinePage() {
       complexity: sub.complexity,
       energyLevel: sub.energyLevel as SubcategoryItem["energyLevel"],
       energyComplexity: sub.energyComplexity as SubcategoryItem["energyComplexity"],
+      pomodoroConfig: parseActivityPomodoroConfig(sub.pomodoroConfig),
     });
   }
 

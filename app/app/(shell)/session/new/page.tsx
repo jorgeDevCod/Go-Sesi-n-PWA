@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { findCategoryByKeyOrIdForUser } from "@/repositories/category.repository";
 import { listSubcategories } from "@/services/categories/list-subcategories.service";
+import { parseActivityPomodoroConfig } from "@/services/categories/activity-pomodoro.service";
 import { SessionWizard } from "@/features/session/components/SessionWizard";
 import type { EnergyLevel } from "@/services/recommendation/energy-level";
 import type { Complexity } from "@/lib/constants/default-subcategories";
@@ -44,6 +45,7 @@ export default async function NewSessionPage({
           complexity: sub.complexity,
           energyLevel: (sub.energyLevel as EnergyLevel | null) ?? null,
           energyComplexity: (sub.energyComplexity as Complexity | null) ?? null,
+          pomodoroConfig: parseActivityPomodoroConfig(sub.pomodoroConfig),
         }))}
       />
     </div>

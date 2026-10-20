@@ -84,7 +84,8 @@ describe("startSessionForUser (modo)", () => {
       expect.objectContaining({ mode: "POMODORO", pomodoroConfig: config }),
     );
     expect(session.mode).toBe("POMODORO");
-    expect(session.pomodoroConfig).toEqual(config);
+    expect(session.pomodoroConfig).toMatchObject(config);
+    expect(session.pomodoroConfig).toMatchObject({ longBreakMin: 0, skipBreaks: false });
   });
 
   it("POMODORO con config fuera de rango lanza error", async () => {

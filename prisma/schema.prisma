@@ -73,6 +73,8 @@ model Subcategory {
   complexity         Complexity  @default(MEDIUM)
   energyLevel        String?
   energyComplexity   Complexity?
+  /// Cronómetro pomodoro predeterminado de esta actividad (null = nivel pre-programado).
+  pomodoroConfig     Json?
   createdAt          DateTime    @default(now())
   updatedAt          DateTime    @updatedAt
   deletedAt          DateTime?

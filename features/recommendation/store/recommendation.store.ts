@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import type { Complexity } from "@/lib/constants/default-subcategories";
 import type { EnergyLevel } from "@/services/recommendation/energy-level";
+import type { PomodoroConfig } from "@/services/session/pomodoro";
 
 type FixedRole = "min" | "rec" | "max";
 
@@ -32,6 +33,10 @@ type RecommendationPrefs = {
   energyCategoryIds: Partial<Record<EnergyLevel, string[]>>;
   energySubcategoryIds: Partial<Record<EnergyLevel, string[]>>;
   recommendationCombos: Record<string, RecommendationCombo>;
+  /** Cronómetros pomodoro por combinación energía:dificultad. */
+  pomodoroConfigs: Record<string, PomodoroConfig>;
+  /** Niveles pre-programados (ligero/medio/intenso) editables por el usuario. */
+  pomodoroPresets: Record<string, PomodoroConfig>;
   setEnergy: (energy: EnergyLevel) => void;
   setPreferredMinutes: (minutes: number | null) => void;
   setDontAskAgain: (value: boolean) => void;
@@ -46,6 +51,10 @@ type RecommendationPrefs = {
   setEnergySubcategoryIds: (energy: EnergyLevel, ids: string[]) => void;
   setRecommendationCombo: (key: string, combo: RecommendationCombo) => void;
   removeRecommendationCombo: (key: string) => void;
+  setPomodoroConfig: (key: string, config: PomodoroConfig) => void;
+  removePomodoroConfig: (key: string) => void;
+  setPomodoroPreset: (tier: string, config: PomodoroConfig) => void;
+  removePomodoroPreset: (tier: string) => void;
   resetEnergyPrefs: () => void;
   reset: () => void;
 };
@@ -80,6 +89,8 @@ export const useRecommendationPrefs = create<RecommendationPrefs>()(
       energyCategoryIds: {},
       energySubcategoryIds: {},
       recommendationCombos: {},
+      pomodoroConfigs: {},
+      pomodoroPresets: {},
       setEnergy: (energy) => set({ energy }),
       setPreferredMinutes: (minutes) => set({ preferredMinutes: minutes }),
       setDontAskAgain: (value) => set({ dontAskAgain: value }),
@@ -132,6 +143,26 @@ export const useRecommendationPrefs = create<RecommendationPrefs>()(
           delete rest[key];
           return { recommendationCombos: rest };
         }),
+      setPomodoroConfig: (key, config) =>
+        set((state) => ({
+          pomodoroConfigs: { ...state.pomodoroConfigs, [key]: config },
+        })),
+      removePomodoroConfig: (key) =>
+        set((state) => {
+          const rest = { ...state.pomodoroConfigs };
+          delete rest[key];
+          return { pomodoroConfigs: rest };
+        }),
+      setPomodoroPreset: (tier, config) =>
+        set((state) => ({
+          pomodoroPresets: { ...state.pomodoroPresets, [tier]: config },
+        })),
+      removePomodoroPreset: (tier) =>
+        set((state) => {
+          const rest = { ...state.pomodoroPresets };
+          delete rest[tier];
+          return { pomodoroPresets: rest };
+        }),
       resetEnergyPrefs: () =>
         set({
           energyDurations: {},
@@ -156,6 +187,8 @@ export const useRecommendationPrefs = create<RecommendationPrefs>()(
           difficultyMaxDurations: {},
           energyCategoryIds: {},
           energySubcategoryIds: {},
+          pomodoroConfigs: {},
+          pomodoroPresets: {},
         }),
     }),
     {

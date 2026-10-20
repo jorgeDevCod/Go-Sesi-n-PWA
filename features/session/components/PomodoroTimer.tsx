@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
+import { cn } from "@/lib/utils";
 import { CircularProgress } from "@/features/session/components/CircularProgress";
 import { DynamicIcon } from "@/components/ui/DynamicIcon";
 import { Button } from "@/components/ui/Button";
@@ -10,16 +11,26 @@ import { formatRemaining } from "@/features/session/timer-view";
 import { derivePomodoroView } from "@/services/session/pomodoro";
 import { completeSessionAction } from "@/features/session/actions/session.actions";
 import { useSessionStore } from "@/features/session/store/session.store";
-import { playSoftCompletionSound, vibrateOnCompletion } from "@/features/session/session-sound";
+import {
+  playBreakWarning,
+  playFocusEndAlarm,
+  playSoftStartSound,
+} from "@/features/session/session-sound";
 import type { SessionDTO } from "@/services/session/session.dto";
+
+/** Margen del pre-aviso: el viento empieza antes de que el descanso acabe. */
+const WARNING_LEAD_MS = 6_000;
+/** Duración del aviso "¡Iniciemos!". */
+const CUE_MS = 3_000;
 
 function phaseLabel(
   phase: "focus" | "break" | "done",
   cycleIndex: number,
   cycles: number,
+  isLongBreak: boolean,
 ): string {
   if (phase === "focus") return `Foco ${cycleIndex + 1} de ${cycles}`;
-  if (phase === "break") return "Descanso";
+  if (phase === "break") return isLongBreak ? "Descanso largo" : "Descanso";
   return "¡Listo!";
 }
 
@@ -42,8 +53,29 @@ export function PomodoroTimer({
   const [nowMs, setNowMs] = useState(() => session.serverNowMs);
   const [, startTransition] = useTransition();
   const [prompt, setPrompt] = useState<{ title: string; message: string } | null>(null);
+  const [cue, setCue] = useState<string | null>(null);
   const lastPhaseKey = useRef<string | null>(null);
+  const warnedPhaseKey = useRef<string | null>(null);
   const completingForId = useRef<string | null>(null);
+  const alarmStopRef = useRef<(() => void) | null>(null);
+  const cueTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  function showCue(message: string) {
+    setCue(message);
+    if (cueTimerRef.current) clearTimeout(cueTimerRef.current);
+    cueTimerRef.current = setTimeout(() => setCue(null), CUE_MS);
+  }
+
+  /** Calcula la vista pomodoro con el reloj actual (servidor + skew). */
+  function computeView(now: number) {
+    if (!config) return null;
+    const referenceNow = session.pausedAtMs ?? now + skewMs;
+    const elapsedMs = Math.max(
+      0,
+      referenceNow - session.startedAtMs - session.pausedMs,
+    );
+    return derivePomodoroView(elapsedMs, config, session.extendedMinutes * 60_000);
+  }
 
   // El aviso de fase vive en el callback del intervalo (contexto de evento),
   // no en el cuerpo del effect: evita setState síncrono en effects y solo
@@ -53,21 +85,41 @@ export function PomodoroTimer({
     const interval = setInterval(() => {
       const now = Date.now();
       setNowMs(now);
-      const elapsedMs = Math.max(
-        0,
-        (session.pausedAtMs ?? now + skewMs) - session.startedAtMs - session.pausedMs,
-      );
-      const next = derivePomodoroView(elapsedMs, config, session.extendedMinutes * 60_000);
-      const key = `${next.phase}:${next.cycleIndex}:${session.id}`;
+      const next = computeView(now);
+      if (!next) return;
+      const key = `${next.phase}:${next.cycleIndex}:${next.isLongBreak}:${session.id}`;
+
+      // Pre-aviso: a pocos segundos de terminar el descanso, el viento
+      // empieza y sigue sonando hasta que llega a 0.
+      if (
+        next.phase === "break" &&
+        next.phaseRemainingMs <= WARNING_LEAD_MS &&
+        warnedPhaseKey.current !== key
+      ) {
+        warnedPhaseKey.current = key;
+        alarmStopRef.current?.();
+        alarmStopRef.current = playBreakWarning(Math.ceil(next.phaseRemainingMs / 1000) + 1);
+      }
+
       if (lastPhaseKey.current === null) {
         lastPhaseKey.current = key;
         return;
       }
       if (lastPhaseKey.current === key) return;
+      const previousKey = lastPhaseKey.current;
       lastPhaseKey.current = key;
 
-      playSoftCompletionSound();
-      vibrateOnCompletion();
+      // Al terminar el foco (o al encadenar ciclos): alarma de 8s.
+      if (previousKey.startsWith("focus")) {
+        alarmStopRef.current?.();
+        alarmStopRef.current = playFocusEndAlarm(8);
+      } else {
+        // El descanso terminó: el foco reinicia solo con el aviso "¡Iniciemos!".
+        alarmStopRef.current?.();
+        alarmStopRef.current = null;
+        playSoftStartSound();
+        showCue("¡Iniciemos!");
+      }
 
       if (next.phase === "done") {
         if (completingForId.current === session.id) return;
@@ -79,22 +131,22 @@ export function PomodoroTimer({
         return;
       }
 
-      if (!config.autoStart) {
-        setPrompt(
-          next.phase === "break"
-            ? {
-                title: "Descanso",
-                message:
-                  "Foco completado. Tómate el descanso: el reloj sigue corriendo y avisará al volver.",
-              }
-            : {
-                title: `Foco ${next.cycleIndex + 1} de ${config.cycles}`,
-                message: "Descanso terminado. Vuelve al foco cuando estés lista o listo.",
-              },
-        );
+      if (next.phase === "break" && !config.autoStart) {
+        // Modo manual: avisamos y el descanso sigue corriendo.
+        const breakMinutes = Math.max(1, Math.round(next.phaseRemainingMs / 60_000));
+        setPrompt({
+          title: "Foco completado",
+          message: `Tómate tu descanso de ${breakMinutes} min: el reloj sigue corriendo y te avisaremos al volver.`,
+        });
       }
     }, 1000);
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      alarmStopRef.current?.();
+      alarmStopRef.current = null;
+      if (cueTimerRef.current) clearTimeout(cueTimerRef.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session, config, skewMs, setSession]);
 
   useEffect(() => {
@@ -149,6 +201,25 @@ export function PomodoroTimer({
         <span className="rounded-full border border-border bg-surface-muted px-3 py-1 text-xs font-medium text-muted-foreground">
           Pomodoro {config.focusMin}/{config.breakMin} × {config.cycles}
         </span>
+        <div
+          className="flex items-center gap-1.5"
+          role="img"
+          aria-label={`Ciclo ${Math.min(view.cycleIndex + 1, config.cycles)} de ${config.cycles}`}
+        >
+          {Array.from({ length: config.cycles }, (_, index) => (
+            <span
+              key={index}
+              className={cn(
+                "size-1.5 rounded-full transition-colors duration-300",
+                index < view.cycleIndex
+                  ? "bg-accent-aprender"
+                  : index === view.cycleIndex
+                    ? "bg-accent-aprender"
+                    : "bg-border",
+              )}
+            />
+          ))}
+        </div>
       </div>
 
       <div className="relative flex flex-col items-center gap-4">
@@ -158,7 +229,7 @@ export function PomodoroTimer({
               {formatRemaining(view.phaseRemainingMs)}
             </span>
             <span className="mt-1.5 text-xs font-medium uppercase tracking-wide text-muted-foreground sm:text-sm">
-              {phaseLabel(view.phase, view.cycleIndex, config.cycles)}
+              {phaseLabel(view.phase, view.cycleIndex, config.cycles, view.isLongBreak)}
             </span>
           </div>
         </CircularProgress>
@@ -207,6 +278,18 @@ export function PomodoroTimer({
         message={prompt?.message ?? ""}
         confirmLabel="Continuar"
       />
+
+      {cue && (
+        <div
+          role="status"
+          aria-live="polite"
+          className="pointer-events-none absolute inset-0 flex items-center justify-center"
+        >
+          <span className="rounded-3xl border border-border bg-surface px-8 py-5 text-3xl font-bold text-foreground shadow-xl">
+            {cue}
+          </span>
+        </div>
+      )}
     </div>
   );
 }

@@ -5,7 +5,9 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 import { DynamicIcon } from "@/components/ui/DynamicIcon";
+import { Button } from "@/components/ui/Button";
 import { DurationPicker } from "@/features/session/components/DurationPicker";
+import { PomodoroConfigurator } from "@/features/session/components/PomodoroConfigurator";
 import { ConfirmScreen } from "@/features/session/components/ConfirmScreen";
 import { CountdownOverlay } from "@/features/session/components/CountdownOverlay";
 import { startSessionAction } from "@/features/session/actions/session.actions";
@@ -19,17 +21,22 @@ import {
   setStoredPomodoroAutoStart,
 } from "@/features/session/pomodoro-preference";
 import {
-  POMODORO_PRESETS,
+  POMODORO_TIER_DETAILS,
+  POMODORO_TIER_LABELS,
+  POMODORO_TIERS,
   pomodoroPlannedMinutes,
+  pomodoroPresetFor,
+  resolvePomodoroConfigForStart,
   type PomodoroConfig,
 } from "@/services/session/pomodoro";
+import { setActivityPomodoroAction } from "@/features/categories/actions/subcategory.actions";
 import {
   ENERGY_ACTIVITY_DESCRIPTIONS,
   effectiveDurationOptions,
   effectiveMaxLabel,
   type EnergyLevel,
 } from "@/services/recommendation/energy-level";
-import {
+import type { Complexity } from "@/lib/constants/default-subcategories";import {
   useRecommendationPrefs,
   recommendationOverridesFromPrefs,
 } from "@/features/recommendation/store/recommendation.store";
@@ -40,32 +47,23 @@ type SessionMode = "CLASSIC" | "POMODORO";
 
 const DURATION_CHIPS = [10, 20, 30, 40, 50, 60];
 
-const POMODORO_OPTIONS = [
-  { key: "ligero", label: "Ligero", detail: "Foco corto y constante", config: POMODORO_PRESETS.baja },
-  { key: "medio", label: "Medio", detail: "El punto medio clásico", config: POMODORO_PRESETS.media },
-  { key: "intenso", label: "Intenso", detail: "Retos exigentes", config: POMODORO_PRESETS.alta },
-] as const;
-
-type PomodoroOptionKey = (typeof POMODORO_OPTIONS)[number]["key"];
-
-function defaultPomodoroKey(energy?: EnergyLevel): PomodoroOptionKey {
-  if (energy === "baja") return "ligero";
-  if (energy === "alta") return "intenso";
-  return "medio";
-}
-
 export function StartSessionFlow({
   subcategory,
   categoryName,
   recommendationReason,
   defaultMinutes,
   energy,
+  complexity = "MEDIUM",
+  activityPomodoroConfig,
 }: {
   subcategory: SubcategoryOption;
   categoryName: string;
   recommendationReason?: string;
   defaultMinutes?: number;
   energy?: EnergyLevel;
+  complexity?: Complexity;
+  /** Cronómetro guardado por el usuario para esta actividad. */
+  activityPomodoroConfig?: PomodoroConfig | null;
 }) {
   const router = useRouter();
   const prefs = useRecommendationPrefs();
@@ -73,15 +71,21 @@ export function StartSessionFlow({
   const [step, setStep] = useState<Step>(defaultMinutes ? "confirm" : "duration");
   const [minutes, setMinutes] = useState<number | null>(defaultMinutes ?? null);
   const [mode, setMode] = useState<SessionMode>("CLASSIC");
-  const [pomodoroKey, setPomodoroKey] = useState<PomodoroOptionKey>(() =>
-    defaultPomodoroKey(energy),
-  );
   const [pomodoroConfig, setPomodoroConfig] = useState<PomodoroConfig | null>(null);
   const [autoStart, setAutoStart] = useState(() => getStoredPomodoroAutoStart());
   const [countdownSeconds, setCountdownSeconds] = useState(() => getStoredCountdownSeconds());
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const [isSaving, setIsSaving] = useState(false);
+
+  const effectiveEnergy: EnergyLevel = energy ?? "media";
+  const tierConfigs = POMODORO_TIERS.map((key) => ({
+    key,
+    label: POMODORO_TIER_LABELS[key],
+    detail: POMODORO_TIER_DETAILS[key],
+    config: pomodoroPresetFor(key, prefs.pomodoroPresets),
+  }));
 
   function handleCountdownChange(seconds: number) {
     setCountdownSeconds(seconds);
@@ -91,10 +95,13 @@ export function StartSessionFlow({
   function handleAutoStartChange(value: boolean) {
     setAutoStart(value);
     setStoredPomodoroAutoStart(value);
-    if (pomodoroConfig) {
-      const next = { ...pomodoroConfig, autoStart: value };
-      setPomodoroConfig(next);
-      setMinutes(pomodoroPlannedMinutes(next));
+  }
+
+  function handlePomodoroConfigChange(next: PomodoroConfig) {
+    setPomodoroConfig(next);
+    setMinutes(pomodoroPlannedMinutes(next));
+    if (next.autoStart !== autoStart) {
+      handleAutoStartChange(next.autoStart);
     }
   }
 
@@ -103,15 +110,43 @@ export function StartSessionFlow({
     setError(null);
     if (next === "CLASSIC") {
       setPomodoroConfig(null);
+      return;
     }
+    // Al entrar en pomodoro: el cronómetro de la actividad si lo guardaste,
+    // si no el nivel pre-programado de tu energía.
+    const config = resolvePomodoroConfigForStart({
+      activityConfig: activityPomodoroConfig ?? null,
+      energy: effectiveEnergy,
+      presets: prefs.pomodoroPresets,
+      savedCombos: prefs.pomodoroConfigs,
+      complexity,
+    });
+    const withAuto = { ...config, autoStart };
+    setPomodoroConfig(withAuto);
+    setMinutes(pomodoroPlannedMinutes(withAuto));
   }
 
-  function handlePomodoroSelect(option: (typeof POMODORO_OPTIONS)[number]) {
+  function handleSaveAsActivityDefault() {
+    if (!pomodoroConfig) return;
+    setIsSaving(true);
+    startTransition(async () => {
+      const result = await setActivityPomodoroAction({
+        id: subcategory.id,
+        pomodoroConfig,
+      });
+      setIsSaving(false);
+      if (!result.success) {
+        setError(result.error);
+        return;
+      }
+      setNotice(`Guardamos tu cronómetro como predeterminado de ${subcategory.name}.`);
+    });
+  }
+
+  function handlePomodoroSelect(option: { key: string; config: PomodoroConfig }) {
     const config = { ...option.config, autoStart };
-    setPomodoroKey(option.key);
     setPomodoroConfig(config);
     setMinutes(pomodoroPlannedMinutes(config));
-    setStep("confirm");
   }
 
   function startSessionNow() {
@@ -247,43 +282,81 @@ export function StartSessionFlow({
                 }}
               />
             ) : (
-              <div className="flex flex-col gap-3">
+              <div className="flex flex-col gap-4">
                 <p className="text-sm leading-relaxed text-muted-foreground">
-                  Alterna foco y descanso. Al terminar cada fase suena un aviso.
+                  Alterna tiempo de concentración y descansos. Ajusta los tiempos a tu gusto
+                  antes de empezar: sonarás un aviso al terminar cada fase.
                 </p>
-                {POMODORO_OPTIONS.map((option) => {
-                  const total = pomodoroPlannedMinutes(option.config);
-                  const selected = pomodoroKey === option.key && pomodoroConfig !== null;
-                  return (
-                    <button
-                      key={option.key}
-                      type="button"
-                      onClick={() => handlePomodoroSelect(option)}
-                      aria-pressed={selected}
-                      className={`cursor-pointer rounded-2xl border p-4 text-left transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender ${
-                        selected
-                          ? "border-accent-aprender bg-surface-muted"
-                          : "border-border bg-surface hover:bg-surface-hover"
-                      }`}
-                    >
-                      <p className="font-medium text-foreground">{option.label}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {option.config.focusMin} min foco · {option.config.breakMin} min descanso ·{" "}
-                        {option.config.cycles} ciclos · {total} min en total
+                <div className="flex flex-col gap-2">
+                  {tierConfigs.map((option) => {
+                    const selected =
+                      pomodoroConfig !== null &&
+                      pomodoroConfig.focusMin === option.config.focusMin &&
+                      pomodoroConfig.breakMin === option.config.breakMin &&
+                      pomodoroConfig.cycles === option.config.cycles;
+                    return (
+                      <button
+                        key={option.key}
+                        type="button"
+                        onClick={() => handlePomodoroSelect(option)}
+                        aria-pressed={selected}
+                        className={`cursor-pointer rounded-2xl border p-4 text-left transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender ${
+                          selected
+                            ? "border-accent-aprender bg-surface-muted"
+                            : "border-border bg-surface hover:bg-surface-hover"
+                        }`}
+                      >
+                        <p className="font-medium text-foreground">{option.label}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {option.config.focusMin} min foco · {option.config.breakMin} min descanso ·{" "}
+                          {option.config.cycles} ciclos ·{" "}
+                          {pomodoroPlannedMinutes(option.config)} min en total
+                        </p>
+                        <p className="text-xs text-muted-foreground">{option.detail}</p>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {pomodoroConfig && (
+                  <div className="flex flex-col gap-3 rounded-2xl border border-border bg-surface p-4">
+                    <div className="flex flex-col gap-1">
+                      <p className="text-sm font-semibold text-foreground">
+                        Programa tus propios tiempos
                       </p>
-                      <p className="text-xs text-muted-foreground">{option.detail}</p>
+                      <p className="text-xs leading-relaxed text-muted-foreground">
+                        Repeticiones, descanso y concentración a tu gusto. Se aplica solo a esta
+                        sesión.
+                      </p>
+                    </div>
+                    <PomodoroConfigurator
+                      config={pomodoroConfig}
+                      onChange={handlePomodoroConfigChange}
+                      showReset={Boolean(activityPomodoroConfig)}
+                      resetLabel="Volver al cronómetro de esta actividad"
+                      onReset={() => {
+                        if (!activityPomodoroConfig) return;
+                        handlePomodoroConfigChange(activityPomodoroConfig);
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={handleSaveAsActivityDefault}
+                      disabled={!pomodoroConfig || isSaving}
+                      className="cursor-pointer rounded-full border border-border bg-surface px-4 py-2 text-sm font-medium text-foreground transition-colors duration-200 hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      Guardar como predeterminado de {subcategory.name}
                     </button>
-                  );
-                })}
-                <label className="flex cursor-pointer items-center gap-3 rounded-2xl border border-border bg-surface p-4 text-sm text-foreground">
-                  <input
-                    type="checkbox"
-                    checked={autoStart}
-                    onChange={(event) => handleAutoStartChange(event.target.checked)}
-                    className="size-4 accent-[var(--accent-aprender)]"
-                  />
-                  Avanzar fases automáticamente
-                </label>
+                  </div>
+                )}
+                <Button
+                  size="lg"
+                  className="w-full"
+                  disabled={!pomodoroConfig}
+                  onClick={() => setStep("confirm")}
+                >
+                  Continuar
+                </Button>
               </div>
             )}
           </motion.div>

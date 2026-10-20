@@ -10,6 +10,10 @@ vi.mock("@/features/session/actions/session.actions", () => ({
   startSessionAction: vi.fn(),
 }));
 
+vi.mock("@/features/categories/actions/subcategory.actions", () => ({
+  setActivityPomodoroAction: vi.fn(),
+}));
+
 const SUBS = [
   { id: "sub-1", name: "React", icon: "Atom", color: "#06B6D4", complexity: "MEDIUM" as const },
   { id: "sub-2", name: "Inglés", icon: "Languages", color: "#0EA5E9", complexity: "LOW" as const },

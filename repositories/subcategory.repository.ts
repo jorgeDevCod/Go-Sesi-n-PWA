@@ -36,6 +36,17 @@ export function updateSubcategory(
   return prisma.subcategory.update({ where: { id }, data });
 }
 
+/** Guarda (o limpia con null) el cronómetro pomodoro de una actividad. */
+export function updateSubcategoryPomodoroConfig(
+  id: string,
+  pomodoroConfig: Prisma.InputJsonValue | Prisma.NullableJsonNullValueInput,
+) {
+  return prisma.subcategory.update({
+    where: { id },
+    data: { pomodoroConfig },
+  });
+}
+
 export function deleteSubcategory(id: string) {
   return prisma.subcategory.delete({ where: { id } });
 }

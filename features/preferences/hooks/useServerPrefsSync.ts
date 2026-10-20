@@ -33,6 +33,8 @@ export function snapshotLocalPrefs(): LocalPrefsSnapshot {
     energyCategoryIds: s.energyCategoryIds,
     energySubcategoryIds: s.energySubcategoryIds,
     recommendationCombos: s.recommendationCombos,
+    pomodoroConfigs: s.pomodoroConfigs,
+    pomodoroPresets: s.pomodoroPresets,
   };
 }
 

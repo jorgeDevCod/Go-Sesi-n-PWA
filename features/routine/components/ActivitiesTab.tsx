@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { DynamicIcon } from "@/components/ui/DynamicIcon";
 import { SubcategoryList } from "@/features/categories/components/SubcategoryList";
+import { RoutineTimePresets } from "@/features/routine/components/RoutineTimePresets";
+import { ActivityPomodoroEditor } from "@/features/routine/components/ActivityPomodoroEditor";
 import { cn } from "@/lib/utils";
 import type { RoutineCategory } from "@/features/routine/components/RoutineTabs";
 import type { SubcategoryItem } from "@/features/categories/store/subcategory.store";
@@ -73,6 +75,16 @@ export function ActivitiesTab({
         <p className="rounded-xl border border-dashed border-border bg-surface-muted p-6 text-center text-sm text-muted-foreground">
           Crea primero una categoría en la pestaña &quot;Categorías&quot;.
         </p>
+      )}
+
+      <RoutineTimePresets />
+
+      {current && (
+        <ActivityPomodoroEditor
+          key={current.id}
+          items={itemsByCategory[current.id] ?? []}
+          categoryName={current.name}
+        />
       )}
     </div>
   );

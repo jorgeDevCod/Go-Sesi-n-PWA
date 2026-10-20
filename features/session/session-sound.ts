@@ -182,6 +182,26 @@ export function playSoftStartSound() {
   playTones([440, 660], 0.18);
 }
 
+/**
+ * Alarma de fin de fase de concentración (pomodoro): viento 8s + vibración.
+ * Devuelve un callback para detenerla antes (p. ej. si el usuario pausa).
+ */
+export function playFocusEndAlarm(durationSec = 8): () => void {
+  const stop = playCompletionAlarm(durationSec);
+  vibrateOnCompletion();
+  return stop;
+}
+
+/**
+ * Pre-aviso de fin de descanso: el viento empieza unos segundos antes y
+ * sigue sonando hasta que el descanso llega a 0.
+ */
+export function playBreakWarning(durationSec = 6): () => void {
+  const stop = playCompletionAlarm(durationSec);
+  vibrateOnCompletion();
+  return stop;
+}
+
 /** Fired alongside the completion sound. No-op on platforms without the
  * Vibration API (notably iOS Safari-there is no web workaround for that). */
 export function vibrateOnCompletion() {

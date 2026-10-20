@@ -6,9 +6,11 @@ const minutes = z.number().int().min(MIN_MINUTES).max(MAX_MINUTES);
 
 export const pomodoroConfigSchema = z.object({
   focusMin: z.number().int().min(5).max(180),
-  breakMin: z.number().int().min(1).max(60),
+  breakMin: z.number().int().min(0).max(60),
   cycles: z.number().int().min(1).max(12),
   autoStart: z.boolean(),
+  longBreakMin: z.number().int().min(0).max(90).optional(),
+  skipBreaks: z.boolean().optional(),
 });
 
 export const startSessionSchema = z

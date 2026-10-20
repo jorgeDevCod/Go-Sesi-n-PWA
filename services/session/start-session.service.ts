@@ -36,12 +36,18 @@ function resolvePomodoroConfig(
     pomodoroConfig.focusMin < 5 ||
     pomodoroConfig.focusMin > 180 ||
     !Number.isInteger(pomodoroConfig.breakMin) ||
-    pomodoroConfig.breakMin < 1 ||
+    pomodoroConfig.breakMin < 0 ||
     pomodoroConfig.breakMin > 60 ||
     !Number.isInteger(pomodoroConfig.cycles) ||
     pomodoroConfig.cycles < 1 ||
     pomodoroConfig.cycles > 12 ||
-    typeof pomodoroConfig.autoStart !== "boolean"
+    typeof pomodoroConfig.autoStart !== "boolean" ||
+    (pomodoroConfig.longBreakMin !== undefined &&
+      (!Number.isInteger(pomodoroConfig.longBreakMin) ||
+        pomodoroConfig.longBreakMin < 0 ||
+        pomodoroConfig.longBreakMin > 90)) ||
+    (pomodoroConfig.skipBreaks !== undefined &&
+      typeof pomodoroConfig.skipBreaks !== "boolean")
   ) {
     throw new InvalidPomodoroConfigError();
   }

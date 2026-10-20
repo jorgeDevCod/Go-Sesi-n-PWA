@@ -7,6 +7,7 @@ import {
   createSubcategorySchema,
   deleteSubcategorySchema,
   reorderSubcategoriesSchema,
+  setActivityPomodoroSchema,
   updateSubcategorySchema,
 } from "@/features/categories/schemas/subcategory.schema";
 import { createSubcategoryForUser } from "@/services/categories/create-subcategory.service";
@@ -14,6 +15,7 @@ import { updateSubcategoryForUser } from "@/services/categories/update-subcatego
 import { deleteSubcategoryForUser } from "@/services/categories/delete-subcategory.service";
 import { reorderSubcategoriesForUser } from "@/services/categories/reorder-subcategories.service";
 import { softDeleteManySubcategoriesToTrash } from "@/services/categories/trash.service";
+import { setActivityPomodoroForUser } from "@/services/categories/activity-pomodoro.service";
 
 export type ActionResult = { success: true } | { success: false; error: string };
 
@@ -95,8 +97,29 @@ export async function updateSubcategoryAction(input: unknown): Promise<ActionRes
   return { success: true };
 }
 
-export async function deleteSubcategoryAction(input: unknown): Promise<ActionResult> {
-  const parsed = deleteSubcategorySchema.safeParse(input);
+export async function setActivityPomodoroAction(input: unknown): Promise<ActionResult> {
+  const parsed = setActivityPomodoroSchema.safeParse(input);
+  if (!parsed.success) {
+    return { success: false, error: parsed.error.issues[0]?.message ?? "Datos inválidos." };
+  }
+
+  try {
+    const userId = await requireUserId();
+    await setActivityPomodoroForUser(
+      userId,
+      parsed.data.id,
+      parsed.data.pomodoroConfig ?? null,
+    );
+  } catch (error) {
+    return toErrorResult(error);
+  }
+
+  revalidatePath("/app/subcategories");
+  revalidatePath("/app/routine");
+  return { success: true };
+}
+
+export async function deleteSubcategoryAction(input: unknown): Promise<ActionResult> {  const parsed = deleteSubcategorySchema.safeParse(input);
   if (!parsed.success) {
     return { success: false, error: parsed.error.issues[0]?.message ?? "Datos inválidos." };
   }

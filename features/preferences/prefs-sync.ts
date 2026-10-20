@@ -1,6 +1,7 @@
 import type { Complexity } from "@/lib/constants/default-subcategories";
 import type { EnergyLevel } from "@/services/recommendation/energy-level";
 import type { ServerPrefs } from "@/services/preferences/user-preferences.service";
+import type { PomodoroConfig } from "@/services/session/pomodoro";
 
 /**
  * Estrategia de sincronización prefs local ↔ servidor (4B).
@@ -37,6 +38,10 @@ export type LocalPrefsSnapshot = {
       exRoles?: Record<string, FixedRole>;
     }
   >;
+  /** Cronómetros pomodoro por combinación energía:dificultad. */
+  pomodoroConfigs: Record<string, PomodoroConfig>;
+  /** Niveles pre-programados (ligero/medio/intenso) editables. */
+  pomodoroPresets: Record<string, PomodoroConfig>;
 };
 
 const DATA_KEYS = [
@@ -50,6 +55,8 @@ const DATA_KEYS = [
   "energyCategoryIds",
   "energySubcategoryIds",
   "recommendationCombos",
+  "pomodoroConfigs",
+  "pomodoroPresets",
 ] as const;
 
 function isEmptyRecord(value: unknown): boolean {

@@ -6,11 +6,22 @@ import { useSessionStore } from "@/features/session/store/session.store";
 import type { SessionDTO } from "@/services/session/session.dto";
 
 const { mocks } = vi.hoisted(() => ({
-  mocks: { completeSessionAction: vi.fn() },
+  mocks: {
+    completeSessionAction: vi.fn(),
+    playBreakWarning: vi.fn(() => vi.fn()),
+    playFocusEndAlarm: vi.fn(() => vi.fn()),
+    playSoftStartSound: vi.fn(),
+  },
 }));
 
 vi.mock("@/features/session/actions/session.actions", () => ({
   completeSessionAction: mocks.completeSessionAction,
+}));
+
+vi.mock("@/features/session/session-sound", () => ({
+  playBreakWarning: mocks.playBreakWarning,
+  playFocusEndAlarm: mocks.playFocusEndAlarm,
+  playSoftStartSound: mocks.playSoftStartSound,
 }));
 
 // AnimatePresence retiene el modal en exit-animation y los fake timers no la
@@ -40,7 +51,14 @@ function makeSession(autoStart: boolean): SessionDTO {
     extendedCount: 0,
     extendedMinutes: 0,
     mode: "POMODORO",
-    pomodoroConfig: { focusMin: 25, breakMin: 5, cycles: 2, autoStart },
+    pomodoroConfig: {
+      focusMin: 25,
+      breakMin: 5,
+      cycles: 2,
+      autoStart,
+      longBreakMin: 0,
+      skipBreaks: false,
+    },
     subcategoryId: "sub-1",
     subcategoryName: "React",
     subcategoryIcon: "Atom",
@@ -79,21 +97,46 @@ describe("PomodoroTimer", () => {
     useSessionStore.getState().clearSession();
   });
 
-  it("muestra Foco 1 de 2 al inicio", () => {
+  it("muestra Foco 1 de 2 al inicio y el contador de ciclos", () => {
     renderTimer(false);
     expect(screen.getByText("Foco 1 de 2")).toBeInTheDocument();
     expect(screen.getByText("Pomodoro 25/5 × 2")).toBeInTheDocument();
+    expect(screen.getByRole("img", { name: "Ciclo 1 de 2" })).toBeInTheDocument();
   });
 
-  it("modo manual: al terminar el foco avisa con modal y sigue al confirmar", () => {
+  it("al terminar el foco suena la alarma de 8s", () => {
+    renderTimer(true);
+    act(() => {
+      vi.advanceTimersByTime(25 * MIN);
+    });
+    expect(mocks.playFocusEndAlarm).toHaveBeenCalledWith(8);
+  });
+
+  it("pre-avisa 6s antes de terminar el descanso", () => {
+    renderTimer(true);
+    act(() => {
+      vi.advanceTimersByTime(25 * MIN + 5 * MIN - 5_000);
+    });
+    expect(mocks.playBreakWarning).toHaveBeenCalled();
+  });
+
+  it("al terminar el descanso muestra ¡Iniciemos! y reinicia el foco", () => {
+    renderTimer(true);
+    act(() => {
+      vi.advanceTimersByTime(25 * MIN + 5 * MIN);
+    });
+    expect(screen.getByText("¡Iniciemos!")).toBeInTheDocument();
+    expect(mocks.playSoftStartSound).toHaveBeenCalled();
+  });
+
+  it("modo manual: avisa al terminar el foco", () => {
     renderTimer(false);
     act(() => {
       vi.advanceTimersByTime(25 * MIN);
     });
-    expect(screen.getByText("05:00")).toBeInTheDocument();
-    expect(screen.getByRole("dialog", { name: "Descanso" })).toBeInTheDocument();
+    expect(screen.getByRole("dialog", { name: "Foco completado" })).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Continuar" }));
-    expect(screen.queryByRole("dialog", { name: "Descanso" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("dialog", { name: "Foco completado" })).not.toBeInTheDocument();
   });
 
   it("modo automático: sin modal y completa al terminar los ciclos", async () => {

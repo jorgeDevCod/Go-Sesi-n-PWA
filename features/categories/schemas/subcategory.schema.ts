@@ -59,3 +59,20 @@ export const reorderSubcategoriesSchema = z.object({
 });
 
 export type ReorderSubcategoriesInput = z.infer<typeof reorderSubcategoriesSchema>;
+
+/** Cronómetro pomodoro de una actividad (repeticiones, descanso y foco). */
+export const activityPomodoroSchema = z.object({
+  focusMin: z.number().int().min(5).max(180),
+  breakMin: z.number().int().min(0).max(60),
+  cycles: z.number().int().min(1).max(12),
+  autoStart: z.boolean(),
+  longBreakMin: z.number().int().min(0).max(90).optional(),
+  skipBreaks: z.boolean().optional(),
+});
+
+export const setActivityPomodoroSchema = z.object({
+  id: cuid,
+  pomodoroConfig: activityPomodoroSchema.nullable(),
+});
+
+export type SetActivityPomodoroInput = z.infer<typeof setActivityPomodoroSchema>;

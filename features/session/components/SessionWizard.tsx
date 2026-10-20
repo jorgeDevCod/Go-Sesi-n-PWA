@@ -15,6 +15,7 @@ import {
   type EnergyLevel,
 } from "@/services/recommendation/energy-level";
 import type { Complexity } from "@/lib/constants/default-subcategories";
+import type { PomodoroConfig } from "@/services/session/pomodoro";
 import { cn } from "@/lib/utils";
 import { ActivityFilters } from "@/features/categories/components/ActivityFilters";
 
@@ -26,6 +27,7 @@ type SubcategoryOption = {
   complexity: Complexity;
   energyLevel?: EnergyLevel | null;
   energyComplexity?: Complexity | null;
+  pomodoroConfig?: PomodoroConfig | null;
 };
 
 function subscribeNoop() {
@@ -121,6 +123,8 @@ export function SessionWizard({
               categoryName={categoryName}
               defaultMinutes={energy ? effectiveRecommendedDuration(energy, prefs) : undefined}
               energy={energy ?? "media"}
+              complexity={selected.complexity}
+              activityPomodoroConfig={selected.pomodoroConfig ?? null}
             />
           </motion.div>
         ) : (

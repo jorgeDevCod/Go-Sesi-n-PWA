@@ -47,6 +47,9 @@ export function parsePomodoroConfig(value: unknown): PomodoroConfig | null {
     breakMin: v.breakMin as number,
     cycles: v.cycles as number,
     autoStart: v.autoStart as boolean,
+    // Campos opcionales (configurations antiguas no los traen).
+    longBreakMin: Number.isInteger(v.longBreakMin) ? (v.longBreakMin as number) : 0,
+    skipBreaks: v.skipBreaks === true,
   };
 }
 

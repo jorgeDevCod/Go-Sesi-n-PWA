@@ -22,6 +22,8 @@ function local(overrides: Partial<LocalPrefsSnapshot> = {}): LocalPrefsSnapshot 
     energyCategoryIds: {},
     energySubcategoryIds: {},
     recommendationCombos: {},
+    pomodoroConfigs: {},
+    pomodoroPresets: {},
     ...overrides,
   };
 }
@@ -61,5 +63,11 @@ describe("prefs-sync", () => {
     expect(input.preferredMinutes).toBe(15);
     expect(input.data.energyDurations).toEqual({});
     expect(input.data.recommendationCombos).toEqual({});
+  });
+
+  it("los cronómetros pomodoro viajan en el blob", () => {
+    const config = { focusMin: 30, breakMin: 5, cycles: 3, autoStart: false, longBreakMin: 15, skipBreaks: false };
+    const input = localToServerInput(local({ pomodoroConfigs: { "media:MEDIUM": config } }));
+    expect(input.data.pomodoroConfigs).toEqual({ "media:MEDIUM": config });
   });
 });

@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { DynamicIcon } from "@/components/ui/DynamicIcon";
 import { cn } from "@/lib/utils";
 import { COMPLEXITY_LABELS } from "@/services/recommendation/energy-level";
+import type { PomodoroConfig } from "@/services/session/pomodoro";
 import type { Complexity } from "@/lib/constants/default-subcategories";
 
 export type PickableSubcategory = {
@@ -14,6 +15,8 @@ export type PickableSubcategory = {
   categoryId: string;
   categoryName: string;
   complexity: Complexity;
+  /** Cronómetro pomodoro guardado por el usuario para esta actividad. */
+  pomodoroConfig?: PomodoroConfig | null;
 };
 
 const COMPLEXITY_BADGE: Record<Complexity, string> = {
