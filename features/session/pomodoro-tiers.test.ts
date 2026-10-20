@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  POMODORO_TIER_BY_COMPLEXITY,
   POMODORO_TIER_BY_ENERGY,
   POMODORO_TIER_LABELS,
   POMODORO_TIERS,
@@ -23,6 +24,21 @@ describe("niveles pre-programados (ligero/medio/intenso)", () => {
     expect(POMODORO_TIER_LABELS.medio).toBe("Medio");
     expect(POMODORO_TIER_BY_ENERGY.baja).toBe("ligero");
     expect(POMODORO_TIER_BY_ENERGY.alta).toBe("intenso");
+    expect(POMODORO_TIER_BY_COMPLEXITY.LOW).toBe("ligero");
+    expect(POMODORO_TIER_BY_COMPLEXITY.MEDIUM).toBe("medio");
+    expect(POMODORO_TIER_BY_COMPLEXITY.HIGH).toBe("intenso");
+  });
+
+  it("la dificultad manda sobre la energía al recomendar el nivel", () => {
+    const presets = { ligero: { ...base, focusMin: 15 } };
+    expect(
+      resolvePomodoroConfigForStart({
+        activityConfig: null,
+        energy: "media",
+        presets,
+        complexity: "LOW",
+      }).focusMin,
+    ).toBe(15);
   });
 
   it("usa el preset guardado del nivel o el por defecto", () => {

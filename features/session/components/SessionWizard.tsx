@@ -11,7 +11,7 @@ import { useRecommendationPrefs } from "@/features/recommendation/store/recommen
 import {
   COMPLEXITY_LABELS,
   effectiveComplexityTargets,
-  effectiveRecommendedDuration,
+  suggestedMinutesFor,
   type EnergyLevel,
 } from "@/services/recommendation/energy-level";
 import type { Complexity } from "@/lib/constants/default-subcategories";
@@ -116,7 +116,9 @@ export function SessionWizard({
             <StartSessionFlow
               subcategory={selected}
               categoryName={categoryName}
-              defaultMinutes={energy ? effectiveRecommendedDuration(energy, prefs) : undefined}
+              defaultMinutes={
+                energy ? suggestedMinutesFor(energy, selected.complexity, prefs) : undefined
+              }
               energy={energy ?? "media"}
               complexity={selected.complexity}
               activityPomodoroConfig={selected.pomodoroConfig ?? null}

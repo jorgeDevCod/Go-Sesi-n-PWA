@@ -37,17 +37,30 @@ describe("StartSessionFlow (1 pantalla)", () => {
     expect(screen.queryByText(/Elige el tiempo que te funcione/i)).not.toBeInTheDocument();
   });
 
-  it("en Pomodoro muestra los 3 niveles y el ajuste colapsado", () => {
+  it("en Pomodoro muestra un desplegable con los 3 niveles y el ajuste colapsado", () => {
     render(<StartSessionFlow subcategory={SUBS} categoryName="Aprender" energy="media" />);
     fireEvent.click(screen.getByRole("button", { name: "Pomodoro" }));
-    expect(screen.getByRole("button", { name: /Ligero/ })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Medio/ })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Intenso/ })).toBeInTheDocument();
+    const preset = screen.getByLabelText("Programación predefinida");
+    expect(preset).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: /Ligero/ })).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: /Medio · recomendada/ })).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: /Intenso/ })).toBeInTheDocument();
     const adjust = screen.getByRole("button", { name: "Ajustar" });
     expect(adjust).toHaveAttribute("aria-expanded", "false");
     fireEvent.click(adjust);
     expect(adjust).toHaveAttribute("aria-expanded", "true");
     expect(screen.getByRole("button", { name: /Guardar como predeterminado de React/ })).toBeInTheDocument();
+  });
+
+  it("al cambiar el desplegable actualiza el plan predefinido", () => {
+    render(<StartSessionFlow subcategory={SUBS} categoryName="Aprender" energy="media" />);
+    fireEvent.click(screen.getByRole("button", { name: "Pomodoro" }));
+    fireEvent.change(screen.getByLabelText("Programación predefinida"), {
+      target: { value: "intenso" },
+    });
+    expect(
+      screen.getByRole("button", { name: /Comenzar · 2 ciclos de 75 min/ }),
+    ).toBeInTheDocument();
   });
 
   it("el botón de Pomodoro resume los ciclos", () => {

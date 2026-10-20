@@ -19,20 +19,21 @@ const prefs = {
 };
 
 describe("RoutineTimePresets (compacto)", () => {
-  it("muestra los 3 niveles como tabs dentro de una sola tarjeta", () => {
+  it("muestra los 3 niveles y las dos tarjetas sin tabs", () => {
     render(<RoutineTimePresets />);
-    expect(screen.getByRole("tab", { name: /Ligero/ })).toBeInTheDocument();
-    expect(screen.getByRole("tab", { name: /Medio/ })).toBeInTheDocument();
-    expect(screen.getByRole("tab", { name: /Intenso/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Ligero/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Medio/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Intenso/ })).toBeInTheDocument();
+    expect(screen.queryByRole("tab")).not.toBeInTheDocument();
     expect(screen.getByText("Sesión clásica")).toBeInTheDocument();
     expect(screen.getByText("Pomodoro")).toBeInTheDocument();
   });
 
   it("cambia de nivel al pulsar", () => {
     render(<RoutineTimePresets />);
-    fireEvent.click(screen.getByRole("tab", { name: /Intenso/ }));
-    expect(screen.getByRole("tab", { name: /Intenso/ })).toHaveAttribute(
-      "aria-selected",
+    fireEvent.click(screen.getByRole("button", { name: /Intenso/ }));
+    expect(screen.getByRole("button", { name: /Intenso/ })).toHaveAttribute(
+      "aria-pressed",
       "true",
     );
   });

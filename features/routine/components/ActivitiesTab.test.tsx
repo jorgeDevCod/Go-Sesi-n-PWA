@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { ActivitiesTab } from "./ActivitiesTab";
 
 vi.mock("@/features/recommendation/store/recommendation.store", () => ({
@@ -39,18 +39,15 @@ const CATEGORIES = [
 ];
 
 describe("ActivitiesTab", () => {
-  it("muestra tabs de tiempos (niveles / por actividad) y la lista", () => {
+  it("muestra los tiempos por nivel y la lista de actividades", () => {
     render(<ActivitiesTab categories={CATEGORIES} itemsByCategory={{}} />);
-    expect(screen.getByRole("tab", { name: "Tiempos por nivel" })).toBeInTheDocument();
-    expect(screen.getByRole("tab", { name: "Pomodoro por actividad" })).toBeInTheDocument();
+    expect(screen.getByText("Tiempos pre-programados")).toBeInTheDocument();
     expect(screen.getByText("lista de actividades")).toBeInTheDocument();
   });
 
-  it("cambia entre niveles y pomodoro por actividad sin apilar ambos", () => {
+  it("no muestra el tab redundante de pomodoro por actividad", () => {
     render(<ActivitiesTab categories={CATEGORIES} itemsByCategory={{}} />);
-    expect(screen.getByText("Tiempos pre-programados")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("tab", { name: "Pomodoro por actividad" }));
-    expect(screen.queryByText("Tiempos pre-programados")).not.toBeInTheDocument();
-    expect(screen.getByText("Pomodoro por actividad")).toBeInTheDocument();
+    expect(screen.queryByText("Pomodoro por actividad")).not.toBeInTheDocument();
+    expect(screen.queryByRole("tab", { name: "Pomodoro por actividad" })).not.toBeInTheDocument();
   });
 });

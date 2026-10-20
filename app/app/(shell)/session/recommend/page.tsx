@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { auth } from "@/auth";
 import { listCategoriesForUser } from "@/repositories/category.repository";
 import { listSubcategories } from "@/services/categories/list-subcategories.service";
+import { parseActivityPomodoroConfig } from "@/services/categories/activity-pomodoro.service";
 import { RecommendationScreen } from "@/features/session/components/RecommendationScreen";
 import type { PickableSubcategory } from "@/features/session/components/SubcategoryPickerList";
 
@@ -28,6 +29,7 @@ export default async function RecommendPage() {
     categoryId: sub.categoryId,
     categoryName: categoryNameById.get(sub.categoryId) ?? "",
     complexity: sub.complexity,
+    pomodoroConfig: parseActivityPomodoroConfig(sub.pomodoroConfig),
   }));
 
   return (

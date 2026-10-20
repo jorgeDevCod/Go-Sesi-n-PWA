@@ -22,6 +22,7 @@ import {
   setStoredPomodoroAutoStart,
 } from "@/features/session/pomodoro-preference";
 import {
+  POMODORO_TIER_BY_COMPLEXITY,
   POMODORO_TIER_DETAILS,
   POMODORO_TIER_LABELS,
   POMODORO_TIERS,
@@ -29,9 +30,11 @@ import {
   pomodoroPresetFor,
   resolvePomodoroConfigForStart,
   type PomodoroConfig,
+  type PomodoroTier,
 } from "@/services/session/pomodoro";
 import { setActivityPomodoroAction } from "@/features/categories/actions/subcategory.actions";
 import {
+  COMPLEXITY_LABELS,
   effectiveDurationOptions,
   type EnergyLevel,
 } from "@/services/recommendation/energy-level";
@@ -80,12 +83,30 @@ export function StartSessionFlow({
   const [isSaving, setIsSaving] = useState(false);
 
   const effectiveEnergy: EnergyLevel = energy ?? "media";
+  const baseDurationChips = energy
+    ? effectiveDurationOptions(energy, overrides)
+    : DURATION_CHIPS;
+  const durationChips =
+    defaultMinutes && !baseDurationChips.includes(defaultMinutes)
+      ? [...baseDurationChips, defaultMinutes].sort((a, b) => a - b)
+      : baseDurationChips;
+  const recommendedTier = POMODORO_TIER_BY_COMPLEXITY[complexity];
   const tierConfigs = POMODORO_TIERS.map((key) => ({
     key,
     label: POMODORO_TIER_LABELS[key],
     detail: POMODORO_TIER_DETAILS[key],
     config: pomodoroPresetFor(key, prefs.pomodoroPresets),
   }));
+  const selectedTier =
+    tierConfigs.find(
+      (option) =>
+        pomodoroConfig !== null &&
+        option.config.focusMin === pomodoroConfig.focusMin &&
+        option.config.breakMin === pomodoroConfig.breakMin &&
+        option.config.cycles === pomodoroConfig.cycles &&
+        (option.config.longBreakMin ?? 0) === (pomodoroConfig.longBreakMin ?? 0) &&
+        (option.config.skipBreaks ?? false) === (pomodoroConfig.skipBreaks ?? false),
+    )?.key ?? null;
 
   function handleCountdownChange(seconds: number) {
     setCountdownSeconds(seconds);
@@ -113,7 +134,7 @@ export function StartSessionFlow({
       return;
     }
     // Al entrar en pomodoro: el cronómetro de la actividad si lo guardaste,
-    // si no el nivel pre-programado de tu energía.
+    // si no el nivel pre-programado de su dificultad.
     const config = resolvePomodoroConfigForStart({
       activityConfig: activityPomodoroConfig ?? null,
       energy: effectiveEnergy,
@@ -143,8 +164,8 @@ export function StartSessionFlow({
     });
   }
 
-  function handlePomodoroSelect(option: { key: string; config: PomodoroConfig }) {
-    const config = { ...option.config, autoStart };
+  function handlePomodoroSelect(tier: PomodoroTier) {
+    const config = { ...pomodoroPresetFor(tier, prefs.pomodoroPresets), autoStart };
     setPomodoroConfig(config);
     setMinutes(pomodoroPlannedMinutes(config));
   }
@@ -265,17 +286,14 @@ export function StartSessionFlow({
             {mode === "CLASSIC" ? (
               <div className="flex flex-col gap-3">
                 <DurationPicker
-                  chips={energy ? effectiveDurationOptions(energy, overrides) : DURATION_CHIPS}
+                  chips={durationChips}
                   suggestedMinutes={defaultMinutes}
                   defaultMinutes={defaultMinutes}
                   onSelect={(value) => setMinutes(value)}
                 />
                 {energy && (
                   <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
-                    <span>
-                      Tus tiempos:{" "}
-                      {effectiveDurationOptions(energy, overrides).join(" · ")} min
-                    </span>
+                    <span>Tus tiempos: {durationChips.join(" · ")} min</span>
                     <Link
                       href="/app/routine?tab=actividades"
                       className="font-medium text-accent-apprendre underline underline-offset-4 hover:text-accent-aprender-hover"
@@ -288,34 +306,36 @@ export function StartSessionFlow({
             ) : (
               <div className="flex flex-col gap-4">
                 <div className="flex flex-col gap-2">
-                  {tierConfigs.map((option) => {
-                    const selected =
-                      pomodoroConfig !== null &&
-                      pomodoroConfig.focusMin === option.config.focusMin &&
-                      pomodoroConfig.breakMin === option.config.breakMin &&
-                      pomodoroConfig.cycles === option.config.cycles;
-                    return (
-                      <button
-                        key={option.key}
-                        type="button"
-                        onClick={() => handlePomodoroSelect(option)}
-                        aria-pressed={selected}
-                        className={`cursor-pointer rounded-2xl border p-4 text-left transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender ${
-                          selected
-                            ? "border-accent-aprender bg-surface-muted"
-                            : "border-border bg-surface hover:bg-surface-hover"
-                        }`}
-                      >
-                        <p className="font-medium text-foreground">{option.label}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {option.config.focusMin} min foco · {option.config.breakMin} min descanso ·{" "}
-                          {option.config.cycles} ciclos ·{" "}
-                          {pomodoroPlannedMinutes(option.config)} min en total
-                        </p>
-                        <p className="text-xs text-muted-foreground">{option.detail}</p>
-                      </button>
-                    );
-                  })}
+                  <label
+                    htmlFor="pomodoro-preset"
+                    className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground"
+                  >
+                    Programación predefinida
+                  </label>
+                  <select
+                    id="pomodoro-preset"
+                    value={selectedTier ?? ""}
+                    onChange={(event) => handlePomodoroSelect(event.target.value as PomodoroTier)}
+                    className="h-11 w-full cursor-pointer rounded-xl border border-border bg-surface px-3 text-sm text-foreground outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender"
+                  >
+                    {selectedTier === null && (
+                      <option value="" disabled>
+                        Personalizada
+                      </option>
+                    )}
+                    {tierConfigs.map((option) => (
+                      <option key={option.key} value={option.key}>
+                        {option.label}
+                        {option.key === recommendedTier ? " · recomendada" : ""} —{" "}
+                        {option.config.focusMin} min foco · {option.config.breakMin} min descanso ·{" "}
+                        {option.config.cycles} ciclos · {pomodoroPlannedMinutes(option.config)} min
+                      </option>
+                    ))}
+                  </select>
+                  <p className="text-xs leading-relaxed text-muted-foreground">
+                    {tierConfigs.find((option) => option.key === recommendedTier)?.detail}. Según la
+                    dificultad {COMPLEXITY_LABELS[complexity].toLowerCase()} de la actividad.
+                  </p>
                 </div>
 
                 {pomodoroConfig && (

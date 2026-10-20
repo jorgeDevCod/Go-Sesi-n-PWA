@@ -1,7 +1,7 @@
 "use client";
 
+import { Sparkles } from "lucide-react";
 import { useState } from "react";
-import { SegmentedTabs } from "@/features/routine/components/SegmentedTabs";
 import { PomodoroCompactEditor } from "@/features/routine/components/PomodoroCompactEditor";
 import { useRecommendationPrefs } from "@/features/recommendation/store/recommendation.store";
 import {
@@ -17,6 +17,7 @@ import {
   effectiveRecommendedDuration,
   type EnergyLevel,
 } from "@/services/recommendation/energy-level";
+import { cn } from "@/lib/utils";
 
 const TIER_TO_ENERGY: Record<PomodoroTier, EnergyLevel> = {
   ligero: "baja",
@@ -36,7 +37,7 @@ function MiniNumber({
   return (
     <div className="flex items-center justify-between gap-2">
       <span className="text-xs text-muted-foreground">{label}</span>
-      <span className="rounded-full bg-surface-muted px-2 py-0.5 text-xs font-semibold tabular-nums text-foreground">
+      <span className="rounded-full bg-surface px-2 py-0.5 text-xs font-semibold tabular-nums text-foreground">
         {value} min
       </span>
       <span className="flex gap-1">
@@ -62,8 +63,8 @@ function MiniNumber({
 }
 
 /**
- * Tiempos pre-programados por nivel (Ligero / Medio / Intenso): los tiempos
- * de sesión clásica y el pomodoro del nivel, en una sola tarjeta compacta.
+ * Tiempos pre-programados por nivel (Ligero / Medio / Intenso): la sesión
+ * clásica y el pomodoro del nivel, visibles a la vez en dos columnas.
  */
 export function RoutineTimePresets() {
   const prefs = useRecommendationPrefs();
@@ -73,9 +74,20 @@ export function RoutineTimePresets() {
   const isCustom = Boolean(prefs.pomodoroPresets[tier]);
 
   return (
-    <div className="flex flex-col gap-3 rounded-2xl border border-border bg-surface p-4">
-      <div className="flex items-center justify-between gap-2">
-        <p className="text-sm font-semibold text-foreground">Tiempos pre-programados</p>
+    <section className="flex flex-col gap-5 rounded-3xl border border-border bg-surface p-5 shadow-sm">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.22em] text-accent-aprender">
+            <Sparkles className="size-3" />
+            A tu medida
+          </p>
+          <h2 className="font-display mt-1 text-xl font-bold text-foreground sm:text-2xl">
+            Tiempos pre-programados
+          </h2>
+          <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+            Elige un nivel y ajusta la sesión clásica y el pomodoro en un mismo vistazo.
+          </p>
+        </div>
         {isCustom && (
           <button
             type="button"
@@ -87,47 +99,72 @@ export function RoutineTimePresets() {
         )}
       </div>
 
-      <SegmentedTabs
-        ariaLabel="Nivel de tiempos"
-        value={tier}
-        onChange={setTier}
-        tabs={POMODORO_TIERS.map((key) => ({
-          key,
-          label: POMODORO_TIER_LABELS[key],
-          hint: POMODORO_TIER_DETAILS[key],
-        }))}
-      />
-
-      <div className="flex flex-col gap-2 rounded-xl border border-border bg-surface-muted p-3">
-        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-          Sesión clásica
-        </p>
-        <MiniNumber
-          label="Mínimo"
-          value={effectiveEnergyMin(energy, prefs)}
-          onChange={(v) => prefs.setEnergyMinDuration(energy, v)}
-        />
-        <MiniNumber
-          label="Recomendado"
-          value={effectiveRecommendedDuration(energy, prefs)}
-          onChange={(v) => prefs.setEnergyDuration(energy, v)}
-        />
-        <MiniNumber
-          label="Máximo"
-          value={effectiveEnergyMax(energy, prefs)}
-          onChange={(v) => prefs.setEnergyMaxDuration(energy, v)}
-        />
+      <div
+        role="group"
+        aria-label="Nivel de tiempos"
+        className="grid grid-cols-3 gap-2"
+      >
+        {POMODORO_TIERS.map((key) => {
+          const active = tier === key;
+          return (
+            <button
+              key={key}
+              type="button"
+              onClick={() => setTier(key)}
+              aria-pressed={active}
+              className={cn(
+                "flex cursor-pointer flex-col items-center rounded-xl border px-2 py-2 font-medium transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender",
+                active
+                  ? "border-foreground bg-foreground text-background shadow-sm"
+                  : "border-border bg-surface text-foreground hover:bg-surface-hover",
+              )}
+            >
+              <span className="text-sm">{POMODORO_TIER_LABELS[key]}</span>
+              <span
+                className={cn(
+                  "text-[10px] font-normal",
+                  active ? "text-background/70" : "text-muted-foreground",
+                )}
+              >
+                {POMODORO_TIER_DETAILS[key]}
+              </span>
+            </button>
+          );
+        })}
       </div>
 
-      <div className="flex flex-col gap-2 rounded-xl border border-border bg-surface-muted p-3">
-        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-          Pomodoro
-        </p>
-        <PomodoroCompactEditor
-          config={config}
-          onChange={(next) => prefs.setPomodoroPreset(tier, next)}
-        />
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div className="flex flex-col gap-2 rounded-2xl border border-border bg-surface-muted p-3">
+          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            Sesión clásica
+          </p>
+          <MiniNumber
+            label="Mínimo"
+            value={effectiveEnergyMin(energy, prefs)}
+            onChange={(v) => prefs.setEnergyMinDuration(energy, v)}
+          />
+          <MiniNumber
+            label="Recomendado"
+            value={effectiveRecommendedDuration(energy, prefs)}
+            onChange={(v) => prefs.setEnergyDuration(energy, v)}
+          />
+          <MiniNumber
+            label="Máximo"
+            value={effectiveEnergyMax(energy, prefs)}
+            onChange={(v) => prefs.setEnergyMaxDuration(energy, v)}
+          />
+        </div>
+
+        <div className="flex flex-col gap-2 rounded-2xl border border-border bg-surface-muted p-3">
+          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            Pomodoro
+          </p>
+          <PomodoroCompactEditor
+            config={config}
+            onChange={(next) => prefs.setPomodoroPreset(tier, next)}
+          />
+        </div>
       </div>
-    </div>
+    </section>
   );
 }

@@ -66,6 +66,13 @@ export const POMODORO_TIER_BY_ENERGY: Record<EnergyLevel, PomodoroTier> = {
   alta: "intenso",
 };
 
+/** Nivel pre-programado equivalente a la dificultad de una actividad. */
+export const POMODORO_TIER_BY_COMPLEXITY: Record<Complexity, PomodoroTier> = {
+  LOW: "ligero",
+  MEDIUM: "medio",
+  HIGH: "intenso",
+};
+
 export const POMODORO_TIER_PRESETS: Record<PomodoroTier, PomodoroConfig> = {
   ligero: POMODORO_PRESETS.baja,
   medio: POMODORO_PRESETS.media,
@@ -126,23 +133,28 @@ export function pomodoroConfigFor(
 /**
  * Prioridad del cronómetro al abrir una actividad:
  * 1) el que el usuario guardó para esa actividad,
- * 2) el nivel pre-programado de la energía actual,
- * 3) el preset por defecto de la energía.
+ * 2) el nivel pre-programado equivalente a su dificultad,
+ * 3) el combo energía:dificultad y, por último, el preset del nivel.
  */
 export function resolvePomodoroConfigForStart(args: {
   activityConfig?: PomodoroConfig | null;
-  energy: EnergyLevel;
+  energy?: EnergyLevel;
   presets?: Record<string, PomodoroConfig>;
   savedCombos?: Record<string, PomodoroConfig>;
-  complexity: Complexity;
+  complexity?: Complexity;
 }): PomodoroConfig {
   if (args.activityConfig) return args.activityConfig;
-  const tier = POMODORO_TIER_BY_ENERGY[args.energy];
+  const tier = args.complexity
+    ? POMODORO_TIER_BY_COMPLEXITY[args.complexity]
+    : POMODORO_TIER_BY_ENERGY[args.energy ?? "media"];
   // El nivel gana si el usuario lo personalizó; si no, mandan el combo
   // energía:dificultad y, en último caso, el preset del nivel.
   const savedTier = args.presets?.[tier];
   if (savedTier) return savedTier;
-  const comboConfig = args.savedCombos?.[pomodoroKey(args.energy, args.complexity)];
+  const comboConfig =
+    args.energy && args.complexity
+      ? args.savedCombos?.[pomodoroKey(args.energy, args.complexity)]
+      : undefined;
   return comboConfig ?? POMODORO_TIER_PRESETS[tier];
 }
 
