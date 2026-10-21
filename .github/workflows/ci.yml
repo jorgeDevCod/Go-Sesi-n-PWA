@@ -12,12 +12,13 @@ jobs:
       AUTH_SECRET: ci-test-secret-que-supera-32-bytes-123456
       NEXT_PUBLIC_SITE_URL: http://localhost:3000
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: npm
       - run: npm ci
+      - run: npm run db:generate
       - run: npx tsc --noEmit
       - run: npm run lint
       - run: npm run test
