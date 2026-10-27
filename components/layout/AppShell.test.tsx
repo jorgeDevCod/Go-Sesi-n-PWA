@@ -125,7 +125,7 @@ describe("AppShell", () => {
     expect(screen.queryByRole("link", { name: "Actividades" })).not.toBeInTheDocument();
   });
 
-  it("opens the planning modal from the header button", async () => {
+  it("opens the planning modal from the sidebar", async () => {
     mockPathname = "/app/historial";
     const user = userEvent.setup();
     render(
@@ -133,7 +133,7 @@ describe("AppShell", () => {
         <p>test</p>
       </AppShell>,
     );
-    const button = screen.getByRole("button", { name: "Editar planificación del día" });
+    const button = screen.getByRole("button", { name: "Abrir planificación" });
     expect(button).toBeInTheDocument();
     await user.click(button);
     expect(usePlanningStore.getState().isOpen).toBe(true);

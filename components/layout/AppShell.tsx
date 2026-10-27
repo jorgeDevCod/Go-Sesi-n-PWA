@@ -3,7 +3,18 @@
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, CalendarCheck2, HelpCircle, History, Home, LogOut, Menu, SlidersHorizontal, Trash2, UserRound } from "lucide-react";
+import {
+  ArrowLeft,
+  CalendarCheck2,
+  HelpCircle,
+  History,
+  Home,
+  LogOut,
+  Menu,
+  SlidersHorizontal,
+  Trash2,
+  UserRound,
+} from "lucide-react";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { AppGuideModal } from "@/components/ui/AppGuideModal";
 import { WelcomeModal } from "@/components/ui/WelcomeModal";
@@ -91,81 +102,11 @@ export function AppShell({ userName, children }: { userName: string; children: R
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
-      <div className="sticky top-0 z-40 bg-background xl:hidden">
-      <header className="flex items-center justify-between border-b border-border px-4 py-3 sm:px-6">
-        <div className="flex items-center gap-2">
-          {!isHome && (
-            <button
-              type="button"
-              onClick={handleBack}
-              aria-label="Volver"
-              title="Volver"
-              className="flex size-10 cursor-pointer items-center justify-center rounded-full text-foreground transition-colors duration-200 hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender"
-            >
-              <ArrowLeft className="size-5" />
-            </button>
-          )}
-          <Link href={ROUTES.home} aria-label="Ir al inicio" title="Ir al inicio">
-            <Logo />
-          </Link>
-        </div>
-        <div className="hidden items-center gap-4 min-[600px]:flex">
-          <Link
-            href={ROUTES.home}
-            aria-label="Ir a home"
-            title="Ir a home"
-            className="flex cursor-pointer items-center gap-1.5 rounded-full border border-border px-3 py-2 text-sm font-medium text-foreground transition-colors duration-200 hover:border-accent-aprender/40 hover:bg-surface-hover hover:text-accent-aprender focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender"
-          >
-            <Home className="size-4" />
-            <span className="hidden sm:inline">Inicio</span>
-          </Link>
-          <button
-            type="button"
-            onClick={() => usePlanningStore.getState().open()}
-            aria-label="Editar planificación del día"
-            title="Editar planificación del día"
-            className="flex cursor-pointer items-center gap-1.5 rounded-full border border-border px-3 py-2 text-sm font-medium text-foreground transition-colors duration-200 hover:border-accent-aprender/40 hover:bg-surface-hover hover:text-accent-aprender focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender"
-          >
-            <CalendarCheck2 className="size-4" />
-            <span className="hidden sm:inline">Planificación</span>
-          </button>
-          <Link
-            href={ROUTES.customize}
-            aria-label="Personaliza tu rutina como más te acomode."
-            title="Personaliza tu rutina como más te acomode."
-            className="flex cursor-pointer items-center gap-1.5 rounded-full border border-border px-3 py-2 text-sm font-medium text-foreground transition-colors duration-200 hover:border-accent-aprender/40 hover:bg-surface-hover hover:text-accent-aprender focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender"
-          >
-            <SlidersHorizontal className="size-4" />
-            <span className="hidden sm:inline">Personalizar</span>
-          </Link>
-          <Link
-            href={ROUTES.history}
-            aria-label="Ver historial"
-            title="Ver historial"
-            className="flex cursor-pointer items-center gap-1.5 rounded-full border border-border px-3 py-2 text-sm font-medium text-foreground transition-colors duration-200 hover:border-accent-aprender/40 hover:bg-surface-hover hover:text-accent-aprender focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender"
-          >
-            <History className="size-4" />
-            <span className="hidden sm:inline">Historial</span>
-          </Link>
-          <Link
-            href={ROUTES.trash}
-            aria-label="Ir a la papelera"
-            title="Ir a la papelera"
-            className="flex cursor-pointer items-center gap-1.5 rounded-full border border-border px-3 py-2 text-sm font-medium text-foreground transition-colors duration-200 hover:border-accent-aprender/40 hover:bg-surface-hover hover:text-accent-aprender focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender"
-          >
-            <Trash2 className="size-4" />
-            <span className="hidden sm:inline">Papelera</span>
-          </Link>
-          <Link
-            href={ROUTES.account}
-            aria-label="Ir a cuenta"
-            title="Ir a cuenta"
-            className="flex cursor-pointer items-center gap-1.5 rounded-full border border-border px-3 py-2 text-sm font-medium text-foreground transition-colors duration-200 hover:border-accent-aprender/40 hover:bg-surface-hover hover:text-accent-aprender focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender"
-          >
-            <UserRound className="size-4" />
-            <span className="hidden sm:inline">Cuenta</span>
-          </Link>
-        </div>
+      <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b border-border bg-background px-4 sm:px-6">
+        <Link href={ROUTES.home} aria-label="Ir al inicio" title="Ir al inicio">
+          <Logo />
+        </Link>
+
         <div className="flex items-center gap-2">
           <button
             type="button"
@@ -177,7 +118,7 @@ export function AppShell({ userName, children }: { userName: string; children: R
             <HelpCircle className="size-5" />
           </button>
           <ThemeToggle />
-          <form action={logoutAction} className="hidden min-[600px]:flex">
+          <form action={logoutAction}>
             <button
               type="submit"
               onClick={clearOnboardingKeys}
@@ -193,23 +134,18 @@ export function AppShell({ userName, children }: { userName: string; children: R
             onClick={() => setMenuOpen(true)}
             aria-label="Abrir menú"
             title="Abrir menú"
-            className="flex size-10 cursor-pointer items-center justify-center rounded-full border border-border text-foreground transition-colors duration-200 hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender min-[600px]:hidden"
+            className="flex size-10 cursor-pointer items-center justify-center rounded-full border border-border text-foreground transition-colors duration-200 hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender min-[1030px]:hidden"
           >
             <Menu className="size-5" />
           </button>
         </div>
       </header>
-      {!isHome && <Breadcrumbs pathname={pathname} />}
-      </div>
 
-      <aside className="fixed inset-y-0 left-0 z-40 hidden w-60 flex-col border-r border-border bg-surface xl:flex">
-        <div className="border-b border-border p-4">
-          <Link href={ROUTES.home} aria-label="Ir al inicio" title="Ir al inicio">
-            <Logo />
-          </Link>
-        </div>
-
-        <nav aria-label="Navegación principal" className="flex flex-1 flex-col gap-1 overflow-y-auto px-3 py-4">
+      <aside className="fixed top-16 bottom-0 left-0 z-30 hidden w-60 flex-col border-r border-border bg-surface min-[1030px]:flex">
+        <nav
+          aria-label="Navegación principal"
+          className="flex flex-1 flex-col gap-1 overflow-y-auto p-3"
+        >
           <SidebarLink
             href={ROUTES.home}
             icon={Home}
@@ -250,54 +186,24 @@ export function AppShell({ userName, children }: { userName: string; children: R
             active={pathname === ROUTES.account}
           />
         </nav>
-
-        <div className="mt-auto flex flex-col gap-2 border-t border-border p-3">
-          <button
-            type="button"
-            onClick={() => setHelpOpen(true)}
-            aria-label="Abrir ayuda"
-            className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-medium text-foreground transition-colors duration-200 hover:bg-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender"
-          >
-            <HelpCircle className="size-4 shrink-0" />
-            Ayuda
-          </button>
-          <div className="flex items-center justify-between rounded-xl border border-border bg-surface-muted px-3 py-1.5">
-            <span className="text-sm font-medium text-foreground">Tema</span>
-            <ThemeToggle menuPosition="right" />
-          </div>
-          <form action={logoutAction}>
-            <button
-              type="submit"
-              onClick={clearOnboardingKeys}
-              aria-label="Cerrar sesión"
-              title="Cerrar sesión"
-              className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-medium text-red-500 transition-colors duration-200 hover:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 dark:hover:bg-red-950"
-            >
-              <LogOut className="size-4 shrink-0" />
-              Cerrar sesión
-            </button>
-          </form>
-        </div>
       </aside>
 
-      <div className="flex flex-1 flex-col xl:pl-60">
+      <div className="flex flex-1 flex-col min-[1030px]:pl-60">
         {!isHome && (
-          <div className="hidden items-center gap-2 border-b border-border px-6 py-2 xl:flex">
+          <div className="flex items-center gap-2 border-b border-border px-4 py-2 sm:px-6">
             <button
               type="button"
               onClick={handleBack}
               aria-label="Volver"
               title="Volver"
-              className="flex size-8 cursor-pointer items-center justify-center rounded-full text-foreground transition-colors duration-200 hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender"
+              className="flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-full text-foreground transition-colors duration-200 hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender"
             >
               <ArrowLeft className="size-4" />
             </button>
             <Breadcrumbs pathname={pathname} compact />
           </div>
         )}
-        <main className="flex flex-1 flex-col px-4 py-8 sm:px-6">
-          {children}
-        </main>
+        <main className="flex flex-1 flex-col px-4 py-8 sm:px-6">{children}</main>
       </div>
 
       <PlanningManager />
