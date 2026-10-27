@@ -49,14 +49,12 @@ export default async function HomePage() {
   return (
     <div className="flex flex-1 flex-col items-center justify-center gap-8">
       {isReturning && (
-        <div className="flex w-full max-w-2xl flex-col gap-4">
-          <WelcomeBackCard
-            firstName={firstName}
-            completedSessions={stats.completedSessions}
-            totalMinutes={stats.totalMinutes}
-            lastActivity={lastActivity}
-          />
-        </div>
+        <WelcomeBackCard
+          firstName={firstName}
+          completedSessions={stats.completedSessions}
+          totalMinutes={stats.totalMinutes}
+          lastActivity={lastActivity}
+        />
       )}
       <CategoryHomeGrid initialCategories={mapped} />
     </div>
