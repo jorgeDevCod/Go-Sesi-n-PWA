@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useMemo, useRef, useSyncExternalStore } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTheme } from "next-themes";
 import { BatteryFull, BatteryLow, BatteryMedium, ChevronRight, Sparkles } from "lucide-react";
 import {
   CategoryHomeCard,
@@ -20,6 +21,7 @@ import {
   type ActiveSessionInfo,
 } from "@/features/home/components/PlannedCategories";
 import { HomeQuickSection } from "@/features/home/components/HomeQuickSection";
+import { homeGreetingForToday } from "@/features/home/daily-greetings";
 import { useHomeQuickStore } from "@/features/home/store/home-quick.store";
 import { getTodayPlanAction } from "@/features/planning/actions/planning.actions";
 import { ROUTES } from "@/lib/routes";
@@ -37,12 +39,27 @@ const ENERGY_ICONS: Record<EnergyLevel, typeof BatteryLow> = {
   alta: BatteryFull,
 };
 
+function subscribeNoop() {
+  return () => {};
+}
+
+function useMounted() {
+  return useSyncExternalStore(
+    subscribeNoop,
+    () => true,
+    () => false,
+  );
+}
+
 export function CategoryHomeGrid({
   initialCategories,
 }: {
   initialCategories: CategoryHomeData[];
 }) {
   const [categories, setCategories] = useState(initialCategories);
+  const { theme } = useTheme();
+  const mounted = useMounted();
+  const greeting = homeGreetingForToday(mounted && theme === "rosa");
 
   // Planning state
   const [planItems, setPlanItems] = useState<PlannedItem[]>([]);
@@ -206,11 +223,11 @@ export function CategoryHomeGrid({
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-2xl flex-col gap-4">
+    <div className="mx-auto flex w-full max-w-[700px] flex-col gap-4">
       {/* Title */}
-      <div className="mx-auto flex max-w-2xl flex-col items-center gap-3 px-1 py-2 text-center">
-        <h1 className="font-display text-2xl font-bold leading-tight tracking-tight text-balance text-foreground sm:text-3xl">
-          Bienvenido a tu espacio personal, donde Iniciar es más fácil. ⭐
+      <div className="mx-auto flex max-w-[700px] flex-col items-center gap-3 px-1 py-2 text-center">
+        <h1 className="font-display text-xl font-bold leading-tight tracking-tight text-balance text-foreground sm:text-2xl">
+          {greeting}
         </h1>
         <p className="max-w-lg text-sm leading-relaxed text-balance text-muted-foreground">
           Elige el nivel que mejor te represente. ¡Y nos adaptaremos a tu estado!
@@ -266,7 +283,10 @@ export function CategoryHomeGrid({
           </span>
           <span className="flex min-w-0 flex-col gap-1">
             <span className="text-sm font-semibold leading-tight sm:text-base">
-              ¿No sabes qué hacer hoy? ¡Déjalo en manos de Go!
+              <span className="sm:hidden">¿No sabes qué hacer hoy?</span>
+              <span className="hidden sm:inline">
+                ¿No sabes qué hacer hoy? ¡Déjalo en manos de Go!
+              </span>
             </span>
             <span className="text-xs text-white/80 sm:text-sm">
               Go Sesión encontrará actividades adecuadas para ti.

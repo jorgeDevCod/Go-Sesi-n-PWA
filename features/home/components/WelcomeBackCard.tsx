@@ -1,6 +1,10 @@
 "use client";
 
 import { Sparkles } from "lucide-react";
+import {
+  encouragementLeadForToday,
+  welcomeGreetingForToday,
+} from "@/features/home/daily-greetings";
 
 function formatMinutes(minutes: number): string {
   if (minutes >= 60) {
@@ -24,22 +28,21 @@ export function WelcomeBackCard({
   totalMinutes: number;
   lastActivity?: string | null;
 }) {
+  const greeting = welcomeGreetingForToday(firstName);
   const encouragement =
     completedSessions > 0
-      ? `Has completado ${completedSessions} ${
+      ? `${encouragementLeadForToday()} ${completedSessions} ${
           completedSessions === 1 ? "sesión" : "sesiones"
         } y ${formatMinutes(totalMinutes)} de enfoque. ¡Sigue así!`
       : "Hoy es un gran día para empezar a construir tu constancia. ¡Un paso a la vez!";
 
   return (
-    <div className="flex w-full max-w-2xl items-center gap-3 rounded-2xl border border-border bg-surface px-3 py-2.5 shadow-sm">
+    <div className="flex w-full max-w-[700px] items-center gap-3 rounded-2xl border border-border bg-surface px-3 py-2.5 shadow-sm">
       <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-indigo-500 dark:bg-indigo-900/40 dark:text-indigo-400">
         <Sparkles className="size-4" />
       </span>
       <div className="min-w-0 flex-1">
-        <p className="text-sm font-semibold text-foreground">
-          ¡Hola de nuevo, {firstName}!
-        </p>
+        <p className="text-sm font-semibold text-pretty text-foreground">{greeting}</p>
         <p className="text-xs leading-relaxed text-pretty text-muted-foreground">
           {encouragement}
           {lastActivity && (

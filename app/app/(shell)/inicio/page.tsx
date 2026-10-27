@@ -47,7 +47,7 @@ export default async function HomePage() {
     : false;
 
   return (
-    <div className="flex flex-1 flex-col items-center justify-center gap-8">
+    <div className="flex flex-1 flex-col items-center gap-5">
       {isReturning && (
         <WelcomeBackCard
           firstName={firstName}
