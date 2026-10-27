@@ -24,6 +24,12 @@ export const ROUTES = {
     if (categoryId) params.set("categoria", categoryId);
     return `/app/personalizar?${params.toString()}`;
   },
+  activityView: (categoryId?: string) => {
+    const params = new URLSearchParams();
+    if (categoryId) params.set("categoria", categoryId);
+    const query = params.toString();
+    return `/app/actividades${query ? `?${query}` : ""}`;
+  },
   history: "/app/historial",
   trash: "/app/papelera",
   account: "/app/cuenta",

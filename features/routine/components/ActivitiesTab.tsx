@@ -12,10 +12,13 @@ export function ActivitiesTab({
   categories,
   itemsByCategory,
   initialCategoryId,
+  activityBasePath,
 }: {
   categories: RoutineCategory[];
   itemsByCategory: Record<string, SubcategoryItem[]>;
   initialCategoryId?: string | null;
+  /** Ruta base de la vista (Personalizar o Actividades). */
+  activityBasePath?: string;
 }) {
   const [selected, setSelected] = useState(() =>
     initialCategoryId && categories.some((category) => category.id === initialCategoryId)
@@ -27,7 +30,10 @@ export function ActivitiesTab({
   function selectCategory(categoryId: string) {
     setSelected(categoryId);
     try {
-      window.history.replaceState(null, "", ROUTES.activities(categoryId));
+      const url = activityBasePath
+        ? `${activityBasePath}?categoria=${encodeURIComponent(categoryId)}`
+        : ROUTES.activities(categoryId);
+      window.history.replaceState(null, "", url);
     } catch {
       // Sin window (SSR) o historial no disponible.
     }

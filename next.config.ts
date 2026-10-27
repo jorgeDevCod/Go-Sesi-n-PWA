@@ -24,7 +24,7 @@ const nextConfig: NextConfig = {
       { source: "/app/routine", destination: "/app/personalizar", permanent: true },
       {
         source: "/app/subcategories",
-        destination: "/app/personalizar?tab=actividades",
+        destination: "/app/actividades",
         permanent: true,
       },
       { source: "/app/history", destination: "/app/historial", permanent: true },

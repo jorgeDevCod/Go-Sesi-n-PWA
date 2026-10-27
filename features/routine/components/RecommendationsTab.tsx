@@ -138,8 +138,8 @@ export function RecommendationsTab({
           ¿Qué actividades quieres recomendar para estos niveles?
         </p>
         <p className="mb-6 ms-2 text-sm leading-relaxed text-muted-foreground text-start">
-          Abre una categoría y marca las actividades que quieras que aparezcan cuando tengas{" "}
-          {ENERGY_NAMES[energy].toLowerCase()} energía y busques algo {COMPLEXITY_LABELS[difficulty].toLowerCase()}.
+          Abre una categoría y marca las actividades a recomendar segun tu energia:{" "}
+          {ENERGY_NAMES[energy].toLowerCase()} y Dificultad: {COMPLEXITY_LABELS[difficulty].toLowerCase()}.
         </p>
         {categories.length === 0 ? (
           <p className="text-sm text-muted-foreground">No hay categorías aún.</p>

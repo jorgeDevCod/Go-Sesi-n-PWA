@@ -31,6 +31,10 @@ describe("migración de URLs", () => {
       destination: "/app/personalizar",
       permanent: true,
     });
+    expect(bySource.get("/app/subcategories")).toMatchObject({
+      destination: "/app/actividades",
+      permanent: true,
+    });
     expect(bySource.get("/app/session/new")).toMatchObject({
       destination: "/app/sesion/nueva",
       permanent: true,

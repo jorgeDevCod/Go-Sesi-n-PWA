@@ -5,6 +5,7 @@ test.describe("migración de URLs", () => {
     const cases = [
       ["/app/home", "/app/inicio"],
       ["/app/routine", "/app/personalizar"],
+      ["/app/subcategories", "/app/actividades"],
       ["/app/history", "/app/historial"],
       ["/app/trash", "/app/papelera"],
       ["/app/account", "/app/cuenta"],

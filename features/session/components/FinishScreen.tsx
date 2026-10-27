@@ -137,7 +137,7 @@ export function FinishScreen({
             <div className="flex w-full flex-col gap-3">
               <Button
                 size="lg"
-                onClick={() => router.push(ROUTES.activities())}
+                onClick={() => router.push(ROUTES.activityView())}
                 disabled={isPending}
                 title="Ver todas las actividades"
                 className="w-full"

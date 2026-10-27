@@ -17,6 +17,8 @@ describe("rutas canónicas", () => {
     expect(ROUTES.activities("cat-1")).toBe(
       "/app/personalizar?tab=actividades&categoria=cat-1",
     );
+    expect(ROUTES.activityView()).toBe("/app/actividades");
+    expect(ROUTES.activityView("cat-1")).toBe("/app/actividades?categoria=cat-1");
     expect(ROUTES.sessionNew()).toBe("/app/sesion/nueva");
     expect(ROUTES.sessionNew("cat-1", "sub-1")).toBe(
       "/app/sesion/nueva?categoria=cat-1&actividad=sub-1",

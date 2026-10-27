@@ -66,8 +66,7 @@ export function RoutineTabs({
           Personaliza tu Experiencia
         </h1>
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-          Elige tus categorías y actividades, y define qué recomendaciones quieres para cada nivel
-          de energía y dificultad. Los tiempos se ajustan justo antes de iniciar cada sesión.
+          Elige tus categorías y actividades, y define qué recomendaciones quieres para cada nivel de energía y dificultad. Los tiempos se ajustan justo antes de iniciar cada sesión.
         </p>
       </div>
 

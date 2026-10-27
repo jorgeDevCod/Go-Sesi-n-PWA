@@ -10,6 +10,7 @@ import {
   History,
   Home,
   LogOut,
+  Settings2,
   SlidersHorizontal,
   Trash2,
   UserRound,
@@ -63,6 +64,7 @@ export function MobileMenu({
         usePlanningStore.getState().open();
       },
     },
+    { label: "Actividades", icon: Settings2, href: ROUTES.activityView() },
     { label: "Historial", icon: History, href: ROUTES.history },
     { label: "Papelera", icon: Trash2, href: ROUTES.trash },
     { label: "Personalizar mi Experiencia", icon: SlidersHorizontal, href: ROUTES.customize },

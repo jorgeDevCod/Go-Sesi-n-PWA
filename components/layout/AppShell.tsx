@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, CalendarCheck2, HelpCircle, History, Home, LogOut, Menu, SlidersHorizontal, Trash2, UserRound } from "lucide-react";
+import { ArrowLeft, CalendarCheck2, HelpCircle, History, Home, LogOut, Menu, Settings2, SlidersHorizontal, Trash2, UserRound } from "lucide-react";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { AppGuideModal } from "@/components/ui/AppGuideModal";
 import { WelcomeModal } from "@/components/ui/WelcomeModal";
@@ -100,6 +100,15 @@ export function AppShell({ userName, children }: { userName: string; children: R
             <CalendarCheck2 className="size-4" />
             <span className="hidden sm:inline">Planificación</span>
           </button>
+          <Link
+            href={ROUTES.activityView()}
+            aria-label="Ver actividades"
+            title="Ver actividades"
+            className="flex cursor-pointer items-center gap-1.5 rounded-full border border-border px-3 py-2 text-sm font-medium text-foreground transition-colors duration-200 hover:border-accent-aprender/40 hover:bg-surface-hover hover:text-accent-aprender focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender"
+          >
+            <Settings2 className="size-4" />
+            <span className="hidden sm:inline">Actividades</span>
+          </Link>
           <Link
             href={ROUTES.customize}
             aria-label="Personaliza tu rutina como más te acomode."

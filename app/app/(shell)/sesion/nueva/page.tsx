@@ -56,7 +56,7 @@ export default async function NewSessionPage({
   const subcategories = await listSubcategories(userId, category.id);
 
   if (!activityParam || !subcategories.some((sub) => sub.id === activityParam)) {
-    redirect(ROUTES.activities(category.id));
+    redirect(ROUTES.activityView(category.id));
   }
 
   return (

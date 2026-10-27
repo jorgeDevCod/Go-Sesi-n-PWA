@@ -25,7 +25,7 @@ export function CategoryHomeCard({ category }: { category: CategoryHomeData }) {
 
   function handleNavigate() {
     startTransition(() => {
-      router.push(ROUTES.activities(category.id));
+      router.push(ROUTES.activityView(category.id));
     });
   }
 

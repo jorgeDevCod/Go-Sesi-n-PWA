@@ -3,11 +3,12 @@
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Pencil } from "lucide-react";
 import { DynamicIcon } from "@/components/ui/DynamicIcon";
 import { Button } from "@/components/ui/Button";
-import { DurationPicker } from "@/features/session/components/DurationPicker";
-import { PomodoroScheduleEditor } from "@/features/session/components/PomodoroScheduleEditor";
+import { StartTimeSelector } from "@/features/session/components/StartTimeSelector";
+import { TimeConfigModal } from "@/features/session/components/TimeConfigModal";
+import { PomodoroConfigModal } from "@/features/session/components/PomodoroConfigModal";
 import { CountdownOverlay } from "@/features/session/components/CountdownOverlay";
 import { startSessionAction } from "@/features/session/actions/session.actions";
 import { saveActivityTimerPreferenceAction } from "@/features/categories/actions/subcategory.actions";
@@ -30,11 +31,11 @@ import {
   POMODORO_TIER_DETAILS,
   POMODORO_TIER_LABELS,
   POMODORO_TIERS,
+  describePomodoroPlan,
   pomodoroPlannedMinutes,
   pomodoroPresetFor,
   resolvePomodoroConfigForStart,
   type PomodoroConfig,
-  type PomodoroTier,
 } from "@/services/session/pomodoro";
 import {
   effectiveDurationOptions,
@@ -46,6 +47,7 @@ import {
   recommendationOverridesFromPrefs,
 } from "@/features/recommendation/store/recommendation.store";
 import { ROUTES } from "@/lib/routes";
+import { cn } from "@/lib/utils";
 
 type SubcategoryOption = { id: string; name: string; icon: string; color: string };
 type Step = "duration" | "countdown";
@@ -53,6 +55,16 @@ type SessionMode = "CLASSIC" | "POMODORO";
 
 const DURATION_CHIPS = [10, 20, 30, 40, 50, 60];
 const SAVE_DEBOUNCE_MS = 700;
+
+function samePlan(a: PomodoroConfig, b: PomodoroConfig) {
+  return (
+    a.focusMin === b.focusMin &&
+    a.breakMin === b.breakMin &&
+    a.cycles === b.cycles &&
+    (a.longBreakMin ?? 0) === (b.longBreakMin ?? 0) &&
+    (a.skipBreaks ?? false) === (b.skipBreaks ?? false)
+  );
+}
 
 export function StartSessionFlow({
   subcategory,
@@ -119,6 +131,8 @@ export function StartSessionFlow({
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const [editingMinutes, setEditingMinutes] = useState<number | null>(null);
+  const [editingPomodoro, setEditingPomodoro] = useState<PomodoroConfig | null>(null);
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(
@@ -210,12 +224,6 @@ export function StartSessionFlow({
       classicMinutes,
       next === "POMODORO" ? { ...pomodoroConfig, autoStart } : pomodoroConfig,
     );
-  }
-
-  function handlePomodoroSelect(tier: PomodoroTier) {
-    const config = { ...pomodoroPresetFor(tier, prefs.pomodoroPresets), autoStart };
-    setPomodoroConfig(config);
-    persistPreference("POMODORO", classicMinutes, config);
   }
 
   function startSessionNow() {
@@ -335,21 +343,79 @@ export function StartSessionFlow({
             </p>
 
             {mode === "CLASSIC" ? (
-              <DurationPicker
+              <StartTimeSelector
                 chips={durationChips}
                 value={classicMinutes}
                 suggestedMinutes={defaultMinutes}
-                onChange={handleMinutesChange}
+                onEdit={(next) => setEditingMinutes(next)}
               />
-            ) : pomodoroConfig ? (
-              <PomodoroScheduleEditor
-                config={pomodoroConfig}
-                presets={tierConfigs}
-                recommendedTier={recommendedTier}
-                onChange={handlePomodoroConfigChange}
-                onSelectPreset={handlePomodoroSelect}
-              />
-            ) : null}
+            ) : (
+              <div className="flex flex-col gap-3">
+                <div className="flex flex-col gap-2">
+                  {tierConfigs.map((option) => {
+                    const selected = samePlan(pomodoroConfig, option.config);
+                    const recommended = option.key === recommendedTier;
+                    return (
+                      <button
+                        key={option.key}
+                        type="button"
+                        onClick={() => setEditingPomodoro(option.config)}
+                        className={cn(
+                          "flex w-full cursor-pointer flex-col gap-1 rounded-2xl border p-4 text-left transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender",
+                          selected
+                            ? "border-accent-aprender bg-accent-aprender/10 ring-1 ring-accent-aprender"
+                            : recommended
+                              ? "border-accent-aprender/50 bg-surface hover:bg-surface-hover"
+                              : "border-border bg-surface hover:bg-surface-hover",
+                        )}
+                      >
+                        <span className="flex items-center justify-between gap-2">
+                          <span className="flex flex-wrap items-center gap-2">
+                            <span className="text-base font-semibold text-foreground">
+                              {option.label}
+                            </span>
+                            {recommended && (
+                              <span className="rounded-full bg-accent-aprender px-2 py-0.5 text-[10px] font-semibold text-white">
+                                Recomendada
+                              </span>
+                            )}
+                            {selected && (
+                              <span className="rounded-full bg-accent-aprender/15 px-2 py-0.5 text-[10px] font-semibold text-accent-aprender">
+                                En uso
+                              </span>
+                            )}
+                          </span>
+                          <Pencil className="size-4 shrink-0 text-muted-foreground" />
+                        </span>
+                        <span className="text-sm font-medium text-foreground">
+                          {option.config.focusMin} min foco · {option.config.breakMin} min descanso ·{" "}
+                          {option.config.cycles} ciclos
+                        </span>
+                        <span className="text-xs text-muted-foreground">{option.detail}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <div className="rounded-2xl border border-border bg-surface-muted p-4">
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+                      Tu programación
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => setEditingPomodoro(pomodoroConfig)}
+                      className="cursor-pointer text-xs font-medium text-accent-aprender underline underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender"
+                    >
+                      Editar
+                    </button>
+                  </div>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {describePomodoroPlan(pomodoroConfig)}
+                  </p>
+                </div>
+              </div>
+            )}
 
             <div className="flex flex-col gap-2">
               <Button
@@ -395,6 +461,26 @@ export function StartSessionFlow({
           </motion.div>
         )}
       </AnimatePresence>
+
+      <TimeConfigModal
+        open={editingMinutes !== null}
+        initialMinutes={editingMinutes ?? classicMinutes ?? defaultMinutes ?? 25}
+        onClose={() => setEditingMinutes(null)}
+        onApply={(next) => {
+          handleMinutesChange(next);
+          setEditingMinutes(null);
+        }}
+      />
+
+      <PomodoroConfigModal
+        open={editingPomodoro !== null}
+        initialConfig={editingPomodoro ?? pomodoroConfig}
+        onClose={() => setEditingPomodoro(null)}
+        onApply={(next) => {
+          handlePomodoroConfigChange(next);
+          setEditingPomodoro(null);
+        }}
+      />
     </div>
   );
 }
