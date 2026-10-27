@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
+import { ROUTES } from "@/lib/routes";
+import { cn } from "@/lib/utils";
 
 const SEGMENT_LABELS: Record<string, string> = {
   personalizar: "Personalizar",
@@ -18,7 +20,9 @@ function buildCrumbs(pathname: string): { label: string; href: string }[] {
 
   if (segments.length <= 1) return [];
 
-  const crumbs: { label: string; href: string }[] = [{ label: "Inicio", href: "/app/home" }];
+  const crumbs: { label: string; href: string }[] = [
+    { label: "Inicio", href: ROUTES.home },
+  ];
 
   if (segments.length >= 3) {
     const midKey = segments.slice(1).join("/");
@@ -34,13 +38,26 @@ function buildCrumbs(pathname: string): { label: string; href: string }[] {
   return crumbs;
 }
 
-export function Breadcrumbs({ pathname }: { pathname: string }) {
+export function Breadcrumbs({
+  pathname,
+  compact = false,
+}: {
+  pathname: string;
+  compact?: boolean;
+}) {
   const crumbs = buildCrumbs(pathname);
 
   if (crumbs.length === 0) return null;
 
   return (
-    <nav aria-label="Breadcrumb" className="border-b border-border px-4 py-1.5 sm:px-6">
+    <nav
+      aria-label="Breadcrumb"
+      className={cn(
+        compact
+          ? "border-0 px-0 py-0"
+          : "border-b border-border px-4 py-1.5 sm:px-6",
+      )}
+    >
       <ol className="flex items-center gap-1.5 text-xs text-muted-foreground">
         {crumbs.map((crumb, index) => (
           <li key={crumb.href} className="flex items-center gap-1.5">

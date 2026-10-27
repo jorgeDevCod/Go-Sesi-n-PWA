@@ -19,9 +19,8 @@ import { ENERGY_COLORS, COMPLEXITY_LABELS } from "@/services/recommendation/ener
 
 const THEME_SWATCHES = [
   { key: "celeste", label: "Celeste", color: "#e6ebfa" },
-  { key: "verde", label: "Verde", color: "#e8f2e9" },
   { key: "rosa", label: "Rosa", color: "#f4e2eb" },
-  { key: "humo", label: "Humo", color: "#f2f2f2" },
+  { key: "humo", label: "Humo", color: "#FAF6F6" },
   { key: "blanco", label: "Blanco", color: "#ffffff" },
   { key: "oscuro", label: "Oscuro", color: "#1c1c1f" },
 ];
@@ -333,7 +332,7 @@ const SLIDES: Slide[] = [
         </div>
         <div className="flex items-center gap-2 rounded-xl border border-border bg-surface px-3 py-2">
           <Palette className="size-4 text-accent-aprender" />
-          <span className="text-xs text-muted-foreground">Celeste, Verde, Rosa, Humo, Blanco u Oscuro</span>
+          <span className="text-xs text-muted-foreground">Celeste, Rosa, Humo, Blanco u Oscuro</span>
         </div>
       </div>
     ),

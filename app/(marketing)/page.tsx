@@ -65,7 +65,7 @@ const CUSTOMIZE = [
     icon: Palette,
     title: "Tu tema de color",
     description:
-      "Elige entre varios temas (celeste, verde, rosa, humo, blanco y oscuro) para que la app se sienta como tú.",
+      "Elige entre varios temas (celeste, humo, rosa, blanco y oscuro) para que la app se sienta como tú.",
   },
   {
     icon: Download,
@@ -265,15 +265,8 @@ export default function MarketingHomePage() {
           </h1>
 
           <p className="max-w-xl text-lg font-normal leading-[1.6] text-muted-foreground py-2">
-            Una plataforma creada para pasar de la intención a la acción, reducir la procrastinación y avanzar a tu ritmo, en un espacio pensado para ti.{" "}
-            <a
-              className="font-semibold text-accent-aprender transition-colors duration-200 hover:text-accent-aprender-hover"
-              href="/register"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              ¡Ingresa Ya!
-            </a>
+            Una plataforma creada para pasar de la intención a la acción, reducir la procrastinación
+            y avanzar a tu ritmo, en un espacio pensado para ti.
           </p>
 
           <div

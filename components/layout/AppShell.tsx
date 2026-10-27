@@ -21,6 +21,35 @@ import { useOnboardingMachine } from "@/features/onboarding/hooks/useOnboardingM
 import { useOfflineFlush } from "@/features/offline/hooks/useOfflineFlush";
 import { ResumeSessionPrompt } from "@/features/session/components/ResumeSessionPrompt";
 import { ROUTES } from "@/lib/routes";
+import { cn } from "@/lib/utils";
+
+function SidebarLink({
+  href,
+  icon: Icon,
+  label,
+  active,
+}: {
+  href: string;
+  icon: typeof Home;
+  label: string;
+  active: boolean;
+}) {
+  return (
+    <Link
+      href={href}
+      aria-current={active ? "page" : undefined}
+      className={cn(
+        "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender",
+        active
+          ? "bg-surface-muted text-accent-aprender"
+          : "text-foreground hover:bg-surface-muted",
+      )}
+    >
+      <Icon className="size-4 shrink-0" />
+      <span className="truncate">{label}</span>
+    </Link>
+  );
+}
 
 export function AppShell({ userName, children }: { userName: string; children: ReactNode }) {
   const pathname = usePathname();
@@ -62,7 +91,7 @@ export function AppShell({ userName, children }: { userName: string; children: R
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
-      <div className="sticky top-0 z-40 bg-background">
+      <div className="sticky top-0 z-40 bg-background xl:hidden">
       <header className="flex items-center justify-between border-b border-border px-4 py-3 sm:px-6">
         <div className="flex items-center gap-2">
           {!isHome && (
@@ -172,9 +201,105 @@ export function AppShell({ userName, children }: { userName: string; children: R
       </header>
       {!isHome && <Breadcrumbs pathname={pathname} />}
       </div>
-      <main className="flex flex-1 flex-col px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
-        {children}
-      </main>
+
+      <aside className="fixed inset-y-0 left-0 z-40 hidden w-60 flex-col border-r border-border bg-surface xl:flex">
+        <div className="border-b border-border p-4">
+          <Link href={ROUTES.home} aria-label="Ir al inicio" title="Ir al inicio">
+            <Logo />
+          </Link>
+        </div>
+
+        <nav aria-label="Navegación principal" className="flex flex-1 flex-col gap-1 overflow-y-auto px-3 py-4">
+          <SidebarLink
+            href={ROUTES.home}
+            icon={Home}
+            label="Inicio"
+            active={pathname === ROUTES.home}
+          />
+          <button
+            type="button"
+            onClick={() => usePlanningStore.getState().open()}
+            aria-label="Abrir planificación"
+            className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-medium text-foreground transition-colors duration-200 hover:bg-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender"
+          >
+            <CalendarCheck2 className="size-4 shrink-0" />
+            <span className="truncate">Planificación</span>
+          </button>
+          <SidebarLink
+            href={ROUTES.customize}
+            icon={SlidersHorizontal}
+            label="Personalizar"
+            active={pathname === ROUTES.customize}
+          />
+          <SidebarLink
+            href={ROUTES.history}
+            icon={History}
+            label="Historial"
+            active={pathname === ROUTES.history}
+          />
+          <SidebarLink
+            href={ROUTES.trash}
+            icon={Trash2}
+            label="Papelera"
+            active={pathname === ROUTES.trash}
+          />
+          <SidebarLink
+            href={ROUTES.account}
+            icon={UserRound}
+            label="Cuenta"
+            active={pathname === ROUTES.account}
+          />
+        </nav>
+
+        <div className="mt-auto flex flex-col gap-2 border-t border-border p-3">
+          <button
+            type="button"
+            onClick={() => setHelpOpen(true)}
+            aria-label="Abrir ayuda"
+            className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-medium text-foreground transition-colors duration-200 hover:bg-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender"
+          >
+            <HelpCircle className="size-4 shrink-0" />
+            Ayuda
+          </button>
+          <div className="flex items-center justify-between rounded-xl border border-border bg-surface-muted px-3 py-1.5">
+            <span className="text-sm font-medium text-foreground">Tema</span>
+            <ThemeToggle menuPosition="right" />
+          </div>
+          <form action={logoutAction}>
+            <button
+              type="submit"
+              onClick={clearOnboardingKeys}
+              aria-label="Cerrar sesión"
+              title="Cerrar sesión"
+              className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-medium text-red-500 transition-colors duration-200 hover:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 dark:hover:bg-red-950"
+            >
+              <LogOut className="size-4 shrink-0" />
+              Cerrar sesión
+            </button>
+          </form>
+        </div>
+      </aside>
+
+      <div className="flex flex-1 flex-col xl:pl-60">
+        {!isHome && (
+          <div className="hidden items-center gap-2 border-b border-border px-6 py-2 xl:flex">
+            <button
+              type="button"
+              onClick={handleBack}
+              aria-label="Volver"
+              title="Volver"
+              className="flex size-8 cursor-pointer items-center justify-center rounded-full text-foreground transition-colors duration-200 hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender"
+            >
+              <ArrowLeft className="size-4" />
+            </button>
+            <Breadcrumbs pathname={pathname} compact />
+          </div>
+        )}
+        <main className="flex flex-1 flex-col px-4 py-8 sm:px-6">
+          {children}
+        </main>
+      </div>
+
       <PlanningManager />
       <MobileMenu
         open={menuOpen}

@@ -83,7 +83,7 @@ describe("AppShell", () => {
         <p>test</p>
       </AppShell>,
     );
-    expect(screen.getByLabelText("Volver")).toBeInTheDocument();
+    expect(screen.getAllByLabelText("Volver").length).toBeGreaterThan(0);
   });
 
   it("hides back button on home", () => {
@@ -108,8 +108,21 @@ describe("AppShell", () => {
         <p>test</p>
       </AppShell>,
     );
-    await user.click(screen.getByLabelText("Volver"));
+    await user.click(screen.getAllByLabelText("Volver")[0]);
     expect(mockBack).toHaveBeenCalledTimes(1);
+  });
+
+  it("muestra la navegación lateral de escritorio sin Actividades", () => {
+    mockPathname = "/app/historial";
+    render(
+      <AppShell userName="Test">
+        <p>test</p>
+      </AppShell>,
+    );
+    expect(
+      screen.getByRole("navigation", { name: "Navegación principal" }),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Actividades" })).not.toBeInTheDocument();
   });
 
   it("opens the planning modal from the header button", async () => {

@@ -83,7 +83,7 @@ export function RecommendationsTab({
     <div className="flex flex-col gap-8">
       {/* Header */}
       <div className="text-center">
-        <h2 className="font-display text-lg font-bold text-foreground py-4">Personaliza tus recomendaciones, a tu gusto</h2>
+        <h2 className="font-display text-base font-bold text-foreground py-4">Personaliza tus recomendaciones, a tu gusto</h2>
         <p className="mx-auto mt-2 max-w-3xl text-sm leading-relaxed text-pretty text-muted-foreground">
           Ajusta tu dificultad y energía para recibir recomendaciones adaptadas a tu ritmo y
           energía.

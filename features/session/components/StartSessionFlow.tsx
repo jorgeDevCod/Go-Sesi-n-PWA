@@ -275,7 +275,7 @@ export function StartSessionFlow({
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-lg flex-col gap-6">
+    <div className="mx-auto flex w-full max-w-md flex-col gap-6">
       {notice && (
         <motion.p
           initial={{ opacity: 0, y: -8 }}

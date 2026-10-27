@@ -206,19 +206,19 @@ export function CategoryHomeGrid({
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-5xl flex-col gap-5">
+    <div className="mx-auto flex w-full max-w-2xl flex-col gap-4">
       {/* Title */}
-      <div className="mx-auto flex max-w-3xl flex-col items-center gap-2.5 px-1 text-center">
+      <div className="mx-auto flex max-w-2xl flex-col items-center gap-3 px-1 text-center">
         <h1 className="font-display text-2xl font-bold leading-tight tracking-tight text-balance text-foreground sm:text-3xl">
           Bienvenido a tu espacio personal, donde Iniciar es más fácil. ⭐
         </h1>
-        <p className="max-w-2xl text-sm leading-relaxed text-balance text-muted-foreground">
+        <p className="max-w-lg text-sm leading-relaxed text-balance text-muted-foreground">
           Elige el nivel que mejor te represente. ¡Y nos adaptaremos a tu estado!
         </p>
       </div>
 
       {/* Energy selector */}
-      <div className="mx-auto flex w-full max-w-2xl flex-col gap-2">
+      <div className="flex flex-col gap-2">
         <div className="flex gap-2">
           {(["baja", "media", "alta"] as EnergyLevel[]).map((level) => {
             const active = energy === level;
@@ -245,7 +245,7 @@ export function CategoryHomeGrid({
         </div>
       </div>
 
-      <div className="mx-auto w-full max-w-3xl">
+      <div className="w-full">
         <DismissibleHint storageKey="gosession-hint-home-seen">
           ¿No sabes por dónde empezar? No pasa nada. Deja que Go Sesión elija una actividad
           para ti.
@@ -258,7 +258,7 @@ export function CategoryHomeGrid({
         title="¡No sé qué hacer hoy. Recomiéndame Algo!"
         whileTap={{ scale: 0.98 }}
         transition={{ duration: 0.08 }}
-        className="mx-auto flex w-full max-w-3xl cursor-pointer items-center justify-between gap-3 rounded-2xl bg-accent-aprender p-4 text-left text-white shadow-md transition-colors duration-200 hover:bg-accent-aprender-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender"
+        className="flex w-full cursor-pointer items-center justify-between gap-3 rounded-2xl bg-accent-aprender p-4 text-left text-white shadow-md transition-colors duration-200 hover:bg-accent-aprender-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender"
       >
         <span className="flex items-center gap-2">
           <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-white/15">
@@ -321,7 +321,7 @@ export function CategoryHomeGrid({
                 Toca una categoría para ver sus actividades y empezar una sesión.
               </p>
             </div>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               {sortedCategories.map((category) => (
                 <CategoryHomeCard
                   key={category.id}

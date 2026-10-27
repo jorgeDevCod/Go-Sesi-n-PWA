@@ -50,10 +50,9 @@ const MENU_ITEMS = [
 const THEMES = [
   { label: "Oscuro", color: "#1c1c1f" },
   { label: "Blanco", color: "#d5d8e0" },
-  { label: "Humo", color: "#c9c8ce" },
+  { label: "Humo", color: "#FAF6F6" },
   { label: "Rosa", color: "#d3adbf" },
   { label: "Celeste", color: "#8a97e0" },
-  { label: "Verde", color: "#78b98e" },
 ];
 
 const CATEGORY_TABS = [

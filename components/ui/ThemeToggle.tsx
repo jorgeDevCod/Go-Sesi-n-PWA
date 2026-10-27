@@ -14,10 +14,9 @@ type ThemeOption = {
 const THEMES: ThemeOption[] = [
   { key: "blanco", label: "Blanco", swatch: "#FFFFFF" },
   { key: "dark", label: "Oscuro", swatch: "#26262B" },
-  { key: "humo", label: "Blanco humo", swatch: "#E9E9E6" },
+  { key: "humo", label: "Blanco humo", swatch: "#FAF6F6" },
   { key: "rosa", label: "Rosa", swatch: "#F2A9C4" },
   { key: "celeste", label: "Celeste", swatch: "#8A97E0" },
-  { key: "verde", label: "Verde", swatch: "#6FBF8A" },
 ];
 
 function subscribeNoop() {
@@ -35,7 +34,13 @@ function useMounted() {
   );
 }
 
-export function ThemeToggle({ className }: { className?: string }) {
+export function ThemeToggle({
+  className,
+  menuPosition = "bottom-right",
+}: {
+  className?: string;
+  menuPosition?: "bottom-right" | "right";
+}) {
   const { theme, resolvedTheme, setTheme } = useTheme();
   const mounted = useMounted();
   const [open, setOpen] = useState(false);
@@ -62,6 +67,11 @@ export function ThemeToggle({ className }: { className?: string }) {
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [open]);
 
+  // El tema verde se retiró: migramos a quien lo tuviera guardado.
+  useEffect(() => {
+    if (mounted && theme === "verde") setTheme("humo");
+  }, [mounted, theme, setTheme]);
+
   if (!mounted) {
     return <div className={cn("size-10", className)} aria-hidden="true" />;
   }
@@ -84,11 +94,9 @@ export function ThemeToggle({ className }: { className?: string }) {
           aria-hidden="true"
         >
           <span style={{ backgroundColor: "#29292E" }} />
-          <span style={{ backgroundColor: "#FAFAFA" }} />
+          <span style={{ backgroundColor: "#FAF6F6" }} />
           <span style={{ backgroundColor: "#8995D8" }} />
           <span style={{ backgroundColor: "#F2A9C4" }} />
-          <span style={{ backgroundColor: "#F2F2F2" }} />
-          <span style={{ backgroundColor: "#78B98E" }} />
         </span>
       </button>
 
@@ -96,7 +104,12 @@ export function ThemeToggle({ className }: { className?: string }) {
         <div
           role="menu"
           aria-label="Temas"
-          className="absolute top-12 right-0 z-[200] flex min-w-44 flex-col gap-1 rounded-2xl border border-border bg-surface p-1.5 shadow-xl"
+          className={cn(
+            "z-[200] flex min-w-44 flex-col gap-1 rounded-2xl border border-border bg-surface p-1.5 shadow-xl",
+            menuPosition === "right"
+              ? "absolute bottom-0 left-full ml-2"
+              : "absolute top-12 right-0",
+          )}
         >
           {THEMES.map((option) => {
             const isActive = active === option.key;

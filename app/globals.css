@@ -43,28 +43,16 @@
   --muted-foreground: #4a5170;
 }
 
-/* Tema verde: neutros suaves verdosos. */
-.verde {
-  --background: #e0efe2;
-  --foreground: #1c1c1a;
-  --surface: #FFFFFF;
-  --surface-muted: #eaf4eb;
-  --surface-hover: #E0EDE1;
-  --border: #c2d2c3;
-  --border-hover: #94a996;
-  --muted-foreground: #4a5c4b;
-}
-
-/* Tema blanco humo: neutro claro, casi blanco. */
+/* Tema blanco humo: neutro cálido, casi blanco. */
 .humo {
-  --background: #efeeea;
+  --background: #FAF6F6;
   --foreground: #1c1c1a;
   --surface: #FFFFFF;
-  --surface-muted: #EBEAEE;
-  --surface-hover: #DDDCE2;
-  --border: #c9c8ce;
-  --border-hover: #9c9ba6;
-  --muted-foreground: #4d4d48;
+  --surface-muted: #F3ECEC;
+  --surface-hover: #EDE3E3;
+  --border: #D8CCCC;
+  --border-hover: #B9A9A9;
+  --muted-foreground: #564B4B;
 }
 
 /* Tema rosa: neutros suaves rosados. */

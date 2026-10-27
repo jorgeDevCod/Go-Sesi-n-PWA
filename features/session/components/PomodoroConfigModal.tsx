@@ -60,7 +60,7 @@ export function PomodoroConfigModal({
             exit={{ opacity: 0, scale: 0.94, y: 12 }}
             transition={{ duration: 0.18, ease: "easeOut" }}
             onClick={(event) => event.stopPropagation()}
-            className="relative flex w-full max-w-md flex-col gap-4 rounded-3xl border border-border bg-surface p-5 shadow-xl"
+            className="relative flex w-full max-w-sm flex-col gap-4 rounded-3xl border border-border bg-surface p-5 shadow-xl"
           >
             <button
               type="button"

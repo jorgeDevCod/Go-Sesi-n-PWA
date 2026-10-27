@@ -5,7 +5,6 @@ import { cn } from "@/lib/utils";
 
 export const LANDING_TABS = [
   { id: "inicio", label: "Inicio" },
-  { id: "empezar", label: "Empezar" },
   { id: "beneficios", label: "Beneficios" },
   { id: "personalizar", label: "Personalizar" },
   { id: "planificar", label: "Planificar" },
@@ -16,7 +15,6 @@ export const LANDING_TABS = [
 
 const SECTION_TO_TAB: Record<string, string> = {
   inicio: "inicio",
-  empezar: "empezar",
   beneficios: "beneficios",
   personalizar: "personalizar",
   planificar: "planificar",
@@ -25,7 +23,7 @@ const SECTION_TO_TAB: Record<string, string> = {
   faq: "faq",
 };
 
-const OBSERVED_SECTIONS = ["inicio", "empezar", "beneficios", "personalizar", "planificar", "avance", "como-funciona", "faq"];
+const OBSERVED_SECTIONS = ["inicio", "beneficios", "personalizar", "planificar", "avance", "como-funciona", "faq"];
 
 function scrollToSection(id: string) {
   const el = document.getElementById(id);

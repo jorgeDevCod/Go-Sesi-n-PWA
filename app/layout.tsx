@@ -93,7 +93,7 @@ export default function RootLayout({
         <ThemeProvider
           attribute="class"
           defaultTheme="celeste"
-          themes={["celeste", "verde", "humo", "rosa", "blanco", "dark"]}
+          themes={["celeste", "humo", "rosa", "blanco", "dark"]}
           disableTransitionOnChange
         >
           <MotionConfig reducedMotion="user">{children}</MotionConfig>

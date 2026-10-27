@@ -93,7 +93,7 @@ const SECTIONS = [
     icon: Palette,
     title: "Temas de color",
     description:
-      "Elige el ambiente visual que más te guste: Celeste, Verde, Humo, Rosa, Blanco u Oscuro. Puedes cambiarlo cuando quieras desde el botón circular del header.",
+      "Elige el ambiente visual que más te guste: Celeste, Humo, Rosa, Blanco u Oscuro. Puedes cambiarlo cuando quieras desde el botón circular del header.",
   },
   {
     icon: Trash2,
