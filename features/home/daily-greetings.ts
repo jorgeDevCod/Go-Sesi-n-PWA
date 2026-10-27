@@ -1,4 +1,13 @@
-import { todayKey } from "@/lib/day";
+const GREETING_TIME_ZONE = "America/Lima";
+
+function currentDateKey(date: Date = new Date()): string {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: GREETING_TIME_ZONE,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(date);
+}
 
 export const HOME_GREETINGS = [
   "Bienvenido a tu propio espacio de enfoque total ⭐",
@@ -46,7 +55,7 @@ function dailyIndex(length: number, salt: string, dateKey: string): number {
 
 export function homeGreetingForToday(
   includeRainbow: boolean,
-  dateKey: string = todayKey(),
+  dateKey: string = currentDateKey(),
 ): string {
   const greetings = includeRainbow
     ? [...HOME_GREETINGS, RAINBOW_HOME_GREETING]
@@ -56,12 +65,12 @@ export function homeGreetingForToday(
 
 export function welcomeGreetingForToday(
   name: string,
-  dateKey: string = todayKey(),
+  dateKey: string = currentDateKey(),
 ): string {
   const template = WELCOME_GREETINGS[dailyIndex(WELCOME_GREETINGS.length, "welcome", dateKey)];
   return template.split("{name}").join(name);
 }
 
-export function encouragementLeadForToday(dateKey: string = todayKey()): string {
+export function encouragementLeadForToday(dateKey: string = currentDateKey()): string {
   return LEADS[dailyIndex(LEADS.length, "encouragement-lead", dateKey)];
 }
