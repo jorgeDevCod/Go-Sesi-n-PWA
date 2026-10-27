@@ -8,6 +8,7 @@ import { Trash2, RotateCcw, Eye } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { useTrashUndoStore } from "@/features/categories/store/trash-undo.store";
 import { trashRestoreAction } from "@/features/categories/actions/trash.actions";
+import { ROUTES } from "@/lib/routes";
 
 const UNDO_SECONDS = 5;
 
@@ -84,7 +85,7 @@ export function TrashUndoModal() {
                   size="md"
                   onClick={() => {
                     clear();
-                    router.push("/app/trash");
+                    router.push(ROUTES.trash);
                   }}
                   className="flex-1 gap-2"
                 >

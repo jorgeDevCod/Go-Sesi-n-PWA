@@ -16,8 +16,8 @@ test("login muestra el formulario", async ({ page }) => {
   await expect(page.getByLabel(/contraseña/i)).toBeVisible();
 });
 
-test("sin sesión /app/home redirige a /login (proxy)", async ({ page }) => {
-  await page.goto("/app/home");
+test("sin sesión /app/inicio redirige a /login (proxy)", async ({ page }) => {
+  await page.goto("/app/inicio");
   await expect(page).toHaveURL(/\/login/);
 });
 

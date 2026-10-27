@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { DynamicIcon } from "@/components/ui/DynamicIcon";
 import { SubcategoryList } from "@/features/categories/components/SubcategoryList";
-import { RoutineTimePresets } from "@/features/routine/components/RoutineTimePresets";
+import { ROUTES } from "@/lib/routes";
 import { cn } from "@/lib/utils";
 import type { RoutineCategory } from "@/features/routine/components/RoutineTabs";
 import type { SubcategoryItem } from "@/features/categories/store/subcategory.store";
@@ -11,20 +11,34 @@ import type { SubcategoryItem } from "@/features/categories/store/subcategory.st
 export function ActivitiesTab({
   categories,
   itemsByCategory,
+  initialCategoryId,
 }: {
   categories: RoutineCategory[];
   itemsByCategory: Record<string, SubcategoryItem[]>;
+  initialCategoryId?: string | null;
 }) {
-  const [selected, setSelected] = useState(categories[0]?.id ?? "");
+  const [selected, setSelected] = useState(() =>
+    initialCategoryId && categories.some((category) => category.id === initialCategoryId)
+      ? initialCategoryId
+      : categories[0]?.id ?? "",
+  );
   const current = categories.find((c) => c.id === selected) ?? categories[0];
+
+  function selectCategory(categoryId: string) {
+    setSelected(categoryId);
+    try {
+      window.history.replaceState(null, "", ROUTES.activities(categoryId));
+    } catch {
+      // Sin window (SSR) o historial no disponible.
+    }
+  }
 
   return (
     <div className="flex flex-col gap-6">
       <div className="text-sm leading-relaxed text-muted-foreground text-center">
-        <p>Selecciona una categoría para ver sus actividades.</p>
+        <p>Selecciona una categoría para ver, crear, editar o iniciar sus actividades.</p>
         <span>
-          Aquí puedes crear, editar, reordenar o
-          eliminar tus actividades con las que luego armarás tus sesiones de enfoque.
+          Puedes cambiar de categoría sin volver al inicio y ajustar el tiempo justo antes de empezar.
         </span>
       </div>
 
@@ -35,7 +49,7 @@ export function ActivitiesTab({
             <button
               key={category.id}
               type="button"
-              onClick={() => setSelected(category.id)}
+              onClick={() => selectCategory(category.id)}
               aria-pressed={isSelected}
               className={cn(
                 "flex cursor-pointer items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender",
@@ -55,9 +69,6 @@ export function ActivitiesTab({
           );
         })}
       </div>
-
-      {/* Tiempos por nivel. El pomodoro por actividad se configura en su modal. */}
-      <RoutineTimePresets />
 
       {current ? (
           <SubcategoryList

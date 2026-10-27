@@ -17,6 +17,7 @@ import {
   findActiveByUserId,
 } from "@/repositories/focus-session.repository";
 import { deriveItemPracticed } from "@/services/planning/daily-plan.service";
+import { ROUTES } from "@/lib/routes";
 
 export type ActionResult = { success: true } | { success: false; error: string };
 
@@ -199,7 +200,7 @@ export async function saveTodayPlanAction(
   try {
     const userId = await requireUserId();
     await saveTodayPlan(userId, items);
-    revalidatePath("/app/home");
+    revalidatePath(ROUTES.home);
     return { success: true };
   } catch (error) {
     return toErrorResult(error);
@@ -213,7 +214,7 @@ export async function updatePlanItemAction(
   try {
     const userId = await requireUserId();
     await updatePlanItemDetails(itemId, userId, data);
-    revalidatePath("/app/home");
+    revalidatePath(ROUTES.home);
     return { success: true };
   } catch (error) {
     return toErrorResult(error);
@@ -224,7 +225,7 @@ export async function deletePlanItemAction(itemId: string): Promise<ActionResult
   try {
     const userId = await requireUserId();
     await removePlanItem(itemId, userId);
-    revalidatePath("/app/home");
+    revalidatePath(ROUTES.home);
     return { success: true };
   } catch (error) {
     return toErrorResult(error);

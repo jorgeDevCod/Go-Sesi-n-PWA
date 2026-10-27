@@ -8,6 +8,7 @@ import {
   permanentlyDeleteTrashItems,
   restoreTrashItems,
 } from "@/services/categories/trash.service";
+import { ROUTES } from "@/lib/routes";
 
 export type TrashActionResult = { success: true } | { success: false; error: string };
 
@@ -48,9 +49,9 @@ export async function trashRestoreAction(
   } catch (error) {
     return toErrorResult(error);
   }
-  revalidatePath("/app/trash");
-  revalidatePath("/app/subcategories");
-  revalidatePath("/app/routine");
+  revalidatePath(ROUTES.trash);
+  revalidatePath(ROUTES.customize);
+  revalidatePath(ROUTES.customize);
   return { success: true };
 }
 
@@ -61,9 +62,9 @@ export async function trashEmptyAction(): Promise<TrashActionResult> {
   } catch (error) {
     return toErrorResult(error);
   }
-  revalidatePath("/app/trash");
-  revalidatePath("/app/subcategories");
-  revalidatePath("/app/routine");
+  revalidatePath(ROUTES.trash);
+  revalidatePath(ROUTES.customize);
+  revalidatePath(ROUTES.customize);
   return { success: true };
 }
 
@@ -74,9 +75,9 @@ export async function trashPermanentDeleteAction(
   try {
     const userId = await requireUserId();
     const result = await permanentlyDeleteTrashItems(items, userId);
-    revalidatePath("/app/trash");
-    revalidatePath("/app/subcategories");
-    revalidatePath("/app/routine");
+    revalidatePath(ROUTES.trash);
+    revalidatePath(ROUTES.customize);
+    revalidatePath(ROUTES.customize);
     return { success: true, failed: result.failed.map((f) => f.id) };
   } catch (error) {
     return toErrorResult(error);

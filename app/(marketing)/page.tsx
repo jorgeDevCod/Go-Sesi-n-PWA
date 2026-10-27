@@ -276,40 +276,48 @@ export default function MarketingHomePage() {
             </a>
           </p>
 
+          <div
+            id="empezar"
+            className="flex w-full scroll-mt-32 flex-col items-center gap-4 md:scroll-mt-20"
+          >
+            <h2 className="font-display text-center text-2xl font-bold leading-tight tracking-[0.02em] text-foreground sm:text-3xl">
+              Tú eliges cómo quieres empezar
+            </h2>
+
+            <div className="flex flex-wrap items-stretch justify-center gap-3">
+              {[
+                { icon: Layers, label: "Explorar o crear categorías" },
+                { icon: CalendarCheck2, label: "Planificar actividades" },
+                { icon: Sparkles, label: "Recibir una recomendación" },
+              ].map(({ icon: Icon, label }) => (
+                <div
+                  key={label}
+                  className="flex items-center gap-2 rounded-2xl border border-border bg-surface px-4 py-3 text-sm font-medium text-foreground shadow-sm transition-colors duration-200 hover:bg-surface-hover"
+                >
+                  <Icon className="size-4 shrink-0 text-accent-aprender" />
+                  {label}
+                </div>
+              ))}
+            </div>
+
+            <p className="max-w-md text-sm font-normal leading-[1.6] text-muted-foreground">
+              Personaliza tu experiencia y recomendaciones: por energía, dificultad y
+              disponibilidad. Go se adapta a ti.
+            </p>
+
+            <div className="flex flex-wrap items-center justify-center gap-3">
+              <EnterCta className="mt-1" />
+            </div>
+            <LandingActions />
+          </div>
+
           <div className="w-full">
             <AppHeroMockup />
           </div>
 
-          <div id="empezar" className="w-full scroll-mt-32 md:scroll-mt-20">
+          <div className="w-full">
             <AppShowcaseBanner />
           </div>
-
-          <h2 className="font-display text-center text-2xl font-bold leading-tight tracking-[0.02em] text-foreground">Tú eliges cómo quieres empezar</h2>
-
-          <div className="flex flex-wrap items-stretch justify-center gap-3">
-            {[
-              { icon: Layers, label: "Explorar o crear categorias" },
-              { icon: CalendarCheck2, label: "Planificar actividades" },
-              { icon: Sparkles, label: "Recibir una recomendación" },
-            ].map(({ icon: Icon, label }) => (
-              <div
-                key={label}
-                className="flex items-center gap-2 rounded-2xl border border-border bg-surface px-4 py-3 text-sm font-medium text-foreground shadow-sm transition-colors duration-200 hover:bg-surface-hover"
-              >
-                <Icon className="size-4 shrink-0 text-accent-aprender" />
-                {label}
-              </div>
-            ))}
-          </div>
-
-          <p className="max-w-md text-sm font-normal leading-[1.6] text-muted-foreground">
-            Personaliza tu experiencia y recomendaciones: por energía, dificultad y disponibilidad. Go se adapta a ti.
-          </p>
-
-          <div className="flex flex-wrap items-center justify-center gap-3">
-            <EnterCta className="mt-2" />
-          </div>
-          <LandingActions />
         </section>
 
         {/* Beneficios */}

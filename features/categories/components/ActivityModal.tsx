@@ -17,14 +17,6 @@ import {
 } from "@/features/categories/actions/subcategory.actions";
 import { EnergyPicker } from "@/components/ui/EnergyPicker";
 import { cn } from "@/lib/utils";
-import { PomodoroCompactEditor } from "@/features/routine/components/PomodoroCompactEditor";
-import {
-  POMODORO_TIER_BY_COMPLEXITY,
-  POMODORO_TIER_LABELS,
-  pomodoroPresetFor,
-  type PomodoroConfig,
-} from "@/services/session/pomodoro";
-import { useRecommendationPrefs } from "@/features/recommendation/store/recommendation.store";
 
 const COMPLEXITY_OPTIONS: { value: Complexity; label: string; hint: string }[] = [
   { value: "LOW", label: "Baja", hint: "Ligera" },
@@ -46,8 +38,6 @@ export type ActivityModalInitial = {
   complexity: Complexity;
   energyLevel?: EnergyLevel | null;
   energyComplexity?: Complexity | null;
-  /** Cronómetro pomodoro propio de la actividad (null = nivel pre-programado). */
-  pomodoroConfig?: PomodoroConfig | null;
 };
 
 export type CreatedSubcategory = {
@@ -67,7 +57,6 @@ export type ActivityModalSubmit = (
     complexity: Complexity;
     energyLevel?: EnergyLevel | null;
     energyComplexity?: Complexity | null;
-    pomodoroConfig?: PomodoroConfig | null;
   },
   meta: { categoryId: string | null },
 ) => Promise<{ success: boolean; error?: string }>;
@@ -103,8 +92,6 @@ export function ActivityModal({
   const [complexity, setComplexity] = useState<Complexity>("MEDIUM");
   const [energyLevel, setEnergyLevel] = useState<EnergyLevel | null>(null);
   const [energyComplexity, setEnergyComplexity] = useState<Complexity | null>(null);
-  const [pomodoroConfig, setPomodoroConfig] = useState<PomodoroConfig | null>(null);
-  const prefs = useRecommendationPrefs();
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -118,7 +105,6 @@ export function ActivityModal({
     setComplexity(initial?.complexity ?? categoryComplexity ?? "MEDIUM");
     setEnergyLevel(initial?.energyLevel ?? null);
     setEnergyComplexity(initial?.energyComplexity ?? null);
-    setPomodoroConfig(initial?.pomodoroConfig ?? null);
     setSelectedCategoryId(null);
     setError(null);
   } else if (!open && wasOpen) {
@@ -145,9 +131,6 @@ export function ActivityModal({
   if (typeof document === "undefined") return null;
 
   const isEditing = Boolean(initial);
-  const pomodoroTier = POMODORO_TIER_BY_COMPLEXITY[complexity];
-  const pomodoroTierLabel = POMODORO_TIER_LABELS[pomodoroTier];
-  const pomodoroPreset = pomodoroPresetFor(pomodoroTier, prefs.pomodoroPresets);
   const resolvedCategoryId = categoryId ?? selectedCategoryId;
   const resolvedCategoryName = categoryName ?? categories?.find((c) => c.id === selectedCategoryId)?.name;
 
@@ -171,7 +154,6 @@ export function ActivityModal({
             complexity,
             energyLevel: resolvedEnergyLevel,
             energyComplexity: resolvedEnergyComplexity,
-            pomodoroConfig: isEditing ? pomodoroConfig : undefined,
           },
           { categoryId: resolvedCategoryId ?? null },
         );
@@ -193,14 +175,10 @@ export function ActivityModal({
           complexity,
           energyLevel: resolvedEnergyLevel,
           energyComplexity: resolvedEnergyComplexity,
-          pomodoroConfig,
         });
         if (!result.success) {
           setError(result.error ?? "No se pudo guardar. Intenta de nuevo.");
           return;
-        }
-        if (pomodoroConfig) {
-          prefs.setPomodoroPreset(pomodoroTier, pomodoroConfig);
         }
         onSaved();
         onClose();
@@ -376,34 +354,6 @@ export function ActivityModal({
                       onChange={(level) => setEnergyLevel(energyLevel === level ? null : level)}
                       size="sm"
                     />
-                  </div>
-                )}
-
-                {isEditing && (
-                  <div className="rounded-2xl border border-accent-aprender/40 bg-accent-aprender/5 p-3">
-                    <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-                      <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
-                        Programación
-                      </p>
-                      <button
-                        type="button"
-                        onClick={() => setPomodoroConfig(null)}
-                        className="cursor-pointer text-xs font-medium text-accent-aprender underline underline-offset-4 transition-colors duration-200 hover:text-accent-aprender-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender"
-                      >
-                        Usar el nivel {pomodoroTierLabel.toLowerCase()}
-                      </button>
-                    </div>
-
-                    <PomodoroCompactEditor
-                      config={pomodoroConfig ?? pomodoroPreset}
-                      onChange={setPomodoroConfig}
-                    />
-
-                    <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
-                      {pomodoroConfig
-                        ? `Estos tiempos quedarán como predefinidos del nivel ${pomodoroTierLabel.toLowerCase()}.`
-                        : `Sin cambios propios se usará el nivel ${pomodoroTierLabel.toLowerCase()} (${pomodoroPreset.focusMin} min de foco).`}
-                    </p>
                   </div>
                 )}
 

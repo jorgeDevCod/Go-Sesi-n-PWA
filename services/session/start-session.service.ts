@@ -3,7 +3,10 @@ import {
   createSession,
   findActiveByUserId,
 } from "@/repositories/focus-session.repository";
-import { findSubcategoryById } from "@/repositories/subcategory.repository";
+import {
+  findSubcategoryById,
+  updateSubcategoryTimerPreference,
+} from "@/repositories/subcategory.repository";
 import { SubcategoryNotOwnedError } from "./session.errors";
 import { toSessionDTO } from "./session.dto";
 import type { PomodoroConfig } from "./pomodoro";
@@ -82,6 +85,24 @@ export async function startSessionForUser({
       subcategory: { connect: { id: subcategoryId } },
       user: { connect: { id: userId } },
     });
+
+    // La preferencia es accesoria: si falla, la sesión ya está creada y no
+    // debemos impedir que el usuario empiece.
+    try {
+      await updateSubcategoryTimerPreference(subcategoryId, {
+        lastMode: mode,
+        ...(mode === "POMODORO"
+          ? {
+              pomodoroConfig: resolvedConfig
+                ? (resolvedConfig as unknown as Prisma.InputJsonValue)
+                : undefined,
+            }
+          : { lastClassicMinutes: plannedMinutes }),
+      });
+    } catch {
+      // Se reintentará al guardar/editar desde la vista de inicio.
+    }
+
     return { session: toSessionDTO(created), reused: false as const };
   } catch (error) {
     if (

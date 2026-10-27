@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { ChevronRight } from "lucide-react";
 import { DynamicIcon } from "@/components/ui/DynamicIcon";
+import { ROUTES } from "@/lib/routes";
 import type { Complexity } from "@/lib/constants/default-subcategories";
 
 export type CategoryHomeData = {
@@ -24,7 +25,7 @@ export function CategoryHomeCard({ category }: { category: CategoryHomeData }) {
 
   function handleNavigate() {
     startTransition(() => {
-      router.push(`/app/session/new?category=${category.id}`);
+      router.push(ROUTES.activities(category.id));
     });
   }
 

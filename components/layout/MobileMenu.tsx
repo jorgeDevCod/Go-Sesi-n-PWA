@@ -6,10 +6,10 @@ import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   CalendarCheck2,
+  HelpCircle,
   History,
   Home,
   LogOut,
-  Settings2,
   SlidersHorizontal,
   Trash2,
   UserRound,
@@ -18,6 +18,7 @@ import {
 import { Logo } from "@/components/ui/Logo";
 import { logoutAction } from "@/features/auth/actions/logout.action";
 import { usePlanningStore } from "@/features/planning/store/planning.store";
+import { ROUTES } from "@/lib/routes";
 
 type MenuItem = {
   label: string;
@@ -26,7 +27,15 @@ type MenuItem = {
   action?: () => void;
 };
 
-export function MobileMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
+export function MobileMenu({
+  open,
+  onClose,
+  onOpenHelp,
+}: {
+  open: boolean;
+  onClose: () => void;
+  onOpenHelp: () => void;
+}) {
   const router = useRouter();
 
   useEffect(() => {
@@ -45,7 +54,7 @@ export function MobileMenu({ open, onClose }: { open: boolean; onClose: () => vo
   if (typeof document === "undefined") return null;
 
   const items: MenuItem[] = [
-    { label: "Inicio", icon: Home, href: "/app/home" },
+    { label: "Inicio", icon: Home, href: ROUTES.home },
     {
       label: "Planificación",
       icon: CalendarCheck2,
@@ -54,11 +63,11 @@ export function MobileMenu({ open, onClose }: { open: boolean; onClose: () => vo
         usePlanningStore.getState().open();
       },
     },
-    { label: "Actividades", icon: Settings2, href: "/app/subcategories" },
-    { label: "Historial", icon: History, href: "/app/history" },
-    { label: "Papelera", icon: Trash2, href: "/app/trash" },
-    { label: "Personaliza tu rutina como más te acomode.", icon: SlidersHorizontal, href: "/app/routine" },
-    { label: "Cuenta", icon: UserRound, href: "/app/account" },
+    { label: "Historial", icon: History, href: ROUTES.history },
+    { label: "Papelera", icon: Trash2, href: ROUTES.trash },
+    { label: "Personalizar mi Experiencia", icon: SlidersHorizontal, href: ROUTES.customize },
+    { label: "Cuenta", icon: UserRound, href: ROUTES.account },
+    { label: "Ayuda", icon: HelpCircle, action: onOpenHelp },
   ];
 
   function handleNavigate(href: string) {
@@ -123,8 +132,7 @@ export function MobileMenu({ open, onClose }: { open: boolean; onClose: () => vo
                 type="submit"
                 onClick={() => {
                   try {
-                    window.sessionStorage.removeItem("gosession-guide-seen");
-                    window.sessionStorage.removeItem("gosession-welcome-seen");
+                    window.sessionStorage.removeItem("gosession-categories-auto-opened");
                   } catch {
                     // Storage unavailable.
                   }

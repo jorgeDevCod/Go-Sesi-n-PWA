@@ -10,6 +10,7 @@ import {
 import { createCategoryForUser } from "@/services/categories/create-category.service";
 import { updateCategoryForUser } from "@/services/categories/update-category.service";
 import { deleteCategoryForUser } from "@/services/categories/delete-category.service";
+import { ROUTES } from "@/lib/routes";
 
 export type CreateCategoryActionResult =
   | {
@@ -56,8 +57,7 @@ export async function createCategoryAction(input: unknown): Promise<CreateCatego
     return toErrorResult(error);
   }
 
-  revalidatePath("/app/subcategories");
-  revalidatePath("/app/routine");
+  revalidatePath(ROUTES.customize);
   return {
     success: true,
     category: {
@@ -84,9 +84,8 @@ export async function updateCategoryAction(input: unknown): Promise<ActionResult
     return toErrorResult(error);
   }
 
-  revalidatePath("/app/subcategories");
-  revalidatePath("/app/routine");
-  revalidatePath("/app/home");
+  revalidatePath(ROUTES.customize);
+  revalidatePath(ROUTES.home);
   return { success: true };
 }
 
@@ -103,8 +102,7 @@ export async function deleteCategoryAction(input: unknown): Promise<ActionResult
     return toErrorResult(error);
   }
 
-  revalidatePath("/app/subcategories");
-  revalidatePath("/app/routine");
-  revalidatePath("/app/home");
+  revalidatePath(ROUTES.customize);
+  revalidatePath(ROUTES.home);
   return { success: true };
 }

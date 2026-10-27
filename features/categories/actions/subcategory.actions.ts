@@ -7,6 +7,7 @@ import {
   createSubcategorySchema,
   deleteSubcategorySchema,
   reorderSubcategoriesSchema,
+  saveActivityTimerPreferenceSchema,
   setActivityPomodoroSchema,
   updateSubcategorySchema,
 } from "@/features/categories/schemas/subcategory.schema";
@@ -16,6 +17,8 @@ import { deleteSubcategoryForUser } from "@/services/categories/delete-subcatego
 import { reorderSubcategoriesForUser } from "@/services/categories/reorder-subcategories.service";
 import { softDeleteManySubcategoriesToTrash } from "@/services/categories/trash.service";
 import { setActivityPomodoroForUser } from "@/services/categories/activity-pomodoro.service";
+import { saveActivityTimerPreferenceForUser } from "@/services/categories/activity-timer.service";
+import { ROUTES } from "@/lib/routes";
 
 export type ActionResult = { success: true } | { success: false; error: string };
 
@@ -64,8 +67,7 @@ export async function createSubcategoryAction(
     return toErrorResult(error);
   }
 
-  revalidatePath("/app/subcategories");
-  revalidatePath("/app/routine");
+  revalidatePath(ROUTES.customize);
   return {
     success: true,
     subcategory: {
@@ -92,8 +94,7 @@ export async function updateSubcategoryAction(input: unknown): Promise<ActionRes
     return toErrorResult(error);
   }
 
-  revalidatePath("/app/subcategories");
-  revalidatePath("/app/routine");
+  revalidatePath(ROUTES.customize);
   return { success: true };
 }
 
@@ -114,8 +115,27 @@ export async function setActivityPomodoroAction(input: unknown): Promise<ActionR
     return toErrorResult(error);
   }
 
-  revalidatePath("/app/subcategories");
-  revalidatePath("/app/routine");
+  revalidatePath(ROUTES.customize);
+  return { success: true };
+}
+
+export async function saveActivityTimerPreferenceAction(
+  input: unknown,
+): Promise<ActionResult> {
+  const parsed = saveActivityTimerPreferenceSchema.safeParse(input);
+  if (!parsed.success) {
+    return { success: false, error: parsed.error.issues[0]?.message ?? "Datos inválidos." };
+  }
+
+  try {
+    const userId = await requireUserId();
+    await saveActivityTimerPreferenceForUser(userId, parsed.data);
+  } catch (error) {
+    return toErrorResult(error);
+  }
+
+  revalidatePath(ROUTES.sessionNew());
+  revalidatePath(ROUTES.customize);
   return { success: true };
 }
 
@@ -131,8 +151,7 @@ export async function deleteSubcategoryAction(input: unknown): Promise<ActionRes
     return toErrorResult(error);
   }
 
-  revalidatePath("/app/subcategories");
-  revalidatePath("/app/routine");
+  revalidatePath(ROUTES.customize);
   return { success: true };
 }
 
@@ -149,9 +168,8 @@ export async function deleteManySubcategoriesAction(input: unknown): Promise<Act
     return toErrorResult(error);
   }
 
-  revalidatePath("/app/subcategories");
-  revalidatePath("/app/routine");
-  revalidatePath("/app/home");
+  revalidatePath(ROUTES.customize);
+  revalidatePath(ROUTES.home);
   return { success: true };
 }
 
@@ -168,7 +186,6 @@ export async function reorderSubcategoriesAction(input: unknown): Promise<Action
     return toErrorResult(error);
   }
 
-  revalidatePath("/app/subcategories");
-  revalidatePath("/app/routine");
+  revalidatePath(ROUTES.customize);
   return { success: true };
 }

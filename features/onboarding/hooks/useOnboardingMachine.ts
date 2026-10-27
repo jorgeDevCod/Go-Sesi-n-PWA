@@ -11,14 +11,10 @@ import {
 } from "@/features/onboarding/machine";
 import { useOnboardingStore } from "@/features/onboarding/store/onboarding.store";
 import { usePlanningStore } from "@/features/planning/store/planning.store";
-import {
-  getTodayPlanAction,
-  saveTodayPlanAction,
-} from "@/features/planning/actions/planning.actions";
 import { hasAnsweredMoodToday } from "@/features/recommendation/mood.storage";
 import { todayKey } from "@/lib/day";
+import { ROUTES } from "@/lib/routes";
 
-const GUIDE_STORAGE_KEY = "gosession-guide-seen";
 const WELCOME_STORAGE_PREFIX = "gosession-welcome-seen";
 
 function getWelcomeKey() {
@@ -34,16 +30,10 @@ function hasWelcomeGuard(): boolean {
   }
 }
 
-/**
- * Orquestador único del onboarding (5B). La máquina decide el orden;
- * aquí solo se ejecutan efectos. Mismo comportamiento que el cableado
- * disperso anterior, con una diferencia menor: en "conocer" la bienvenida
- * se cierra al resolver el plan (sin parpadeo intermedio).
- */
 export function useOnboardingMachine() {
   const router = useRouter();
   const [machine, setMachine] = useState<OnboardingState>(() =>
-    hasWelcomeGuard() ? ONBOARDING_INITIAL : { step: "done", afterGuide: "none" },
+    hasWelcomeGuard() ? ONBOARDING_INITIAL : { step: "done" },
   );
   const machineRef = useRef(machine);
   const storeMoodOpen = useOnboardingStore((state) => state.moodOpen);
@@ -69,10 +59,10 @@ export function useOnboardingMachine() {
             usePlanningStore.getState().open();
             break;
           case "go-routine":
-            router.push("/app/routine");
+            router.push(ROUTES.customize);
             break;
-          case "clear-plan":
-            await saveTodayPlanAction([]);
+          case "go-recommend":
+            router.push(ROUTES.recommend);
             break;
           case "show-categories":
             try {
@@ -89,15 +79,8 @@ export function useOnboardingMachine() {
             setStoreMoodOpen(false);
             window.dispatchEvent(new CustomEvent("gosession-expand-categories"));
             break;
-          case "mark-guide-seen":
-            try {
-              window.sessionStorage.setItem(GUIDE_STORAGE_KEY, "1");
-            } catch {
-              // Storage unavailable.
-            }
-            break;
           case "go-home":
-            router.push("/app/home");
+            router.push(ROUTES.home);
             break;
         }
       }
@@ -115,17 +98,7 @@ export function useOnboardingMachine() {
     [runEffects],
   );
 
-  const chooseLearn = useCallback(async () => {
-    const result = await getTodayPlanAction();
-    send({
-      type: "LEARN",
-      hasPlan: result.success && !!result.plan && result.plan.items.length > 0,
-    });
-  }, [send]);
-
   const closeMood = useCallback(() => {
-    // Cierre defensivo: el modal siempre se cierra aunque la máquina ya esté
-    // en otro paso (el efecto MOOD_DONE solo expande en paso mood).
     setStoreMoodOpen(false);
     send({ type: "MOOD_DONE" });
   }, [send, setStoreMoodOpen]);
@@ -140,17 +113,12 @@ export function useOnboardingMachine() {
 
   return {
     showWelcome: machine.step === "welcome",
-    showPlanContinue: machine.step === "plan-continue",
     showMood: storeMoodOpen,
-    showGuide: machine.step === "guide",
     choosePersonalize: () => send({ type: "PERSONALIZE" }),
     choosePlan: () => send({ type: "PLAN" }),
-    chooseLearn,
-    chooseSkip: () => send({ type: "SKIP", needsMood: !hasAnsweredMoodToday() }),
-    keepPlan: () => send({ type: "KEEP_PLAN" }),
-    startFresh: () => send({ type: "START_FRESH" }),
+    chooseRecommend: () => send({ type: "RECOMMEND" }),
+    chooseStart: () => send({ type: "START", needsMood: !hasAnsweredMoodToday() }),
     closeMood,
-    closeGuide: () => send({ type: "GUIDE_DONE" }),
     dismissToday,
   };
 }

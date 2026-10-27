@@ -14,8 +14,31 @@ describe("isPublicApiPath", () => {
   it("protege el resto de /api y /app", () => {
     expect(isPublicApiPath("/api/other")).toBe(false);
     expect(isPublicApiPath("/api/authx")).toBe(false);
-    expect(isPublicApiPath("/app/home")).toBe(false);
+    expect(isPublicApiPath("/app/inicio")).toBe(false);
     expect(isPublicApiPath("/login")).toBe(false);
+  });
+});
+
+describe("migración de URLs", () => {
+  it("redirige de forma permanente las rutas antiguas", async () => {
+    const redirects = (await nextConfig.redirects?.()) ?? [];
+    const bySource = new Map(redirects.map((redirect) => [redirect.source, redirect]));
+    expect(bySource.get("/app/home")).toMatchObject({
+      destination: "/app/inicio",
+      permanent: true,
+    });
+    expect(bySource.get("/app/routine")).toMatchObject({
+      destination: "/app/personalizar",
+      permanent: true,
+    });
+    expect(bySource.get("/app/session/new")).toMatchObject({
+      destination: "/app/sesion/nueva",
+      permanent: true,
+    });
+    expect(bySource.get("/app/session")).toMatchObject({
+      destination: "/app/sesion",
+      permanent: true,
+    });
   });
 });
 

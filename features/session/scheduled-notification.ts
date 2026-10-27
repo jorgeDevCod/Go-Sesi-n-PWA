@@ -6,7 +6,7 @@
  * Límites honestos de la web móvil: con la app cerrada NO se puede sonar
  * audio personalizado; lo que sí despierta al SW es una notificación
  * programada (Notification Triggers / TimestampTrigger, Chrome Android).
- * Al tocarla se abre `/app/session`. El conteo en sí nunca se pierde porque
+ * Al tocarla se abre `/app/sesion`. El conteo en sí nunca se pierde porque
  * vive en el servidor (startedAt/pausedMs): al reabrir todo cuadra.
  *
  * Sin soporte o sin permiso: no hace nada (la alarma in-app sigue intacta).

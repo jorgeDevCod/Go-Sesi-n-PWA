@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { DurationPicker } from "@/features/session/components/DurationPicker";
+import { ROUTES } from "@/lib/routes";
 import type { SessionDTO } from "@/services/session/session.dto";
 
 const EXTEND_CHIPS = [10, 20, 30, 60];
@@ -19,6 +20,7 @@ export function FinishScreen({
 }) {
   const router = useRouter();
   const [showExtend, setShowExtend] = useState(false);
+  const [extendMinutes, setExtendMinutes] = useState<number | null>(EXTEND_CHIPS[0]);
   const isCompleted = session.status === "COMPLETED";
   const actualMinutes = session.actualMinutes ?? 0;
 
@@ -49,7 +51,7 @@ export function FinishScreen({
               <p className="text-lg font-medium text-foreground">¿Qué hacemos ahora?</p>
               <div className="flex w-full flex-col gap-3">
                 <Button
-                  onClick={() => router.push("/app/home")}
+                  onClick={() => router.push(ROUTES.home)}
                   disabled={isPending}
                   title="Volver al Home"
                   size="lg"
@@ -68,7 +70,7 @@ export function FinishScreen({
                 </Button>
                 <Button
                   variant="ghost"
-                  onClick={() => router.push("/app/session/recommend")}
+                  onClick={() => router.push(ROUTES.recommend)}
                   disabled={isPending}
                   title="Explorar otra actividad"
                   className="w-full"
@@ -82,7 +84,22 @@ export function FinishScreen({
               <p className="text-sm text-muted-foreground">
                 Elige cuánto más quieres continuar.
               </p>
-              <DurationPicker chipPrefix="+" chips={EXTEND_CHIPS} onSelect={onExtend} />
+              <DurationPicker
+                chips={EXTEND_CHIPS}
+                value={extendMinutes}
+                onChange={setExtendMinutes}
+              />
+              <Button
+                onClick={() => extendMinutes && onExtend(extendMinutes)}
+                disabled={isPending || !extendMinutes}
+                className="w-full"
+              >
+                {isPending
+                  ? "Extendiendo..."
+                  : extendMinutes
+                    ? `Extender +${extendMinutes} min`
+                    : "Elegir tiempo"}
+              </Button>
               <Button
                 variant="ghost"
                 onClick={() => setShowExtend(false)}
@@ -120,7 +137,7 @@ export function FinishScreen({
             <div className="flex w-full flex-col gap-3">
               <Button
                 size="lg"
-                onClick={() => router.push("/app/subcategories")}
+                onClick={() => router.push(ROUTES.activities())}
                 disabled={isPending}
                 title="Ver todas las actividades"
                 className="w-full"
@@ -129,7 +146,7 @@ export function FinishScreen({
               </Button>
               <Button
                 variant="secondary"
-                onClick={() => router.push("/app/session/recommend")}
+                onClick={() => router.push(ROUTES.recommend)}
                 disabled={isPending}
                 title="Encontrar algo más acorde"
                 className="w-full"
@@ -138,7 +155,7 @@ export function FinishScreen({
               </Button>
               <Button
                 variant="ghost"
-                onClick={() => router.push("/app/home")}
+                onClick={() => router.push(ROUTES.home)}
                 disabled={isPending}
                 title="Volver al Home"
                 className="w-full"

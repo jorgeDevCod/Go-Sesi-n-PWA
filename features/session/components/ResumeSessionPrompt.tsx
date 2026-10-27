@@ -8,6 +8,7 @@ import { Play, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { useSessionStore } from "@/features/session/store/session.store";
 import { deriveTimerView } from "@/features/session/timer-view";
+import { ROUTES } from "@/lib/routes";
 import {
   getActiveSessionAction,
   interruptSessionAction,
@@ -74,7 +75,7 @@ export function ResumeSessionPrompt({ userName }: { userName: string }) {
     : `${view.formattedTime}`;
 
   function handleContinue() {
-    router.push("/app/session");
+    router.push(ROUTES.session);
   }
 
   async function handleIgnore() {

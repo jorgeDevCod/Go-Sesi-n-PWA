@@ -9,6 +9,7 @@ const { mocks } = vi.hoisted(() => ({
     findActiveByUserId: vi.fn(),
     createSession: vi.fn(),
     findSubcategoryById: vi.fn(),
+    updateSubcategoryTimerPreference: vi.fn(),
   },
 }));
 
@@ -19,6 +20,7 @@ vi.mock("@/repositories/focus-session.repository", () => ({
 
 vi.mock("@/repositories/subcategory.repository", () => ({
   findSubcategoryById: mocks.findSubcategoryById,
+  updateSubcategoryTimerPreference: mocks.updateSubcategoryTimerPreference,
 }));
 
 function subcategory(owner: string) {
@@ -60,6 +62,10 @@ describe("startSessionForUser (modo)", () => {
     );
     const arg = mocks.createSession.mock.calls[0][0];
     expect(arg.pomodoroConfig).toBeUndefined();
+    expect(mocks.updateSubcategoryTimerPreference).toHaveBeenCalledWith("sub-1", {
+      lastMode: "CLASSIC",
+      lastClassicMinutes: 25,
+    });
   });
 
   it("POMODORO sin config lanza error y no crea", async () => {
@@ -86,6 +92,13 @@ describe("startSessionForUser (modo)", () => {
     expect(session.mode).toBe("POMODORO");
     expect(session.pomodoroConfig).toMatchObject(config);
     expect(session.pomodoroConfig).toMatchObject({ longBreakMin: 0, skipBreaks: false });
+    expect(mocks.updateSubcategoryTimerPreference).toHaveBeenCalledWith(
+      "sub-1",
+      expect.objectContaining({
+        lastMode: "POMODORO",
+        pomodoroConfig: config,
+      }),
+    );
   });
 
   it("POMODORO con config fuera de rango lanza error", async () => {

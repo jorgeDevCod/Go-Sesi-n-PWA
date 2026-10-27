@@ -42,11 +42,14 @@ export function RoutineTabs({
   categories,
   itemsByCategory,
   initialTab,
+  initialCategoryId,
 }: {
   categories: RoutineCategory[];
   itemsByCategory: Record<string, SubcategoryItem[]>;
   /** Pestaña inicial (deep-link `?tab=actividades`). */
   initialTab?: TabKey;
+  /** Categoría preseleccionada en Actividades. */
+  initialCategoryId?: string | null;
 }) {  const [active, setActive] = useState<TabKey>(initialTab ?? "categories");
   const [requestedTab, setRequestedTab] = useState<TabKey | undefined>(initialTab);
 
@@ -63,8 +66,8 @@ export function RoutineTabs({
           Personaliza tu Experiencia
         </h1>
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-          Aquí armamos juntos cómo Go Sesión te recomendará actividades. Elige tus categorías,
-          actividades, niveles de energía y tiempos ideales para que cada sugerencia se ajuste totalmente a ti.
+          Elige tus categorías y actividades, y define qué recomendaciones quieres para cada nivel
+          de energía y dificultad. Los tiempos se ajustan justo antes de iniciar cada sesión.
         </p>
       </div>
 
@@ -102,7 +105,11 @@ export function RoutineTabs({
         >
           {active === "categories" && <CategoriesTab categories={categories} />}
           {active === "activities" && (
-            <ActivitiesTab categories={categories} itemsByCategory={itemsByCategory} />
+            <ActivitiesTab
+              categories={categories}
+              itemsByCategory={itemsByCategory}
+              initialCategoryId={initialCategoryId}
+            />
           )}
           {active === "recommendations" && <RecommendationsTab categories={categories} itemsByCategory={itemsByCategory} />}
         </motion.div>

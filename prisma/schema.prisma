@@ -75,6 +75,10 @@ model Subcategory {
   energyComplexity   Complexity?
   /// Cronómetro pomodoro predeterminado de esta actividad (null = nivel pre-programado).
   pomodoroConfig     Json?
+  /// Último tiempo clásico elegido para esta actividad.
+  lastClassicMinutes Int?
+  /// Último modo usado al iniciar la actividad.
+  lastMode           SessionMode?
   createdAt          DateTime    @default(now())
   updatedAt          DateTime    @updatedAt
   deletedAt          DateTime?

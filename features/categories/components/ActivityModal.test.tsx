@@ -1,32 +1,14 @@
-﻿import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { ActivityModal, type ActivityModalInitial } from "./ActivityModal";
 import { updateSubcategoryAction } from "@/features/categories/actions/subcategory.actions";
 
 vi.setConfig({ testTimeout: 20_000 });
 
-vi.mock("@/features/recommendation/store/recommendation.store", () => ({
-  useRecommendationPrefs: () => prefs,
-}));
-
 vi.mock("@/features/categories/actions/subcategory.actions", () => ({
   createSubcategoryAction: vi.fn(),
   updateSubcategoryAction: vi.fn().mockResolvedValue({ success: true }),
 }));
-
-const prefs = {
-  pomodoroPresets: {} as Record<string, unknown>,
-  setPomodoroPreset: vi.fn(),
-};
-
-const baseConfig = {
-  focusMin: 50,
-  breakMin: 10,
-  cycles: 5,
-  autoStart: false,
-  longBreakMin: 0,
-  skipBreaks: false,
-};
 
 const INITIAL: ActivityModalInitial = {
   id: "sub-1",
@@ -36,7 +18,6 @@ const INITIAL: ActivityModalInitial = {
   complexity: "MEDIUM",
   energyLevel: null,
   energyComplexity: null,
-  pomodoroConfig: null,
 };
 
 function renderModal(initial = INITIAL) {
@@ -54,55 +35,39 @@ function renderModal(initial = INITIAL) {
   return { onSaved, onClose };
 }
 
-describe("ActivityModal · programación pomodoro", () => {
+describe("ActivityModal simplificado", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it("muestra el editor compacto y el nivel recomendado por dificultad", () => {
+  it("mantiene nombre, dificultad y energía, sin Programación Pomodoro", () => {
     renderModal();
-    expect(screen.getByText("Programación")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Usar el nivel medio" })).toBeInTheDocument();
-    expect(screen.getAllByText(/nivel medio/i).length).toBeGreaterThan(0);
-    expect(screen.getByRole("button", { name: "Aumentar Foco" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Aumentar Descanso" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Aumentar Ciclos" })).toBeInTheDocument();
+    expect(screen.getByLabelText("Nombre")).toHaveValue("React");
+    expect(screen.getByRole("button", { name: /Baja/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Media/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Alta/ })).toBeInTheDocument();
+    expect(screen.getByRole("radiogroup", { name: "Energía" })).toBeInTheDocument();
+
+    expect(screen.queryByText("Programación")).not.toBeInTheDocument();
+    expect(screen.queryByText(/Usar el nivel/)).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Aumentar Foco" })).not.toBeInTheDocument();
   });
 
-  it("la dificultad cambia el nivel y la programación se guarda como predefinida", async () => {
+  it("guarda sin enviar configuración de tiempos", async () => {
     const { onSaved } = renderModal();
 
     fireEvent.click(screen.getByRole("button", { name: /Alta/ }));
-    expect(screen.getByRole("button", { name: "Usar el nivel intenso" })).toBeInTheDocument();
-
-    fireEvent.click(screen.getByRole("button", { name: "Aumentar Ciclos" }));
     fireEvent.click(screen.getByRole("button", { name: "Guardar cambios" }));
 
     await waitFor(() => expect(updateSubcategoryAction).toHaveBeenCalled());
-    expect(updateSubcategoryAction).toHaveBeenCalledWith(
-      expect.objectContaining({
-        id: "sub-1",
-        complexity: "HIGH",
-        pomodoroConfig: expect.objectContaining({ cycles: 3 }),
-      }),
+    const payload = vi.mocked(updateSubcategoryAction).mock.calls[0][0] as Record<
+      string,
+      unknown
+    >;
+    expect(payload).toEqual(
+      expect.objectContaining({ id: "sub-1", complexity: "HIGH" }),
     );
-    expect(prefs.setPomodoroPreset).toHaveBeenCalledWith(
-      "intenso",
-      expect.objectContaining({ cycles: 3 }),
-    );
+    expect(payload.pomodoroConfig).toBeUndefined();
     expect(onSaved).toHaveBeenCalled();
-  });
-
-  it("permite volver al nivel predefinido sin cronómetro propio", async () => {
-    renderModal({ ...INITIAL, pomodoroConfig: baseConfig });
-    fireEvent.click(screen.getByRole("button", { name: "Usar el nivel medio" }));
-    fireEvent.click(screen.getByRole("button", { name: "Guardar cambios" }));
-
-    await waitFor(() =>
-      expect(updateSubcategoryAction).toHaveBeenCalledWith(
-        expect.objectContaining({ pomodoroConfig: null }),
-      ),
-    );
-    expect(prefs.setPomodoroPreset).not.toHaveBeenCalled();
   });
 });

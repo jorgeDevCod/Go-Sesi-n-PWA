@@ -291,7 +291,6 @@ export function SubcategoryList({
                     complexity: item.complexity,
                     energyLevel: item.energyLevel ?? null,
                     energyComplexity: item.energyComplexity ?? null,
-                    pomodoroConfig: item.pomodoroConfig ?? null,
                   })
                 }
                 onDelete={() => setDeleteTarget({ type: "one", id: item.id, name: item.name })}

@@ -3,27 +3,74 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
-import { CalendarCheck2, BookOpen, Rocket, SlidersHorizontal, Sparkles, BellOff } from "lucide-react";
+import {
+  ArrowRight,
+  CalendarCheck2,
+  LogOut,
+  Rocket,
+  SlidersHorizontal,
+  Sparkles,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
+
+export type WelcomeOption = "start" | "recommend" | "plan" | "personalize";
+
+const OPTIONS: {
+  key: WelcomeOption;
+  icon: typeof Rocket;
+  title: string;
+  description: string;
+}[] = [
+  {
+    key: "start",
+    icon: Rocket,
+    title: "¡Vamos Ya!",
+    description: "Empieza ya, sin pensarlo más.",
+  },
+  {
+    key: "recommend",
+    icon: Sparkles,
+    title: "Recibir una recomendación",
+    description: "Deja que Go elija tu siguiente paso.",
+  },
+  {
+    key: "plan",
+    icon: CalendarCheck2,
+    title: "Quiero planificar mi día",
+    description: "Organiza tu día en minutos.",
+  },
+  {
+    key: "personalize",
+    icon: SlidersHorizontal,
+    title: "Personalizar mi Experiencia",
+    description: "Ajusta todo a tu medida.",
+  },
+];
 
 export function WelcomeModal({
   open,
   userName,
-  onPersonalize,
-  onPlan,
-  onLearn,
-  onSkip,
+  onConfirm,
+  onSwitchAccount,
   onDontShowToday,
 }: {
   open: boolean;
   userName: string;
-  onPersonalize: () => void;
-  onPlan: () => void;
-  onLearn: () => void;
-  onSkip: () => void;
+  onConfirm: (option: WelcomeOption) => void;
+  onSwitchAccount: () => void;
   onDontShowToday?: () => void;
 }) {
+  const [selected, setSelected] = useState<WelcomeOption>("start");
   const [dontShowToday, setDontShowToday] = useState(false);
+  const [wasOpen, setWasOpen] = useState(open);
+
+  if (open && !wasOpen) {
+    setWasOpen(true);
+    setSelected("start");
+    setDontShowToday(false);
+  } else if (!open && wasOpen) {
+    setWasOpen(false);
+  }
 
   useEffect(() => {
     if (!open) return;
@@ -33,66 +80,20 @@ export function WelcomeModal({
     };
   }, [open]);
 
-  function handleSelect(callback: () => void) {
-    if (dontShowToday) {
-      onDontShowToday?.();
-    }
-    callback();
-  }
-
-  // Persiste la preferencia de inmediato al marcar/desmarcar la casilla, para
-  // que haga efecto aunque el usuario no elija una opción (o recargue).
   function toggleDontShowToday() {
     setDontShowToday((prev) => {
       const next = !prev;
-      if (next) {
-        onDontShowToday?.();
-      }
+      if (next) onDontShowToday?.();
       return next;
     });
   }
 
-  if (typeof document === "undefined") return null;
+  function handleConfirm() {
+    if (dontShowToday) onDontShowToday?.();
+    onConfirm(selected);
+  }
 
-  const options = [
-    {
-      key: "personalize",
-      icon: SlidersHorizontal,
-      title: "Personaliza tu App",
-      description:
-        "Personaliza tu experiencia a tu medida. Define tus tiempos, preferencias y cómo quieres organizar tus actividades.",
-      onClick: onPersonalize,
-      className: "",
-    },
-    {
-      key: "plan",
-      icon: CalendarCheck2,
-      title: "Ya realicé mi personalización. Quiero planificar mi día",
-      description:
-        "Tu día, a tu manera. Elige las categorías y actividades que quieres realizar hoy.",
-      onClick: onPlan,
-      className: "",
-    },
-    {
-      key: "learn",
-      icon: BookOpen,
-      title: "Prefiero conocer cómo funciona la App primero!",
-      description:
-        "Descubre cómo aprovecharla al máximo. Conoce las principales funciones y aprende cómo sacarles mayor provecho.",
-      onClick: onLearn,
-      className: "",
-    },
-    {
-      key: "skip",
-      icon: Rocket,
-      title: "¡Estoy listo! Empecemos",
-      description:
-        "Cuéntanos cómo te sientes hoy y crearemos una experiencia pensada en ti. ⭐",
-      onClick: onSkip,
-      className:
-        "border-accent-aprender bg-accent-aprender/5 ring-2 ring-accent-aprender/60 hover:bg-accent-aprender/10",
-    },
-  ];
+  if (typeof document === "undefined") return null;
 
   return createPortal(
     <AnimatePresence>
@@ -122,28 +123,34 @@ export function WelcomeModal({
               <h2 className="font-display text-xl font-semibold text-foreground">
                 ¡Bienvenido de nuevo, {userName}!
               </h2>
-              <p className="text-xs text-muted-foreground">
-                Hoy es un buen día para empezar a hacer todo lo que quieras. Tu Eliges cómo quieres Iniciar hoy y te acompañaremos.
+              <p className="max-w-sm text-xs leading-relaxed text-muted-foreground">
+                Hoy es un buen día para iniciar tus planes. Elige cómo quieres iniciar y
+                empecemos a avanzar.
               </p>
             </div>
 
-            <ul className="flex flex-col gap-3">
-              {options.map((option) => (
-                <li key={option.key}>
+            <div className="flex flex-col gap-2.5">
+              {OPTIONS.map((option) => {
+                const active = selected === option.key;
+                const recommended = option.key === "start";
+                return (
                   <button
+                    key={option.key}
                     type="button"
-                    onClick={() => handleSelect(option.onClick)}
+                    onClick={() => setSelected(option.key)}
+                    aria-pressed={active}
                     className={cn(
                       "flex w-full cursor-pointer items-start gap-3 rounded-2xl border p-4 text-left transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender",
-                      option.key === "skip"
-                        ? "border-accent-aprender bg-accent-aprender/5 ring-2 ring-accent-aprender/60 hover:bg-accent-aprender/10"
+                      active
+                        ? "border-accent-aprender bg-accent-aprender/10 ring-2 ring-accent-aprender/60"
                         : "border-border bg-surface hover:bg-surface-hover",
+                      recommended && !active && "border-accent-aprender/40",
                     )}
                   >
                     <span
                       className={cn(
                         "flex size-10 shrink-0 items-center justify-center rounded-xl",
-                        option.key === "skip"
+                        active
                           ? "bg-accent-aprender text-white"
                           : "bg-accent-aprender/10 text-accent-aprender",
                       )}
@@ -151,9 +158,9 @@ export function WelcomeModal({
                       <option.icon className="size-5" />
                     </span>
                     <span className="min-w-0 flex-1">
-                      <span className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                      <span className="flex flex-wrap items-center gap-2 text-sm font-semibold text-foreground">
                         {option.title}
-                        {option.key === "skip" && (
+                        {recommended && (
                           <span className="rounded-full bg-accent-aprender px-2 py-0.5 text-[10px] font-semibold text-white">
                             Recomendada
                           </span>
@@ -164,9 +171,9 @@ export function WelcomeModal({
                       </span>
                     </span>
                   </button>
-                </li>
-              ))}
-            </ul>
+                );
+              })}
+            </div>
 
             <button
               type="button"
@@ -181,10 +188,29 @@ export function WelcomeModal({
                     : "border-border bg-surface",
                 )}
               >
-                {dontShowToday && <BellOff className="size-3" />}
+                {dontShowToday && <span className="text-[10px]">✓</span>}
               </span>
               No mostrar este mensaje de nuevo hoy
             </button>
+
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+              <button
+                type="button"
+                onClick={onSwitchAccount}
+                className="flex cursor-pointer items-center justify-center gap-2 rounded-2xl border border-border bg-surface px-4 py-3 text-sm font-medium text-foreground transition-colors duration-200 hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender"
+              >
+                <LogOut className="size-4" />
+                Cambiar de cuenta
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirm}
+                className="flex cursor-pointer items-center justify-center gap-2 rounded-2xl bg-accent-aprender px-4 py-3 text-sm font-semibold text-white shadow-sm transition-colors duration-200 hover:bg-accent-aprender-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender"
+              >
+                Ingresar
+                <ArrowRight className="size-4" />
+              </button>
+            </div>
           </motion.div>
         </motion.div>
       )}

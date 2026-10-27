@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { ROUTES } from "@/lib/routes";
 import type { SessionDTO } from "@/services/session/session.dto";
 
 const ICON_URL = "/icons/512";
@@ -51,7 +52,7 @@ export function useAppNotifications(session: SessionDTO | null) {
       const notification = new Notification(session.subcategoryName, options);
       notification.onclick = () => {
         window.focus();
-        window.location.href = "/app/session";
+        window.location.href = ROUTES.session;
       };
     } catch {
       // Notification no disponible (p. ej. sin service worker).
@@ -86,7 +87,7 @@ export function useAppNotifications(session: SessionDTO | null) {
         const notification = new Notification(active.subcategoryName, options);
         notification.onclick = () => {
           window.focus();
-          window.location.href = "/app/session";
+          window.location.href = ROUTES.session;
         };
       } catch {
         // Ignorar.

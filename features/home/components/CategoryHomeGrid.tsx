@@ -22,6 +22,7 @@ import {
 import { HomeQuickSection } from "@/features/home/components/HomeQuickSection";
 import { useHomeQuickStore } from "@/features/home/store/home-quick.store";
 import { getTodayPlanAction } from "@/features/planning/actions/planning.actions";
+import { ROUTES } from "@/lib/routes";
 import { usePlanningStore } from "@/features/planning/store/planning.store";
 import { useRecommendationPrefs } from "@/features/recommendation/store/recommendation.store";
 import { sortActivitiesByEnergy } from "@/features/session/sort-activities";
@@ -207,20 +208,17 @@ export function CategoryHomeGrid({
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-4">
       {/* Title */}
-      <div className="flex flex-col items-center gap-2 text-center">
-        <h1 className="font-display text-2xl font-bold leading-tight tracking-tight text-foreground sm:text-4xl">
+      <div className="mx-auto flex max-w-2xl flex-col items-center gap-3 px-1 text-center">
+        <h1 className="font-display text-3xl font-bold leading-tight tracking-tight text-balance text-foreground sm:text-4xl md:text-[2.75rem]">
           Bienvenido a tu espacio personal, donde Iniciar es más fácil. ⭐
         </h1>
-        <p className="max-w-md text-xs leading-relaxed text-muted-foreground">
-          Elige, crea y planifica tus actividades a tu ritmo.
+        <p className="max-w-lg text-sm leading-relaxed text-balance text-muted-foreground sm:max-w-xl sm:text-base">
+          Elige el nivel que mejor te represente. ¡Y nos adaptaremos a tu estado!
         </p>
       </div>
 
       {/* Energy selector */}
       <div className="flex flex-col gap-2">
-        <p className="font-display text-sm font-semibold text-foreground mb-2 mt-4">
-          ¿Cómo está tu energía hoy? Elige el nivel que mejor te represente.
-        </p>
         <div className="flex gap-2">
           {(["baja", "media", "alta"] as EnergyLevel[]).map((level) => {
             const active = energy === level;
@@ -253,7 +251,7 @@ export function CategoryHomeGrid({
 
       {/* "No sé qué hacer" CTA */}
       <motion.a
-        href="/app/session/recommend"
+        href={ROUTES.recommend}
         title="¡No sé qué hacer hoy. Recomiéndame Algo!"
         whileTap={{ scale: 0.98 }}
         transition={{ duration: 0.08 }}

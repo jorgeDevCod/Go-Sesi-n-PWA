@@ -6,6 +6,7 @@ import {
   registerUser,
 } from "@/services/auth/register-user.service";
 import { signIn } from "@/auth";
+import { ROUTES } from "@/lib/routes";
 
 export type RegisterActionState = {
   error?: string;
@@ -39,7 +40,7 @@ export async function registerAction(
   await signIn("credentials", {
     email: parsed.data.email,
     password: parsed.data.password,
-    redirectTo: "/app/home",
+    redirectTo: ROUTES.home,
   });
 
   return {};

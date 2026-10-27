@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { nextOnboardingState, ONBOARDING_INITIAL } from "./machine";
 
 describe("onboarding machine", () => {
-  it("PERSONALIZE cierra y va a rutina", () => {
+  it("PERSONALIZE cierra y va a personalizar", () => {
     const r = nextOnboardingState(ONBOARDING_INITIAL, { type: "PERSONALIZE" });
     expect(r.state.step).toBe("done");
     expect(r.effects).toEqual(["close-welcome", "go-routine"]);
@@ -14,47 +14,35 @@ describe("onboarding machine", () => {
     expect(r.effects).toEqual(["close-welcome", "open-planning"]);
   });
 
-  it("LEARN con plan va a plan-continue; sin plan a guía", () => {
-    expect(
-      nextOnboardingState(ONBOARDING_INITIAL, { type: "LEARN", hasPlan: true }).state.step,
-    ).toBe("plan-continue");
-    const noPlan = nextOnboardingState(ONBOARDING_INITIAL, { type: "LEARN", hasPlan: false });
-    expect(noPlan.state.step).toBe("guide");
-    expect(noPlan.effects).toEqual(["close-welcome"]);
+  it("RECOMMEND cierra y va a recomendaciones", () => {
+    const r = nextOnboardingState(ONBOARDING_INITIAL, { type: "RECOMMEND" });
+    expect(r.state.step).toBe("done");
+    expect(r.effects).toEqual(["close-welcome", "go-recommend"]);
   });
 
-  it("SKIP con ánimo pendiente abre mood; sin pendiente termina", () => {
-    const mood = nextOnboardingState(ONBOARDING_INITIAL, { type: "SKIP", needsMood: true });
+  it("START con ánimo pendiente abre mood y luego va a Home", () => {
+    const mood = nextOnboardingState(ONBOARDING_INITIAL, {
+      type: "START",
+      needsMood: true,
+    });
     expect(mood.state.step).toBe("mood");
     expect(mood.effects).toEqual(["close-welcome", "show-categories", "open-mood"]);
-    const done = nextOnboardingState(ONBOARDING_INITIAL, { type: "SKIP", needsMood: false });
+
+    const done = nextOnboardingState(mood.state, { type: "MOOD_DONE" });
     expect(done.state.step).toBe("done");
+    expect(done.effects).toEqual(["expand-categories", "go-home"]);
   });
 
-  it("START_FRESH limpia y vuelve al home tras la guía; KEEP no redirige", () => {
-    const continued = nextOnboardingState(
-      { step: "plan-continue", afterGuide: "none" },
-      { type: "KEEP_PLAN" },
-    );
-    expect(continued.state).toEqual({ step: "guide", afterGuide: "none" });
-    const fresh = nextOnboardingState(
-      { step: "plan-continue", afterGuide: "none" },
-      { type: "START_FRESH" },
-    );
-    expect(fresh.effects).toEqual(["clear-plan", "show-categories"]);
-    const closed = nextOnboardingState(fresh.state, { type: "GUIDE_DONE" });
-    expect(closed.state.step).toBe("done");
-    expect(closed.effects).toEqual(["mark-guide-seen", "go-home"]);
-    const closedKeep = nextOnboardingState(continued.state, { type: "GUIDE_DONE" });
-    expect(closedKeep.effects).toEqual(["mark-guide-seen"]);
-  });
-
-  it("MOOD_DONE expande categorías y eventos fuera de estado se ignoran", () => {
-    const r = nextOnboardingState({ step: "mood", afterGuide: "none" }, { type: "MOOD_DONE" });
+  it("START sin ánimo pendiente va directo a Home", () => {
+    const r = nextOnboardingState(ONBOARDING_INITIAL, {
+      type: "START",
+      needsMood: false,
+    });
     expect(r.state.step).toBe("done");
-    expect(r.effects).toEqual(["expand-categories"]);
-    expect(
-      nextOnboardingState(ONBOARDING_INITIAL, { type: "MOOD_DONE" }).effects,
-    ).toEqual([]);
+    expect(r.effects).toEqual(["close-welcome", "show-categories", "go-home"]);
+  });
+
+  it("ignora eventos fuera de estado", () => {
+    expect(nextOnboardingState({ step: "done" }, { type: "MOOD_DONE" }).effects).toEqual([]);
   });
 });

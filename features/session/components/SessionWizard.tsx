@@ -1,23 +1,15 @@
 "use client";
 
-import { useMemo, useState, useSyncExternalStore } from "react";
-import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
-import { DynamicIcon } from "@/components/ui/DynamicIcon";
+import { useSyncExternalStore } from "react";
 import { StartSessionFlow } from "@/features/session/components/StartSessionFlow";
 import { EnergyPromptModal } from "@/features/session/components/EnergyPromptModal";
-import { prepareActivitiesForEnergy } from "@/features/session/sort-activities";
 import { useRecommendationPrefs } from "@/features/recommendation/store/recommendation.store";
 import {
-  COMPLEXITY_LABELS,
-  effectiveComplexityTargets,
   suggestedMinutesFor,
   type EnergyLevel,
 } from "@/services/recommendation/energy-level";
 import type { Complexity } from "@/lib/constants/default-subcategories";
 import type { PomodoroConfig } from "@/services/session/pomodoro";
-import { cn } from "@/lib/utils";
-import { ActivityFilters } from "@/features/categories/components/ActivityFilters";
 
 type SubcategoryOption = {
   id: string;
@@ -28,18 +20,18 @@ type SubcategoryOption = {
   energyLevel?: EnergyLevel | null;
   energyComplexity?: Complexity | null;
   pomodoroConfig?: PomodoroConfig | null;
+  lastClassicMinutes?: number | null;
+  lastMode?: "CLASSIC" | "POMODORO" | null;
 };
 
 function subscribeNoop() {
   return () => {};
 }
 
-const COMPLEXITY_BADGE: Record<Complexity, string> = {
-  LOW: "bg-surface-muted text-muted-foreground",
-  MEDIUM: "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400",
-  HIGH: "bg-indigo-100 text-accent-aprender dark:bg-indigo-950 dark:text-indigo-400",
-};
-
+/**
+ * Arranque de una actividad concreta. La selección de categoría/actividad
+ * vive en Personalizar → Actividades, así que aquí no duplicamos la lista.
+ */
 export function SessionWizard({
   categoryName,
   subcategories,
@@ -51,140 +43,32 @@ export function SessionWizard({
 }) {
   const prefs = useRecommendationPrefs();
   const isClient = useSyncExternalStore(subscribeNoop, () => true, () => false);
-  const [selected, setSelected] = useState<SubcategoryOption | null>(
-    () => subcategories.find((s) => s.id === startWithId) ?? null,
-  );
-  const [selectedDifficulties, setSelectedDifficulties] = useState<Complexity[]>([]);
+  const selected = subcategories.find((sub) => sub.id === startWithId);
+
+  if (!selected) return null;
 
   const energy = prefs.energy;
   const showEnergyModal = isClient && !energy;
-  const ordered = useMemo(
-    () =>
-      prepareActivitiesForEnergy(
-        subcategories,
-        energy ?? "media",
-        energy ? effectiveComplexityTargets(energy, prefs) : undefined,
-      ),
-    [subcategories, energy, prefs],
-  );
-
-  const filtered = useMemo(() => {
-    return ordered.filter((sub) => {
-      const difficultyMatch =
-        selectedDifficulties.length === 0 || selectedDifficulties.includes(sub.complexity);
-      return difficultyMatch;
-    });
-  }, [ordered, selectedDifficulties]);
-
-  if (subcategories.length === 0) {
-    return (
-      <div className="rounded-2xl border border-dashed border-border bg-surface-muted p-8 text-center">
-        <p className="text-muted-foreground">
-          Aún no hay actividades en {categoryName}. Crea la primera para comenzar.
-        </p>
-        <Link
-          href="/app/subcategories"
-          className="mt-4 inline-block text-sm font-medium text-foreground underline"
-        >
-          Crear actividad en {categoryName}
-        </Link>
-      </div>
-    );
-  }
-
-  function handleSelectEnergy(next: EnergyLevel) {
-    prefs.setEnergy(next);
-  }
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-2">
       <EnergyPromptModal
         open={showEnergyModal}
-        onSelect={handleSelectEnergy}
-        onSkip={() => handleSelectEnergy("media")}
+        onSelect={(next) => prefs.setEnergy(next)}
+        onSkip={() => prefs.setEnergy("media")}
       />
-
-      <AnimatePresence mode="wait">
-        {selected ? (
-          <motion.div
-            key="flow"
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -12 }}
-            transition={{ duration: 0.15, ease: "easeOut" }}
-          >
-            <StartSessionFlow
-              subcategory={selected}
-              categoryName={categoryName}
-              defaultMinutes={
-                energy ? suggestedMinutesFor(energy, selected.complexity, prefs) : undefined
-              }
-              energy={energy ?? "media"}
-              complexity={selected.complexity}
-              activityPomodoroConfig={selected.pomodoroConfig ?? null}
-            />
-          </motion.div>
-        ) : (
-          <motion.div
-            key="list"
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -12 }}
-            transition={{ duration: 0.15, ease: "easeOut" }}
-            className="flex flex-col gap-4"
-          >
-            <h2 className="font-display mb-2 text-center text-2xl font-medium text-foreground">
-              ¿Qué actividad te gustaría hacer en {categoryName}?
-            </h2>
-
-            <ActivityFilters
-              selectedDifficulties={selectedDifficulties}
-              onToggleDifficulty={(value) =>
-                setSelectedDifficulties((prev) =>
-                  prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value],
-                )
-              }
-            />
-
-            {filtered.length === 0 && (
-              <p className="rounded-2xl border border-dashed border-border bg-surface-muted p-6 text-center text-sm text-muted-foreground">
-                No hay actividades que coincidan con este filtro. Prueba con otra dificultad.
-              </p>
-            )}
-
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              {filtered.map((sub) => (
-                <motion.button
-                  key={sub.id}
-                  type="button"
-                  onClick={() => setSelected(sub)}
-                  title={`${sub.name}-Haz clic para empezar una sesión`}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.97 }}
-                  transition={{ duration: 0.12 }}
-                  className="flex cursor-pointer items-center gap-3 rounded-2xl border border-border bg-surface p-4 text-left text-base font-medium text-foreground transition-colors duration-200 hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender"
-                >
-                  <span
-                    className="flex size-9 shrink-0 items-center justify-center rounded-xl"
-                    style={{ backgroundColor: `${sub.color}33`, color: sub.color }}
-                  >
-                    <DynamicIcon name={sub.icon} className="size-5" />
-                  </span>
-                  <span className="min-w-0 flex-1 truncate">{sub.name}</span>
-                  <span
-                    className={cn(
-                      "shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold",
-                      COMPLEXITY_BADGE[sub.complexity],
-                    )}
-                  >
-                    {COMPLEXITY_LABELS[sub.complexity]}
-                  </span>
-                </motion.button>
-              ))}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <StartSessionFlow
+        subcategory={selected}
+        categoryName={categoryName}
+        defaultMinutes={
+          energy ? suggestedMinutesFor(energy, selected.complexity, prefs) : undefined
+        }
+        energy={energy ?? "media"}
+        complexity={selected.complexity}
+        activityPomodoroConfig={selected.pomodoroConfig ?? null}
+        lastClassicMinutes={selected.lastClassicMinutes ?? null}
+        lastMode={selected.lastMode ?? null}
+      />
     </div>
   );
 }

@@ -5,6 +5,7 @@ import { AuthError } from "next-auth";
 import { loginSchema } from "@/features/auth/schemas/auth.schema";
 import { loginLimiter } from "@/lib/rate-limit";
 import { signIn } from "@/auth";
+import { ROUTES } from "@/lib/routes";
 
 export type LoginActionState = {
   error?: string;
@@ -39,7 +40,7 @@ export async function loginAction(
     await signIn("credentials", {
       email: parsed.data.email,
       password: parsed.data.password,
-      redirectTo: "/app/home",
+      redirectTo: ROUTES.home,
     });
   } catch (error) {
     if (error instanceof AuthError) {

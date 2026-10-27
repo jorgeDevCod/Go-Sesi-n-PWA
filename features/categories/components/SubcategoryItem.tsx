@@ -8,6 +8,7 @@ import { DynamicIcon } from "@/components/ui/DynamicIcon";
 import { cn } from "@/lib/utils";
 import { COMPLEXITY_LABELS } from "@/services/recommendation/energy-level";
 import { useHomeQuickStore } from "@/features/home/store/home-quick.store";
+import { ROUTES } from "@/lib/routes";
 import type { SubcategoryItem as SubcategoryItemType } from "@/features/categories/store/subcategory.store";
 
 const COMPLEXITY_BADGE: Record<
@@ -52,7 +53,7 @@ export function SubcategoryItem({
       onToggleSelect?.(item.id);
       return;
     }
-    router.push(`/app/session/new?category=${item.categoryId}&activity=${item.id}`);
+    router.push(ROUTES.sessionNew(item.categoryId, item.id));
   }
 
   function toggleHome() {

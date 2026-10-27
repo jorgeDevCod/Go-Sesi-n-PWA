@@ -4,12 +4,13 @@ import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 
 const SEGMENT_LABELS: Record<string, string> = {
-  history: "Historial",
-  trash: "Papelera",
-  subcategories: "Actividades",
-  session: "Sesión",
-  "session/new": "Nueva sesión",
-  "session/recommend": "No sé qué hacer",
+  personalizar: "Personalizar",
+  historial: "Historial",
+  papelera: "Papelera",
+  cuenta: "Cuenta",
+  sesion: "Sesión",
+  "sesion/nueva": "Nueva sesión",
+  recomendaciones: "No sé qué hacer",
 };
 
 function buildCrumbs(pathname: string): { label: string; href: string }[] {

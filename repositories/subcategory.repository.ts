@@ -47,6 +47,17 @@ export function updateSubcategoryPomodoroConfig(
   });
 }
 
+/** Guarda el último ajuste de tiempo/modo de una actividad. */
+export function updateSubcategoryTimerPreference(
+  id: string,
+  data: Prisma.SubcategoryUpdateInput,
+) {
+  return prisma.subcategory.update({
+    where: { id },
+    data,
+  });
+}
+
 export function deleteSubcategory(id: string) {
   return prisma.subcategory.delete({ where: { id } });
 }

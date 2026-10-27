@@ -12,6 +12,27 @@ vi.mock("@/features/session/actions/session.actions", () => ({
 
 vi.mock("@/features/categories/actions/subcategory.actions", () => ({
   setActivityPomodoroAction: vi.fn(),
+  saveActivityTimerPreferenceAction: vi.fn(),
+}));
+
+vi.mock("@/features/recommendation/store/recommendation.store", () => ({
+  useRecommendationPrefs: () => ({
+    energy: "media",
+    pomodoroPresets: {},
+    pomodoroConfigs: {},
+    setEnergy: vi.fn(),
+    energyDurations: {},
+    energyMinDurations: {},
+    energyMaxDurations: {},
+    energyComplexityTargets: {},
+    difficultyDurations: {},
+    difficultyMinDurations: {},
+    difficultyMaxDurations: {},
+    energyCategoryIds: {},
+    energySubcategoryIds: {},
+    recommendationCombos: {},
+  }),
+  recommendationOverridesFromPrefs: (prefs: Record<string, unknown>) => prefs,
 }));
 
 const SUBS = [
@@ -19,25 +40,25 @@ const SUBS = [
   { id: "sub-2", name: "Inglés", icon: "Languages", color: "#0EA5E9", complexity: "LOW" as const },
 ];
 
-describe("SessionWizard deep-link ?activity=", () => {
-  it("preselecciona la actividad (no obliga a re-elegir)", () => {
+describe("SessionWizard sin lista duplicada", () => {
+  it("abre directo la actividad del deep-link", () => {
     render(<SessionWizard categoryName="Aprender" subcategories={SUBS} startWithId="sub-2" />);
     expect(screen.getByText("Inglés")).toBeInTheDocument();
-    expect(
-      screen.queryByText("¿Qué actividad te gustaría hacer en Aprender?"),
-    ).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Clásico" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Pomodoro" })).toBeInTheDocument();
   });
 
-  it("id inválido cae a la lista", () => {
-    render(<SessionWizard categoryName="Aprender" subcategories={SUBS} startWithId="nope" />);
-    expect(
-      screen.getByText("¿Qué actividad te gustaría hacer en Aprender?"),
-    ).toBeInTheDocument();
+  it("no renderiza una lista si el id no es válido", () => {
+    const { container } = render(
+      <SessionWizard categoryName="Aprender" subcategories={SUBS} startWithId="nope" />,
+    );
+    expect(container).toBeEmptyDOMElement();
   });
 
-  it("sin id muestra la lista", () => {
-    render(<SessionWizard categoryName="Aprender" subcategories={SUBS} />);
-    expect(screen.getByText("React")).toBeInTheDocument();
-    expect(screen.getByText("Inglés")).toBeInTheDocument();
+  it("no renderiza lista si falta el id", () => {
+    const { container } = render(
+      <SessionWizard categoryName="Aprender" subcategories={SUBS} />,
+    );
+    expect(container).toBeEmptyDOMElement();
   });
 });

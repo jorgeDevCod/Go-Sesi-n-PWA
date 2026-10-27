@@ -5,7 +5,7 @@ import { AppShell } from "./AppShell";
 
 const mockBack = vi.fn();
 
-let mockPathname = "/app/subcategories";
+let mockPathname = "/app/historial";
 
 vi.mock("next/navigation", () => ({
   usePathname: () => mockPathname,
@@ -26,10 +26,6 @@ vi.mock("@/features/auth/actions/logout.action", () => ({
 
 vi.mock("@/features/planning/components/PlanningManager", () => ({
   PlanningManager: () => null,
-}));
-
-vi.mock("@/features/planning/components/PlanContinuePrompt", () => ({
-  PlanContinuePrompt: () => null,
 }));
 
 vi.mock("@/features/planning/actions/planning.actions", () => ({
@@ -71,7 +67,7 @@ describe("AppShell", () => {
   });
 
   it("renders children", () => {
-    mockPathname = "/app/subcategories";
+    mockPathname = "/app/historial";
     render(
       <AppShell userName="Test">
         <p>Contenido</p>
@@ -81,7 +77,7 @@ describe("AppShell", () => {
   });
 
   it("shows back button when not on home", () => {
-    mockPathname = "/app/subcategories";
+    mockPathname = "/app/historial";
     render(
       <AppShell userName="Test">
         <p>test</p>
@@ -91,7 +87,7 @@ describe("AppShell", () => {
   });
 
   it("hides back button on home", () => {
-    mockPathname = "/app/home";
+    mockPathname = "/app/inicio";
     render(
       <AppShell userName="Test">
         <p>test</p>
@@ -101,7 +97,7 @@ describe("AppShell", () => {
   });
 
   it("calls router.back() when clicking back button", async () => {
-    mockPathname = "/app/subcategories";
+    mockPathname = "/app/historial";
     Object.defineProperty(window, "history", {
       value: { length: 3 },
       writable: true,
@@ -117,7 +113,7 @@ describe("AppShell", () => {
   });
 
   it("opens the planning modal from the header button", async () => {
-    mockPathname = "/app/subcategories";
+    mockPathname = "/app/historial";
     const user = userEvent.setup();
     render(
       <AppShell userName="Test">

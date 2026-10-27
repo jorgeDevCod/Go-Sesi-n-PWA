@@ -1,30 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { ActivitiesTab } from "./ActivitiesTab";
-
-vi.mock("@/features/recommendation/store/recommendation.store", () => ({
-  useRecommendationPrefs: () => prefs,
-}));
-
-vi.mock("@/features/categories/actions/subcategory.actions", () => ({
-  setActivityPomodoroAction: vi.fn().mockResolvedValue({ success: true }),
-}));
 
 vi.mock("@/features/categories/components/SubcategoryList", () => ({
   SubcategoryList: () => <div>lista de actividades</div>,
 }));
-
-const prefs = {
-  energyDurations: {} as Record<string, number>,
-  energyMinDurations: {} as Record<string, number>,
-  energyMaxDurations: {} as Record<string, number>,
-  pomodoroPresets: {} as Record<string, unknown>,
-  setEnergyDuration: vi.fn(),
-  setEnergyMinDuration: vi.fn(),
-  setEnergyMaxDuration: vi.fn(),
-  setPomodoroPreset: vi.fn(),
-  removePomodoroPreset: vi.fn(),
-};
 
 const CATEGORIES = [
   {
@@ -36,18 +16,36 @@ const CATEGORIES = [
     isDefault: true,
     complexity: "MEDIUM" as const,
   },
+  {
+    id: "cat-2",
+    key: "diversion",
+    name: "Diversión",
+    icon: "Gamepad2",
+    color: "#EC4899",
+    isDefault: true,
+    complexity: "LOW" as const,
+  },
 ];
 
 describe("ActivitiesTab", () => {
-  it("muestra los tiempos por nivel y la lista de actividades", () => {
+  it("muestra las categorías y la lista de actividades", () => {
     render(<ActivitiesTab categories={CATEGORIES} itemsByCategory={{}} />);
-    expect(screen.getByText("Tiempos pre-programados")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Aprender/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Diversión/ })).toBeInTheDocument();
     expect(screen.getByText("lista de actividades")).toBeInTheDocument();
   });
 
-  it("no muestra el tab redundante de pomodoro por actividad", () => {
+  it("no muestra configuraciones de tiempos ni el tab de Pomodoro por actividad", () => {
     render(<ActivitiesTab categories={CATEGORIES} itemsByCategory={{}} />);
+    expect(screen.queryByText("Tiempos pre-programados")).not.toBeInTheDocument();
     expect(screen.queryByText("Pomodoro por actividad")).not.toBeInTheDocument();
     expect(screen.queryByRole("tab", { name: "Pomodoro por actividad" })).not.toBeInTheDocument();
+  });
+
+  it("cambia de categoría sin volver al Home", () => {
+    render(<ActivitiesTab categories={CATEGORIES} itemsByCategory={{}} />);
+    const diversion = screen.getByRole("button", { name: /Diversión/ });
+    fireEvent.click(diversion);
+    expect(diversion).toHaveAttribute("aria-pressed", "true");
   });
 });

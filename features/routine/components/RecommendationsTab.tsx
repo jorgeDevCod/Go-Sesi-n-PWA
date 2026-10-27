@@ -5,9 +5,16 @@ import { motion, AnimatePresence } from "framer-motion";
 import { BatteryFull, BatteryLow, BatteryMedium, ChevronDown, Sparkles, Trash2 } from "lucide-react";
 import { DynamicIcon } from "@/components/ui/DynamicIcon";
 import { cn } from "@/lib/utils";
-import { TimeChipList, type TimeChip, type FixedRole } from "@/features/routine/components/TimeChipList";
 import { useRecommendationPrefs } from "@/features/recommendation/store/recommendation.store";
-import { ENERGY_COLORS, COMPLEXITY_LABELS, effectiveComplexityTargets, effectiveRecommendedDuration, effectiveEnergyMin, effectiveEnergyMax, type EnergyLevel } from "@/services/recommendation/energy-level";
+import {
+  ENERGY_COLORS,
+  COMPLEXITY_LABELS,
+  effectiveComplexityTargets,
+  effectiveRecommendedDuration,
+  effectiveEnergyMax,
+  effectiveEnergyMin,
+  type EnergyLevel,
+} from "@/services/recommendation/energy-level";
 import type { Complexity } from "@/lib/constants/default-subcategories";
 import type { SubcategoryItem } from "@/features/categories/store/subcategory.store";
 import type { RoutineCategory } from "@/features/routine/components/RoutineTabs";
@@ -44,33 +51,6 @@ export function RecommendationsTab({
 
   const combo = prefs.recommendationCombos[comboKey];
   const comboSubIds = combo?.subcategoryIds ?? [];
-  const comboMin = combo?.min ?? effectiveEnergyMin(energy, prefs);
-  const comboRec = combo?.rec ?? effectiveRecommendedDuration(energy, prefs);
-  const comboMax = combo?.max ?? effectiveEnergyMax(energy, prefs);
-  const comboCustomTimes = combo?.customTimes ?? [];
-
-  // Build chips guaranteeing unique values (required as React key and for
-  // value-based edits). Roles are added first; any custom time (or duplicate
-  // role) that repeats a value gets dropped.
-  const baseChips: TimeChip[] = [
-    { value: Math.min(comboMin, comboRec), role: "min", custom: false },
-    { value: comboRec, role: "rec", custom: false },
-    { value: Math.max(comboMax, comboRec), role: "max", custom: false },
-    ...comboCustomTimes.map(
-      (v): TimeChip => ({
-        value: v,
-        role: null,
-        custom: true,
-        previousRole: combo?.exRoles?.[String(v)] ?? null,
-      }),
-    ),
-  ];
-  const seenValues = new Set<number>();
-  const timeChips: TimeChip[] = baseChips.filter((c) => {
-    if (seenValues.has(c.value)) return false;
-    seenValues.add(c.value);
-    return true;
-  });
 
   function handleEnergyChange(next: EnergyLevel) {
     setEnergy(next);
@@ -80,21 +60,15 @@ export function RecommendationsTab({
   const activeCombos = Object.entries(prefs.recommendationCombos)
     .filter(([, c]) => c.subcategoryIds.length > 0);
 
-  function persistCombo(
-    subIds: string[],
-    min: number,
-    rec: number,
-    max: number,
-    customTimes: number[],
-    exRoles?: Record<string, FixedRole>,
-  ) {
+  function persistCombo(subIds: string[]) {
+    const existing = prefs.recommendationCombos[comboKey];
     prefs.setRecommendationCombo(comboKey, {
       subcategoryIds: subIds,
-      min,
-      rec,
-      max,
-      customTimes,
-      exRoles,
+      min: existing?.min ?? effectiveEnergyMin(energy, prefs),
+      rec: existing?.rec ?? effectiveRecommendedDuration(energy, prefs),
+      max: existing?.max ?? effectiveEnergyMax(energy, prefs),
+      customTimes: existing?.customTimes ?? [],
+      exRoles: existing?.exRoles,
     });
   }
 
@@ -102,29 +76,7 @@ export function RecommendationsTab({
     const next = comboSubIds.includes(subId)
       ? comboSubIds.filter((id) => id !== subId)
       : [...comboSubIds, subId];
-    persistCombo(next, comboMin, comboRec, comboMax, comboCustomTimes, combo?.exRoles);
-  }
-
-  function updateComboTimes(chips: TimeChip[]) {
-    const rec = chips.find((c) => c.role === "rec");
-    const min = chips.find((c) => c.role === "min");
-    const max = chips.find((c) => c.role === "max");
-    const customChips = chips.filter((c) => c.role === null);
-    const custom = customChips.map((c) => c.value).sort((a, b) => a - b);
-    const exRoles: Record<string, FixedRole> = {};
-    for (const c of customChips) {
-      if (c.previousRole) {
-        exRoles[String(c.value)] = c.previousRole;
-      }
-    }
-    persistCombo(
-      comboSubIds,
-      min?.value ?? effectiveEnergyMin(energy, prefs),
-      rec?.value ?? effectiveRecommendedDuration(energy, prefs),
-      max?.value ?? effectiveEnergyMax(energy, prefs),
-      custom,
-      exRoles,
-    );
+    persistCombo(next);
   }
 
   return (
@@ -180,18 +132,6 @@ export function RecommendationsTab({
           })}
         </div>
       </div>
-      {/* Time config */}
-      <div className="flex flex-col gap-3">
-        <p className="text-sm font-bold text-foreground">
-          Escoge tus tiempos para: Energía {ENERGY_NAMES[energy].toLowerCase()}  + Dificultad {COMPLEXITY_LABELS[difficulty].toLowerCase()}
-        </p>
-        <p className="text-xs leading-relaxed text-muted-foreground mb-2">
-          Ajusta el tiempo mínimo, recomendado y máximo para esta combinación. También puedes agregar
-          tiempos personalizados. El recomendado es el que verás por defecto.
-        </p>
-        <TimeChipList chips={timeChips} onChange={updateComboTimes} />
-      </div>
-
       {/* Categories + Activities accordion */}
       <div>
         <p className="mb-4 ms-2 text-md font-medium text-foreground">
@@ -291,7 +231,8 @@ export function RecommendationsTab({
                   <span className="text-xs text-muted-foreground">+</span>
                   <span className="text-xs font-medium text-foreground">{COMPLEXITY_LABELS[d]}</span>
                   <span className="text-xs text-muted-foreground">
-                    {c.subcategoryIds.length} act · {c.min}–{c.max} min
+                    {c.subcategoryIds.length}{" "}
+                    {c.subcategoryIds.length === 1 ? "actividad" : "actividades"}
                   </span>
                   <button type="button" onClick={() => prefs.removeRecommendationCombo(key)}
                     className="ml-auto cursor-pointer text-muted-foreground hover:text-red-500 transition-colors">

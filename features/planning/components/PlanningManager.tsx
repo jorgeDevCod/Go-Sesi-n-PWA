@@ -13,6 +13,7 @@ import {
   getPlanningContextAction,
   saveTodayPlanAction,
 } from "@/features/planning/actions/planning.actions";
+import { ROUTES } from "@/lib/routes";
 
 export function PlanningManager() {
   const router = useRouter();
@@ -76,7 +77,7 @@ export function PlanningManager() {
 
   function handleSkip() {
     close();
-    router.push("/app/session/recommend");
+    router.push(ROUTES.recommend);
   }
 
   const needsContext = (isOpen || isPromptOpen) && !context;

@@ -7,7 +7,8 @@ import {
   BatteryMedium,
   CalendarCheck2,
   Layers,
-  Timer,
+  MousePointerClick,
+  PlayCircle,
   Sparkles,
   SlidersHorizontal,
   Palette,
@@ -35,46 +36,58 @@ function useMounted() {
 
 const SECTIONS = [
   {
-    icon: BatteryMedium,
-    title: "Tu bienvenida y energía del día",
+    icon: Sparkles,
+    title: "Tu bienvenida",
     description:
-      "Cada vez que entras te damos la bienvenida y te preguntamos cómo te sientes. Solo una vez al día ajustamos tu Home según tu energía: baja, media o alta. Si prefieres, puedes decir \"no mostrar más hoy\" y seguir tranquilo.",
+      "Elige cómo empezar: Vamos Ya, una recomendación, planificar tu día o personalizar tu experiencia. Solo seleccionas una tarjeta y confirmas con Ingresar. También puedes cambiar de cuenta desde ese mismo modal.",
+  },
+  {
+    icon: BatteryMedium,
+    title: "Tu energía del día",
+    description:
+      "En el Home eliges baja, media o alta. Go adapta las actividades y sugerencias a tu estado. El último nivel elegido se conserva para la próxima vez.",
   },
   {
     icon: CalendarCheck2,
-    title: "Tu plan del día",
+    title: "Planificación en un solo lugar",
     description:
-      "Abre tu plan desde el botón \"Planificación\" o la bienvenida. Elige categorías y vincula las actividades que harás. También puedes crear actividades nuevas directamente desde aquí. Cada categoría se pliega y despliega para que lo tengas todo ordenado.",
+      "Abre Planificación desde el header o la bienvenida. Elige una categoría, marca sus actividades y se irán sumando a \"Esta es tu Planificación\". Todas las actividades, de cualquier categoría, aparecen en una sola lista con su etiqueta de categoría. Puedes quitar una o usar \"Quitar todo\".",
   },
   {
     icon: Layers,
     title: "Categorías y actividades",
     description:
-      "Organiza tu vida en categorías y dentro de cada una crea actividades. Cada actividad tiene dificultad (Ligera, Moderada o Intensa) y puedes asignarle el estado de ánimo en el que mejor encaja. Desde la vista de actividades puedes filtrar por energía y dificultad para encontrar justo la que necesitas.",
+      "En Personalizar → Actividades eliges una categoría y ves sus actividades. Puedes crear, editar, reordenar o iniciar una actividad sin volver al Home. Desde ahí también cambias de categoría con un toque.",
   },
   {
-    icon: Timer,
+    icon: MousePointerClick,
+    title: "Tiempos a tu medida",
+    description:
+      "El tiempo se ajusta justo antes de empezar, en la vista de inicio. Toca un tiempo sugerido o escribe el que quieras. En Pomodoro puedes elegir un preset y editar foco, descanso y ciclos. Go recuerda tu último ajuste para esa actividad, incluso si cambias de dispositivo.",
+  },
+  {
+    icon: PlayCircle,
     title: "Sesiones de enfoque",
     description:
-      "Toca una actividad, elige cuántos minutos quieres dedicarle y comienza tu sesión. Puedes pausar, reanudar y extender el tiempo. Si cierras la pestaña sin terminar, al volver te avisamos para que retomes justo donde quedaste.",
+      "Elige Clásico o Pomodoro, ajusta el tiempo y comienza. Puedes pausar, reanudar y extender la sesión. Si cierras la pestaña sin terminar, al volver te avisamos para retomar donde quedaste.",
   },
   {
     icon: Sparkles,
     title: "Recomendaciones inteligentes",
     description:
-      "Cuando no sepas por dónde empezar, usa \"No sé qué hacer\". Según tu energía y el tiempo disponible te sugerimos las actividades más indicadas, con la mejor preseleccionada. Puedes ajustar los tiempos mínimo, recomendado y máximo para cada combinación de energía y dificultad.",
+      "Cuando no sepas por dónde empezar, usa \"No sé qué hacer\". Según tu energía y dificultad, Go te sugiere las actividades más indicadas. Desde Recomendaciones eliges qué actividades mostrar; los tiempos los ajustas al iniciar.",
   },
   {
     icon: SlidersHorizontal,
     title: "Personaliza tu experiencia",
     description:
-      "En la sección Personalizar encontrarás tres pestañas: Categorías, Actividades y Recomendaciones. Desde Recomendaciones defines tiempos y eliges qué actividades aparecen para cada nivel de energía y dificultad. Todo se aplica enseguida a tus sugerencias.",
+      "En Personalizar encontrarás Categorías, Actividades y Recomendaciones. Define categorías, actividades y qué sugerir según energía y dificultad. Los tiempos ya no se configuran aquí: se ajustan en la vista de inicio.",
   },
   {
     icon: Menu,
-    title: "Navegación",
+    title: "Navegación y ayuda",
     description:
-      "En computadora tienes Planificación, Historial, Actividades, Personalizar y Cerrar sesión en la parte superior. En móvil todo se organiza en el menú hamburguesa, con el cambio de tema siempre a mano.",
+      "En computadora tienes Inicio, Planificación, Personalizar, Historial, Papelera y Cuenta. En móvil, el menú hamburguesa. El botón de ayuda del header abre esta guía cuando la necesites.",
   },
   {
     icon: Palette,
@@ -86,7 +99,7 @@ const SECTIONS = [
     icon: Trash2,
     title: "Papelera y recuperación",
     description:
-      "Cuando eliminas una actividad o una categoría (que esté vacía), pasa a la papelera en lugar de borrarse para siempre. La papelera guarda un máximo de 50 artículos durante 15 días; luego se purgan. Puedes restaurarlos o vaciarla desde la pestaña \"Papelera\". Si cambias de opinión justo al eliminar, tienes 5 segundos para restablecer.",
+      "Cuando eliminas una actividad o una categoría vacía, pasa a la papelera. Guarda hasta 50 artículos durante 15 días. Puedes restaurarlos, vaciarla o borrar definitivamente. Al eliminar tienes 5 segundos para deshacer.",
   },
 ];
 

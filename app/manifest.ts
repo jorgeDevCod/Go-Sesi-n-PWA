@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { ROUTES } from "@/lib/routes";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
@@ -6,7 +7,7 @@ export default function manifest(): MetadataRoute.Manifest {
     short_name: "Go Sesión",
     description:
       "Reserva tu espacio de enfoque: elige una actividad, inicia el cronómetro y avanza sin fricción.",
-    start_url: "/app/home",
+    start_url: ROUTES.home,
     display: "standalone",
     background_color: "#fafaf9",
     theme_color: "#6366f1",

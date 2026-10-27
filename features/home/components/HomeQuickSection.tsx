@@ -6,6 +6,7 @@ import { DynamicIcon } from "@/components/ui/DynamicIcon";
 import { cn } from "@/lib/utils";
 import { COMPLEXITY_LABELS } from "@/services/recommendation/energy-level";
 import { useHomeQuickStore, type HomeQuickItem } from "@/features/home/store/home-quick.store";
+import { ROUTES } from "@/lib/routes";
 
 const COMPLEXITY_BADGE: Record<HomeQuickItem["complexity"], string> = {
   LOW: "bg-surface-muted text-muted-foreground",
@@ -21,7 +22,7 @@ export function HomeQuickSection() {
   if (items.length === 0) return null;
 
   function start(item: HomeQuickItem) {
-    router.push(`/app/session/new?category=${item.categoryId}&activity=${item.subcategoryId}`);
+    router.push(ROUTES.sessionNew(item.categoryId, item.subcategoryId));
   }
 
   return (

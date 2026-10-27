@@ -13,6 +13,7 @@ import { PomodoroTimer } from "@/features/session/components/PomodoroTimer";
 import { FinishScreen } from "@/features/session/components/FinishScreen";
 import { CompletionAlarm } from "@/features/session/components/CompletionAlarm";
 import { SessionLoading } from "@/components/ui/Skeleton";
+import { ROUTES } from "@/lib/routes";
 import type { SessionDTO } from "@/services/session/session.dto";
 
 const ALARM_SEEN_KEY = "gosession-alarm-seen-";
@@ -54,7 +55,7 @@ export function SessionExperience({ initialSession }: { initialSession: SessionD
 
   useEffect(() => {
     if (session === null) {
-      router.replace("/app/home");
+      router.replace(ROUTES.home);
     }
   }, [session, router]);
 

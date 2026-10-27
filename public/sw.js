@@ -1,4 +1,4 @@
-const CACHE_NAME = "gosession-shell-v1";
+const CACHE_NAME = "gosession-shell-v2";
 const OFFLINE_URL = "/offline.html";
 
 self.addEventListener("install", (event) => {
@@ -43,10 +43,10 @@ self.addEventListener("notificationclick", (event) => {
 
   const url =
     action === "finish"
-      ? "/app/session"
+      ? "/app/sesion"
       : action === "view"
-        ? "/app/session"
-        : "/app/home";
+        ? "/app/sesion"
+        : "/app/inicio";
 
   event.waitUntil(
     self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((clients) => {

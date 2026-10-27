@@ -17,6 +17,10 @@ export type PickableSubcategory = {
   complexity: Complexity;
   /** Cronómetro pomodoro guardado por el usuario para esta actividad. */
   pomodoroConfig?: PomodoroConfig | null;
+  /** Último tiempo clásico guardado para esta actividad. */
+  lastClassicMinutes?: number | null;
+  /** Último modo usado al iniciar esta actividad. */
+  lastMode?: "CLASSIC" | "POMODORO" | null;
 };
 
 const COMPLEXITY_BADGE: Record<Complexity, string> = {

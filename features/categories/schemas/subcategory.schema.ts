@@ -1,6 +1,8 @@
 import { z } from "zod";
+import { MAX_MINUTES, MIN_MINUTES } from "@/lib/duration-parser";
 
 const cuid = z.string().cuid("Identificador inválido.");
+const minutes = z.number().int().min(MIN_MINUTES).max(MAX_MINUTES);
 const hexColor = z
   .string()
   .regex(/^#[0-9a-fA-F]{6}$/, "El color debe ser un hexadecimal válido, ej: #7C3AED.");
@@ -78,3 +80,30 @@ export const setActivityPomodoroSchema = z.object({
 });
 
 export type SetActivityPomodoroInput = z.infer<typeof setActivityPomodoroSchema>;
+
+/** Último ajuste de tiempo de una actividad antes de iniciar. */
+export const saveActivityTimerPreferenceSchema = z
+  .object({
+    id: cuid,
+    mode: z.enum(["CLASSIC", "POMODORO"]),
+    classicMinutes: minutes.optional(),
+    pomodoroConfig: activityPomodoroSchema.nullable().optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.mode === "CLASSIC" && data.classicMinutes === undefined) {
+      ctx.addIssue({
+        code: "custom",
+        message: "El modo clásico requiere minutos.",
+      });
+    }
+    if (data.mode === "POMODORO" && !data.pomodoroConfig) {
+      ctx.addIssue({
+        code: "custom",
+        message: "El modo pomodoro requiere configuración.",
+      });
+    }
+  });
+
+export type SaveActivityTimerPreferenceInput = z.infer<
+  typeof saveActivityTimerPreferenceSchema
+>;

@@ -36,7 +36,6 @@ import {
   suggestedMinutesFor,
 } from "@/services/recommendation/energy-level";
 import { hasAnsweredMoodToday } from "@/features/recommendation/mood.storage";
-import { POMODORO_TIER_BY_COMPLEXITY, type PomodoroConfig } from "@/services/session/pomodoro";
 import type { Complexity } from "@/lib/constants/default-subcategories";
 import { cn } from "@/lib/utils";
 
@@ -218,6 +217,8 @@ export function RecommendationScreen({
           energy={energy ?? "media"}
           complexity={chosen.complexity}
           activityPomodoroConfig={chosen.pomodoroConfig ?? null}
+          lastClassicMinutes={chosen.lastClassicMinutes ?? null}
+          lastMode={chosen.lastMode ?? null}
         />
       </motion.div>
     );
@@ -228,19 +229,12 @@ export function RecommendationScreen({
     icon: string;
     color: string;
     complexity: Complexity;
-    pomodoroConfig?: PomodoroConfig | null;
   }) {
     if (!modalEdit) {
       return Promise.resolve({ success: false, error: "No hay actividad activa." });
     }
     return updateSubcategoryAction({ id: modalEdit.id, ...values }).then((result) => {
       if (result.success) {
-        if (values.pomodoroConfig) {
-          prefs.setPomodoroPreset(
-            POMODORO_TIER_BY_COMPLEXITY[values.complexity],
-            values.pomodoroConfig,
-          );
-        }
         setRecommendations((prev) =>
           prev.map((rec) =>
             rec.subcategoryId === modalEdit.id
@@ -412,6 +406,12 @@ export function RecommendationScreen({
                       pomodoroConfig:
                         subcategories.find((item) => item.id === rec.subcategoryId)
                           ?.pomodoroConfig ?? null,
+                      lastClassicMinutes:
+                        subcategories.find((item) => item.id === rec.subcategoryId)
+                          ?.lastClassicMinutes ?? null,
+                      lastMode:
+                        subcategories.find((item) => item.id === rec.subcategoryId)
+                          ?.lastMode ?? null,
                     },
                     rec.suggestedMinutes,
                     rec.reason,
@@ -424,9 +424,6 @@ export function RecommendationScreen({
                     icon: rec.subcategoryIcon,
                     color: rec.subcategoryColor,
                     complexity: rec.complexity ?? "MEDIUM",
-                    pomodoroConfig:
-                      subcategories.find((item) => item.id === rec.subcategoryId)
-                        ?.pomodoroConfig ?? null,
                   })
                 }
                 onDelete={() => handleDelete(rec.subcategoryId)}

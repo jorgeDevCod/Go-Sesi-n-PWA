@@ -1,16 +1,16 @@
 "use client";
 
-import { useState, useTransition } from "react";
-import Link from "next/link";
+import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 import { DynamicIcon } from "@/components/ui/DynamicIcon";
 import { Button } from "@/components/ui/Button";
 import { DurationPicker } from "@/features/session/components/DurationPicker";
-import { PomodoroConfigurator } from "@/features/session/components/PomodoroConfigurator";
+import { PomodoroScheduleEditor } from "@/features/session/components/PomodoroScheduleEditor";
 import { CountdownOverlay } from "@/features/session/components/CountdownOverlay";
 import { startSessionAction } from "@/features/session/actions/session.actions";
+import { saveActivityTimerPreferenceAction } from "@/features/categories/actions/subcategory.actions";
 import { playSoftStartSound, unlockAudioContext } from "@/features/session/session-sound";
 import {
   getStoredCountdownSeconds,
@@ -22,6 +22,10 @@ import {
   setStoredPomodoroAutoStart,
 } from "@/features/session/pomodoro-preference";
 import {
+  getActivityTimerPreference,
+  setActivityTimerPreference,
+} from "@/features/session/activity-timer-preference";
+import {
   POMODORO_TIER_BY_COMPLEXITY,
   POMODORO_TIER_DETAILS,
   POMODORO_TIER_LABELS,
@@ -32,22 +36,23 @@ import {
   type PomodoroConfig,
   type PomodoroTier,
 } from "@/services/session/pomodoro";
-import { setActivityPomodoroAction } from "@/features/categories/actions/subcategory.actions";
 import {
-  COMPLEXITY_LABELS,
   effectiveDurationOptions,
   type EnergyLevel,
 } from "@/services/recommendation/energy-level";
-import type { Complexity } from "@/lib/constants/default-subcategories";import {
+import type { Complexity } from "@/lib/constants/default-subcategories";
+import {
   useRecommendationPrefs,
   recommendationOverridesFromPrefs,
 } from "@/features/recommendation/store/recommendation.store";
+import { ROUTES } from "@/lib/routes";
 
 type SubcategoryOption = { id: string; name: string; icon: string; color: string };
 type Step = "duration" | "countdown";
 type SessionMode = "CLASSIC" | "POMODORO";
 
 const DURATION_CHIPS = [10, 20, 30, 40, 50, 60];
+const SAVE_DEBOUNCE_MS = 700;
 
 export function StartSessionFlow({
   subcategory,
@@ -57,6 +62,8 @@ export function StartSessionFlow({
   energy,
   complexity = "MEDIUM",
   activityPomodoroConfig,
+  lastClassicMinutes,
+  lastMode,
 }: {
   subcategory: SubcategoryOption;
   categoryName: string;
@@ -64,32 +71,108 @@ export function StartSessionFlow({
   defaultMinutes?: number;
   energy?: EnergyLevel;
   complexity?: Complexity;
-  /** Cronómetro guardado por el usuario para esta actividad. */
+  /** Cronómetro pomodoro guardado por el usuario para esta actividad. */
   activityPomodoroConfig?: PomodoroConfig | null;
+  /** Último tiempo clásico guardado para esta actividad. */
+  lastClassicMinutes?: number | null;
+  /** Último modo usado al iniciar esta actividad. */
+  lastMode?: SessionMode | null;
 }) {
   const router = useRouter();
   const prefs = useRecommendationPrefs();
   const overrides = recommendationOverridesFromPrefs(prefs);
   const [step, setStep] = useState<Step>("duration");
-  const [minutes, setMinutes] = useState<number | null>(defaultMinutes ?? null);
-  const [mode, setMode] = useState<SessionMode>("CLASSIC");
-  const [pomodoroConfig, setPomodoroConfig] = useState<PomodoroConfig | null>(null);
-  const [showAdjust, setShowAdjust] = useState(false);
   const [autoStart, setAutoStart] = useState(() => getStoredPomodoroAutoStart());
+  const effectiveEnergy: EnergyLevel = energy ?? "media";
+
+  const initialPomodoro = activityPomodoroConfig
+    ? { ...activityPomodoroConfig, autoStart }
+    : {
+        ...resolvePomodoroConfigForStart({
+          activityConfig: null,
+          energy: effectiveEnergy,
+          presets: prefs.pomodoroPresets,
+          savedCombos: prefs.pomodoroConfigs,
+          complexity,
+        }),
+        autoStart,
+      };
+
+  const [mode, setMode] = useState<SessionMode>(
+    () => lastMode ?? getActivityTimerPreference(subcategory.id)?.mode ?? "CLASSIC",
+  );
+  const [classicMinutes, setClassicMinutes] = useState<number | null>(() => {
+    const local = getActivityTimerPreference(subcategory.id);
+    return lastClassicMinutes ?? local?.classicMinutes ?? defaultMinutes ?? null;
+  });
+  const [pomodoroConfig, setPomodoroConfig] = useState<PomodoroConfig>(() => {
+    if (activityPomodoroConfig) return { ...activityPomodoroConfig, autoStart };
+    const local = getActivityTimerPreference(subcategory.id)?.pomodoroConfig;
+    if (local) return { ...local, autoStart };
+    return initialPomodoro;
+  });
+  const minutes =
+    mode === "CLASSIC"
+      ? classicMinutes
+      : pomodoroPlannedMinutes(pomodoroConfig);
   const [countdownSeconds, setCountdownSeconds] = useState(() => getStoredCountdownSeconds());
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
-  const [isSaving, setIsSaving] = useState(false);
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const effectiveEnergy: EnergyLevel = energy ?? "media";
+  useEffect(
+    () => () => {
+      if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    },
+    [],
+  );
+
+  const persistPreference = useCallback(
+    (
+      nextMode: SessionMode,
+      nextClassicMinutes: number | null,
+      nextConfig: PomodoroConfig | null,
+    ) => {
+      if (nextMode === "CLASSIC" && typeof nextClassicMinutes !== "number") return;
+      if (nextMode === "POMODORO" && !nextConfig) return;
+
+      setActivityTimerPreference(subcategory.id, {
+        mode: nextMode,
+        ...(typeof nextClassicMinutes === "number"
+          ? { classicMinutes: nextClassicMinutes }
+          : {}),
+        ...(nextConfig ? { pomodoroConfig: nextConfig } : {}),
+      });
+
+      if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+      saveTimerRef.current = setTimeout(() => {
+        void saveActivityTimerPreferenceAction({
+          id: subcategory.id,
+          mode: nextMode,
+          ...(nextMode === "CLASSIC"
+            ? { classicMinutes: nextClassicMinutes ?? undefined }
+            : { pomodoroConfig: nextConfig ?? undefined }),
+        });
+      }, SAVE_DEBOUNCE_MS);
+    },
+    [subcategory.id],
+  );
+
   const baseDurationChips = energy
     ? effectiveDurationOptions(energy, overrides)
     : DURATION_CHIPS;
-  const durationChips =
-    defaultMinutes && !baseDurationChips.includes(defaultMinutes)
-      ? [...baseDurationChips, defaultMinutes].sort((a, b) => a - b)
-      : baseDurationChips;
+  const durationChips = [
+    ...new Set(
+      [
+        ...baseDurationChips,
+        defaultMinutes,
+        lastClassicMinutes,
+        classicMinutes,
+      ].filter((value): value is number => typeof value === "number"),
+    ),
+  ].sort((a, b) => a - b);
+
   const recommendedTier = POMODORO_TIER_BY_COMPLEXITY[complexity];
   const tierConfigs = POMODORO_TIERS.map((key) => ({
     key,
@@ -97,16 +180,6 @@ export function StartSessionFlow({
     detail: POMODORO_TIER_DETAILS[key],
     config: pomodoroPresetFor(key, prefs.pomodoroPresets),
   }));
-  const selectedTier =
-    tierConfigs.find(
-      (option) =>
-        pomodoroConfig !== null &&
-        option.config.focusMin === pomodoroConfig.focusMin &&
-        option.config.breakMin === pomodoroConfig.breakMin &&
-        option.config.cycles === pomodoroConfig.cycles &&
-        (option.config.longBreakMin ?? 0) === (pomodoroConfig.longBreakMin ?? 0) &&
-        (option.config.skipBreaks ?? false) === (pomodoroConfig.skipBreaks ?? false),
-    )?.key ?? null;
 
   function handleCountdownChange(seconds: number) {
     setCountdownSeconds(seconds);
@@ -118,56 +191,31 @@ export function StartSessionFlow({
     setStoredPomodoroAutoStart(value);
   }
 
+  function handleMinutesChange(next: number) {
+    setClassicMinutes(next);
+    persistPreference("CLASSIC", next, pomodoroConfig);
+  }
+
   function handlePomodoroConfigChange(next: PomodoroConfig) {
     setPomodoroConfig(next);
-    setMinutes(pomodoroPlannedMinutes(next));
-    if (next.autoStart !== autoStart) {
-      handleAutoStartChange(next.autoStart);
-    }
+    if (next.autoStart !== autoStart) handleAutoStartChange(next.autoStart);
+    persistPreference("POMODORO", classicMinutes, next);
   }
 
   function handleModeChange(next: SessionMode) {
     setMode(next);
     setError(null);
-    if (next === "CLASSIC") {
-      setPomodoroConfig(null);
-      return;
-    }
-    // Al entrar en pomodoro: el cronómetro de la actividad si lo guardaste,
-    // si no el nivel pre-programado de su dificultad.
-    const config = resolvePomodoroConfigForStart({
-      activityConfig: activityPomodoroConfig ?? null,
-      energy: effectiveEnergy,
-      presets: prefs.pomodoroPresets,
-      savedCombos: prefs.pomodoroConfigs,
-      complexity,
-    });
-    const withAuto = { ...config, autoStart };
-    setPomodoroConfig(withAuto);
-    setMinutes(pomodoroPlannedMinutes(withAuto));
-  }
-
-  function handleSaveAsActivityDefault() {
-    if (!pomodoroConfig) return;
-    setIsSaving(true);
-    startTransition(async () => {
-      const result = await setActivityPomodoroAction({
-        id: subcategory.id,
-        pomodoroConfig,
-      });
-      setIsSaving(false);
-      if (!result.success) {
-        setError(result.error);
-        return;
-      }
-      setNotice(`Guardamos tu cronómetro como predeterminado de ${subcategory.name}.`);
-    });
+    persistPreference(
+      next,
+      classicMinutes,
+      next === "POMODORO" ? { ...pomodoroConfig, autoStart } : pomodoroConfig,
+    );
   }
 
   function handlePomodoroSelect(tier: PomodoroTier) {
     const config = { ...pomodoroPresetFor(tier, prefs.pomodoroPresets), autoStart };
     setPomodoroConfig(config);
-    setMinutes(pomodoroPlannedMinutes(config));
+    persistPreference("POMODORO", classicMinutes, config);
   }
 
   function startSessionNow() {
@@ -177,11 +225,8 @@ export function StartSessionFlow({
       setStep("duration");
       return;
     }
-    // Desbloquea el audio dentro del gesto del usuario (autoplay policy).
     unlockAudioContext();
     playSoftStartSound();
-    // Pedir permiso de notificaciones al iniciar la sesión, para poder avisar
-    // al terminar el tiempo o si la app queda en segundo plano.
     if (typeof Notification !== "undefined" && Notification.permission === "default") {
       void Notification.requestPermission();
     }
@@ -205,7 +250,7 @@ export function StartSessionFlow({
         );
       }
 
-      router.push("/app/session");
+      router.push(ROUTES.session);
     });
   }
 
@@ -266,6 +311,7 @@ export function StartSessionFlow({
                 )}
               </div>
             </div>
+
             <div className="flex gap-2" role="group" aria-label="Modo de sesión">
               {(["CLASSIC", "POMODORO"] as const).map((value) => (
                 <button
@@ -283,113 +329,33 @@ export function StartSessionFlow({
                 </button>
               ))}
             </div>
+
+            <p className="text-xs text-muted-foreground">
+              Tu último ajuste se guarda para esta actividad.
+            </p>
+
             {mode === "CLASSIC" ? (
-              <div className="flex flex-col gap-3">
-                <DurationPicker
-                  chips={durationChips}
-                  suggestedMinutes={defaultMinutes}
-                  defaultMinutes={defaultMinutes}
-                  onSelect={(value) => setMinutes(value)}
-                />
-                {energy && (
-                  <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
-                    <span>Tus tiempos: {durationChips.join(" · ")} min</span>
-                    <Link
-                      href="/app/routine?tab=actividades"
-                      className="font-medium text-accent-apprendre underline underline-offset-4 hover:text-accent-aprender-hover"
-                    >
-                      Ajustar en Personalizar
-                    </Link>
-                  </p>
-                )}
-              </div>
-            ) : (
-              <div className="flex flex-col gap-4">
-                <div className="flex flex-col gap-2">
-                  <label
-                    htmlFor="pomodoro-preset"
-                    className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground"
-                  >
-                    Programación predefinida
-                  </label>
-                  <select
-                    id="pomodoro-preset"
-                    value={selectedTier ?? ""}
-                    onChange={(event) => handlePomodoroSelect(event.target.value as PomodoroTier)}
-                    className="h-11 w-full cursor-pointer rounded-xl border border-border bg-surface px-3 text-sm text-foreground outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender"
-                  >
-                    {selectedTier === null && (
-                      <option value="" disabled>
-                        Personalizada
-                      </option>
-                    )}
-                    {tierConfigs.map((option) => (
-                      <option key={option.key} value={option.key}>
-                        {option.label}
-                        {option.key === recommendedTier ? " · recomendada" : ""} —{" "}
-                        {option.config.focusMin} min foco · {option.config.breakMin} min descanso ·{" "}
-                        {option.config.cycles} ciclos · {pomodoroPlannedMinutes(option.config)} min
-                      </option>
-                    ))}
-                  </select>
-                  <p className="text-xs leading-relaxed text-muted-foreground">
-                    {tierConfigs.find((option) => option.key === recommendedTier)?.detail}. Según la
-                    dificultad {COMPLEXITY_LABELS[complexity].toLowerCase()} de la actividad.
-                  </p>
-                </div>
-
-                {pomodoroConfig && (
-                  <div className="flex flex-col gap-3 rounded-2xl border border-border bg-surface p-4">
-                    <div className="flex items-center justify-between gap-2">
-                      <p className="text-sm text-muted-foreground">
-                        {pomodoroConfig.cycles} ciclos · {pomodoroConfig.focusMin} min foco ·{" "}
-                        {pomodoroConfig.breakMin} min descanso ·{" "}
-                        {pomodoroPlannedMinutes(pomodoroConfig)} min en total
-                      </p>
-                      <button
-                        type="button"
-                        onClick={() => setShowAdjust((v) => !v)}
-                        aria-expanded={showAdjust}
-                        className="shrink-0 cursor-pointer rounded-full border border-border bg-surface px-3 py-1.5 text-xs font-medium text-foreground transition-colors duration-200 hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender"
-                      >
-                        {showAdjust ? "Ocultar ajuste" : "Ajustar"}
-                      </button>
-                    </div>
-
-                    {showAdjust && (
-                      <div className="flex flex-col gap-3">
-                        <PomodoroConfigurator
-                          config={pomodoroConfig}
-                          onChange={handlePomodoroConfigChange}
-                          showReset={Boolean(activityPomodoroConfig)}
-                          resetLabel="Volver al cronómetro de esta actividad"
-                          onReset={() => {
-                            if (!activityPomodoroConfig) return;
-                            handlePomodoroConfigChange(activityPomodoroConfig);
-                          }}
-                        />
-                        <button
-                          type="button"
-                          onClick={handleSaveAsActivityDefault}
-                          disabled={isSaving}
-                          className="cursor-pointer self-start rounded-full border border-border bg-surface px-4 py-2 text-sm font-medium text-foreground transition-colors duration-200 hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender disabled:cursor-not-allowed disabled:opacity-50"
-                        >
-                          Guardar como predeterminado de {subcategory.name}
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            )}
+              <DurationPicker
+                chips={durationChips}
+                value={classicMinutes}
+                suggestedMinutes={defaultMinutes}
+                onChange={handleMinutesChange}
+              />
+            ) : pomodoroConfig ? (
+              <PomodoroScheduleEditor
+                config={pomodoroConfig}
+                presets={tierConfigs}
+                recommendedTier={recommendedTier}
+                onChange={handlePomodoroConfigChange}
+                onSelectPreset={handlePomodoroSelect}
+              />
+            ) : null}
 
             <div className="flex flex-col gap-2">
               <Button
                 size="lg"
                 className="w-full"
-                disabled={
-                  mode === "POMODORO" ? !pomodoroConfig : !minutes
-                }
+                disabled={mode === "POMODORO" ? !pomodoroConfig : !minutes}
                 onClick={handleComenzar}
               >
                 {isPending

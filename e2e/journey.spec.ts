@@ -18,16 +18,17 @@ test("registro → sesión → fin → historial", async ({ page }) => {
   await page.getByLabel("Contraseña", { exact: true }).fill("E2e-1234!x");
   await page.getByLabel("Confirma tu contraseña").fill("E2e-1234!x");
   await page.getByRole("button", { name: "Crear cuenta" }).click();
-  await expect(page).toHaveURL(/\/app\/home/, { timeout: 30_000 });
+  await expect(page).toHaveURL(/\/app\/inicio/, { timeout: 30_000 });
 
-  // 2. Onboarding: bienvenida → ánimo.
+  // 2. Onboarding: seleccionar Vamos Ya → Ingresar → ánimo.
   await page.getByRole("dialog", { name: "Bienvenida" }).waitFor({ timeout: 15_000 });
-  await page.getByRole("button", { name: /¡Estoy listo! Empecemos/ }).click();
+  await page.getByRole("button", { name: /¡Vamos Ya!/ }).click();
+  await page.getByRole("button", { name: "Ingresar" }).click();
   await page.getByRole("dialog", { name: /¿Cómo te sientes hoy/ }).waitFor({ timeout: 15_000 });
   await page.getByRole("button", { name: "Ir a mi espacio" }).click();
 
   // 3. Recomendación → empezar la primera.
-  await page.goto("/app/session/recommend");
+  await page.goto("/app/recomendaciones");
   const startButton = page.getByRole("button", { name: "Empezar", exact: true }).first();
   await expect(startButton).toBeVisible({ timeout: 30_000 });
   await startButton.click();
@@ -37,7 +38,7 @@ test("registro → sesión → fin → historial", async ({ page }) => {
   await page.getByRole("button", { name: /Comenzar/ }).click();
 
   // 5. Timer: pausa, reanuda y finaliza antes de tiempo.
-  await expect(page).toHaveURL(/\/app\/session$/, { timeout: 30_000 });
+  await expect(page).toHaveURL(/\/app\/sesion$/, { timeout: 30_000 });
   await expect(page.getByText("restantes").first()).toBeVisible({ timeout: 15_000 });
   await page.getByRole("button", { name: "Pausar" }).click();
   await expect(page.getByText("Pausado")).toBeVisible({ timeout: 15_000 });
@@ -46,7 +47,7 @@ test("registro → sesión → fin → historial", async ({ page }) => {
   await expect(page.getByText("¡Buen esfuerzo!")).toBeVisible({ timeout: 30_000 });
 
   // 6. Historial con la sesión registrada.
-  await page.goto("/app/history");
+  await page.goto("/app/historial");
   await expect(
     page.getByText("Todavía no completaste ninguna sesión."),
   ).not.toBeVisible({ timeout: 15_000 });

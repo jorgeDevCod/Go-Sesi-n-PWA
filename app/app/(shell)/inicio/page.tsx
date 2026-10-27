@@ -6,7 +6,6 @@ import { getFocusStatsForUser, getLastSubcategoryName } from "@/repositories/foc
 import { ensureDefaultCategoriesForUser } from "@/services/categories/ensure-default-categories.service";
 import { CategoryHomeGrid } from "@/features/home/components/CategoryHomeGrid";
 import { WelcomeBackCard } from "@/features/home/components/WelcomeBackCard";
-import { PersonalizeRoutineCard } from "@/features/home/components/PersonalizeRoutineCard";
 
 export const metadata: Metadata = {
   title: "Inicio",
@@ -60,7 +59,6 @@ export default async function HomePage() {
         </div>
       )}
       <CategoryHomeGrid initialCategories={mapped} />
-      <PersonalizeRoutineCard />
     </div>
   );
 }

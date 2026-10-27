@@ -16,6 +16,10 @@ export type SubcategoryItem = {
   energyComplexity?: Complexity | null;
   /** Cronómetro pomodoro propio de la actividad (null = nivel pre-programado). */
   pomodoroConfig?: PomodoroConfig | null;
+  /** Último tiempo clásico guardado para esta actividad. */
+  lastClassicMinutes?: number | null;
+  /** Último modo usado al iniciar esta actividad. */
+  lastMode?: "CLASSIC" | "POMODORO" | null;
 };
 
 type SubcategoryStore = {

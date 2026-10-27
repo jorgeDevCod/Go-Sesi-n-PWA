@@ -30,6 +30,8 @@ export default async function RecommendPage() {
     categoryName: categoryNameById.get(sub.categoryId) ?? "",
     complexity: sub.complexity,
     pomodoroConfig: parseActivityPomodoroConfig(sub.pomodoroConfig),
+    lastClassicMinutes: sub.lastClassicMinutes,
+    lastMode: sub.lastMode,
   }));
 
   return (
