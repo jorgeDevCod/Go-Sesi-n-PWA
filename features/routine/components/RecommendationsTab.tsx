@@ -85,8 +85,7 @@ export function RecommendationsTab({
       <div className="text-center">
         <h2 className="font-display text-lg font-bold text-foreground py-4">Personaliza tus recomendaciones, a tu gusto</h2>
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-          Define tus niveles de dificultad y energeria para las recomendaciones de tus actividades de forma más personalizadas. Cuanto más
-          lo ajustes, más acertadas serán las recomendaciones.
+          Ajusta tu dificultad y energía para recibir recomendaciones adaptadas a tu ritmo y energia.
         </p>
       </div>
 
