@@ -60,11 +60,8 @@ export default async function ActivitiesPage({
 
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-6">
-      <div className="text-center">
-        <h1 className="font-display text-3xl font-bold text-foreground">Actividades</h1>
-        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-          Elige una categoría, revisa sus actividades y empieza la que quieras.
-        </p>
+      <div className="text-start">
+        <h1 className="font-display text-3xl font-bold text-foreground">Centro de Actividades</h1>
       </div>
       <ActivitiesTab
         categories={categories}

@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, CalendarCheck2, HelpCircle, History, Home, LogOut, Menu, Settings2, SlidersHorizontal, Trash2, UserRound } from "lucide-react";
+import { ArrowLeft, CalendarCheck2, HelpCircle, History, Home, LogOut, Menu, SlidersHorizontal, Trash2, UserRound } from "lucide-react";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { AppGuideModal } from "@/components/ui/AppGuideModal";
 import { WelcomeModal } from "@/components/ui/WelcomeModal";
