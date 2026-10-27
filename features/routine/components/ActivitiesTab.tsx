@@ -41,13 +41,6 @@ export function ActivitiesTab({
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="text-sm leading-relaxed text-muted-foreground text-center">
-        <p>Selecciona una categoría para ver, crear, editar o iniciar sus actividades.</p>
-        <span>
-          Puedes cambiar de categoría sin volver al inicio y ajustar el tiempo justo antes de empezar.
-        </span>
-      </div>
-
       <div className="flex flex-wrap gap-2">
         {categories.map((category) => {
           const isSelected = selected === category.id;
