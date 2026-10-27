@@ -62,11 +62,12 @@ export function RoutineTabs({
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="font-display text-3xl font-bold text-foreground">
+        <h1 className="font-display text-2xl font-bold text-foreground sm:text-3xl">
           Personaliza tu Experiencia
         </h1>
-        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-          ¿Las categorías, actividades o recomendaciones no van a tu ritmo? ¡No te preocupes! Puedes adaptarlas fácilmente a tus necesidades aquí.
+        <p className="mt-2 max-w-3xl text-sm leading-relaxed text-pretty text-muted-foreground">
+          ¿Las categorías, actividades o recomendaciones no van a tu ritmo? ¡No te preocupes!
+          Puedes adaptarlas fácilmente a tus necesidades aquí.
         </p>
       </div>
 

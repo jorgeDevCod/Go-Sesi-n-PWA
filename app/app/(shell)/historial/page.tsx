@@ -16,8 +16,8 @@ export default async function HistoryPage() {
   const entries = await listSessionHistoryForUser(userId);
 
   return (
-    <div className="mx-auto flex w-full max-w-3xl flex-col gap-6">
-      <h1 className="font-display text-3xl font-bold text-foreground">Tu historial</h1>
+    <div className="mx-auto flex w-full max-w-5xl flex-col gap-6">
+      <h1 className="font-display text-2xl sm:text-3xl font-bold text-foreground">Tu historial</h1>
       {entries.length > 0 && <SessionStatsView stats={computeSessionStats(entries)} />}
       <HistoryView entries={entries} />
     </div>

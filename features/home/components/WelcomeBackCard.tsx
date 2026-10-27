@@ -50,7 +50,7 @@ export function WelcomeBackCard({
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -8 }}
           transition={{ duration: 0.25, ease: "easeOut" }}
-          className="relative flex w-full max-w-2xl flex-col gap-2 overflow-hidden rounded-2xl border border-border bg-surface p-4 pr-10 shadow-sm"
+          className="relative flex w-full max-w-5xl flex-col gap-2 overflow-hidden rounded-2xl border border-border bg-surface p-4 pr-10 shadow-sm"
         >
           <button
             type="button"

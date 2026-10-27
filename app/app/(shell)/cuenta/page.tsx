@@ -12,8 +12,8 @@ export default async function AccountPage() {
   const user = await findUserById(session!.user.id);
 
   return (
-    <div className="mx-auto w-full max-w-3xl lg:max-w-5xl">
-      <h1 className="font-display mb-6 text-3xl font-bold text-foreground">Cuenta</h1>
+    <div className="mx-auto w-full max-w-5xl">
+      <h1 className="font-display mb-6 text-2xl sm:text-3xl font-bold text-foreground">Cuenta</h1>
       <AccountView userName={user?.name ?? ""} email={user?.email ?? ""} />
     </div>
   );

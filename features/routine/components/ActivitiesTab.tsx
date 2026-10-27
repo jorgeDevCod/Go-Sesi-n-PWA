@@ -41,7 +41,7 @@ export function ActivitiesTab({
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="text-sm leading-relaxed text-muted-foreground text-start">
+      <div className="max-w-3xl text-sm leading-relaxed text-pretty text-muted-foreground text-start">
         <p>Selecciona una categoría para desplegar sus actividades.</p>
         <span>
           Podrás cambiar de categoría sin volver al inicio y ajustar el tiempo justo antes de empezar.

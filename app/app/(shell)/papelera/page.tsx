@@ -14,8 +14,8 @@ export default async function TrashPage() {
   const items = await listTrash(userId);
 
   return (
-    <div className="mx-auto w-full max-w-3xl">
-      <h1 className="font-display mb-6 text-3xl font-bold text-foreground">Papelera</h1>
+    <div className="mx-auto w-full max-w-5xl">
+      <h1 className="font-display mb-6 text-2xl sm:text-3xl font-bold text-foreground">Papelera</h1>
       <TrashView initialItems={items} />
     </div>
   );

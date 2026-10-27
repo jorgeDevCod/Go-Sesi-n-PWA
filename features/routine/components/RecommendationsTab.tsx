@@ -84,8 +84,9 @@ export function RecommendationsTab({
       {/* Header */}
       <div className="text-center">
         <h2 className="font-display text-lg font-bold text-foreground py-4">Personaliza tus recomendaciones, a tu gusto</h2>
-        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-          Ajusta tu dificultad y energía para recibir recomendaciones adaptadas a tu ritmo y energia.
+        <p className="mx-auto mt-2 max-w-3xl text-sm leading-relaxed text-pretty text-muted-foreground">
+          Ajusta tu dificultad y energía para recibir recomendaciones adaptadas a tu ritmo y
+          energía.
         </p>
       </div>
 

@@ -59,9 +59,9 @@ export default async function ActivitiesPage({
       : null;
 
   return (
-    <div className="mx-auto flex w-full max-w-3xl flex-col gap-6">
+    <div className="mx-auto flex w-full max-w-5xl flex-col gap-6">
       <div className="text-start">
-        <h1 className="font-display text-3xl font-bold text-foreground">Centro de Actividades</h1>
+        <h1 className="font-display text-2xl sm:text-3xl font-bold text-foreground">Centro de Actividades</h1>
       </div>
       <ActivitiesTab
         categories={categories}
