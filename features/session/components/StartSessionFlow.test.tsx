@@ -10,6 +10,7 @@ vi.mock("@/features/categories/actions/subcategory.actions", () => ({
   saveActivityTimerPreferenceAction: vi.fn().mockResolvedValue({ success: true }),
 }));
 vi.mock("next/navigation", () => ({
+  usePathname: () => "/app/actividades",
   useRouter: () => ({ back: vi.fn(), push: vi.fn(), replace: vi.fn() }),
 }));
 

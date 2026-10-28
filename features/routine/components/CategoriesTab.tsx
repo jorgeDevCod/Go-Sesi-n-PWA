@@ -128,13 +128,10 @@ export function CategoriesTab({ categories }: { categories: RoutineCategory[] })
                 size="md"
                 onClick={deleteSelected}
                 disabled={selectedIds.size === 0}
-                className={cn(
-                  "gap-2",
-                  selectedIds.size > 0 && "border-red-300 bg-red-50 text-red-600 dark:border-red-900 dark:bg-red-950 dark:text-red-400",
-                )}
+                className="gap-2 border-red-300 bg-red-50 text-red-600 dark:border-red-900 dark:bg-red-950 dark:text-red-400"
               >
                 <Trash2 className="size-4" />
-                Eliminar seleccionadas ({selectedIds.size})
+                Eliminar
               </Button>
               <Button variant="ghost" size="md" onClick={cancelSelectMode} className="gap-2">
                 <X className="size-4" />
@@ -154,7 +151,7 @@ export function CategoriesTab({ categories }: { categories: RoutineCategory[] })
                 className="gap-2"
               >
                 <CheckSquare className="size-4" />
-                Seleccionar y eliminar
+                Seleccionar
               </Button>
             </>
           )}

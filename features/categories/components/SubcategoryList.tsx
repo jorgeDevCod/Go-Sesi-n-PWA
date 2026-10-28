@@ -34,7 +34,6 @@ import { Button } from "@/components/ui/Button";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { InfoModal } from "@/components/ui/InfoModal";
 import { TRASH_RETENTION_DAYS } from "@/services/categories/trash.types";
-import { cn } from "@/lib/utils";
 import type { Complexity } from "@/lib/constants/default-subcategories";
 
 type DeleteTarget =
@@ -216,13 +215,10 @@ export function SubcategoryList({
                 size="md"
                 onClick={() => setDeleteTarget({ type: "selected" })}
                 disabled={selectedIds.size === 0}
-                className={cn(
-                  "gap-2",
-                  selectedIds.size > 0 && "border-red-300 bg-red-50 text-red-600 dark:border-red-900 dark:bg-red-950 dark:text-red-400",
-                )}
+                className="gap-2 border-red-300 bg-red-50 text-red-600 dark:border-red-900 dark:bg-red-950 dark:text-red-400"
               >
                 <Trash2 className="size-4" />
-                Eliminar seleccionadas ({selectedIds.size})
+                Eliminar
               </Button>
               <Button
                 variant="ghost"
@@ -252,7 +248,7 @@ export function SubcategoryList({
                 className="gap-2"
               >
                 <CheckSquare className="size-4" />
-                Seleccionar y eliminar
+                Seleccionar
               </Button>
             </>
           )}

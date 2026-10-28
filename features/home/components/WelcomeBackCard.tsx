@@ -1,6 +1,7 @@
 "use client";
 
-import { Sparkles } from "lucide-react";
+import { useState } from "react";
+import { Sparkles, X } from "lucide-react";
 import {
   encouragementLeadForToday,
   welcomeGreetingForToday,
@@ -28,6 +29,7 @@ export function WelcomeBackCard({
   totalMinutes: number;
   lastActivity?: string | null;
 }) {
+  const [visible, setVisible] = useState(true);
   const greeting = welcomeGreetingForToday(firstName);
   const encouragement =
     completedSessions > 0
@@ -35,6 +37,8 @@ export function WelcomeBackCard({
           completedSessions === 1 ? "sesión" : "sesiones"
         } y ${formatMinutes(totalMinutes)} de enfoque. ¡Sigue así!`
       : "Hoy es un gran día para empezar a construir tu constancia. ¡Un paso a la vez!";
+
+  if (!visible) return null;
 
   return (
     <div className="flex w-full max-w-[700px] items-center gap-3 rounded-2xl border border-border bg-surface px-3 py-2.5 shadow-sm">
@@ -54,6 +58,14 @@ export function WelcomeBackCard({
           )}
         </p>
       </div>
+      <button
+        type="button"
+        onClick={() => setVisible(false)}
+        aria-label="Cerrar mensaje de bienvenida"
+        className="shrink-0 rounded-full p-1 text-muted-foreground transition-colors hover:bg-surface-hover hover:text-foreground"
+      >
+        <X className="size-4" />
+      </button>
     </div>
   );
 }

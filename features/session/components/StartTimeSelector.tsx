@@ -16,7 +16,7 @@ export function StartTimeSelector({
 }) {
   return (
     <div className="flex flex-col gap-3">
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 xl:grid-cols-6">
         {chips.map((minutes) => {
           const selected = value === minutes;
           const suggested = suggestedMinutes === minutes;

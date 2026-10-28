@@ -1,6 +1,14 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, useSyncExternalStore, useTransition } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+  useTransition,
+} from "react";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { BatteryFull, BatteryLow, BatteryMedium, ChevronDown, Sparkles } from "lucide-react";
@@ -86,6 +94,7 @@ export function RecommendationScreen({
   const [chosen, setChosen] = useState<PickableSubcategory | null>(null);
   const [chosenMinutes, setChosenMinutes] = useState<number | undefined>(undefined);
   const [chosenReason, setChosenReason] = useState<string | undefined>(undefined);
+  const handleBackFromConfig = useCallback(() => setChosen(null), []);
   const [actionError, setActionError] = useState<string | null>(null);
   const [isPending, startDeleteTransition] = useTransition();
   const [feedbackPendingId, setFeedbackPendingId] = useState<string | null>(null);
@@ -219,6 +228,7 @@ export function RecommendationScreen({
           activityPomodoroConfig={chosen.pomodoroConfig ?? null}
           lastClassicMinutes={chosen.lastClassicMinutes ?? null}
           lastMode={chosen.lastMode ?? null}
+          onBack={handleBackFromConfig}
         />
       </motion.div>
     );

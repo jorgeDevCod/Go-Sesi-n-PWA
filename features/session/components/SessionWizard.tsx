@@ -51,7 +51,7 @@ export function SessionWizard({
   const showEnergyModal = isClient && !energy;
 
   return (
-    <div className="mx-auto flex w-full max-w-2xl flex-col gap-2">
+    <div className="flex w-full flex-col gap-2">
       <EnergyPromptModal
         open={showEnergyModal}
         onSelect={(next) => prefs.setEnergy(next)}

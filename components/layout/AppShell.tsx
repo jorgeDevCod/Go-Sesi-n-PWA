@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useState, type ReactNode } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import { usePathname } from "next/navigation";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -11,6 +11,7 @@ import {
   Home,
   LogOut,
   Menu,
+  Settings2,
   SlidersHorizontal,
   Trash2,
   UserRound,
@@ -19,9 +20,9 @@ import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { AppGuideModal } from "@/components/ui/AppGuideModal";
 import { WelcomeModal } from "@/components/ui/WelcomeModal";
 import { MobileMenu } from "@/components/layout/MobileMenu";
+import { AppBackProvider } from "@/components/layout/AppBackContext";
 import { Logo } from "@/components/ui/Logo";
 import { logoutAction } from "@/features/auth/actions/logout.action";
-import { Breadcrumbs } from "@/components/layout/Breadcrumbs";
 import { usePlanningStore } from "@/features/planning/store/planning.store";
 import { PlanningManager } from "@/features/planning/components/PlanningManager";
 import { MoodModal } from "@/features/recommendation/components/MoodModal";
@@ -32,6 +33,11 @@ import { useOnboardingMachine } from "@/features/onboarding/hooks/useOnboardingM
 import { useOfflineFlush } from "@/features/offline/hooks/useOfflineFlush";
 import { ResumeSessionPrompt } from "@/features/session/components/ResumeSessionPrompt";
 import { ROUTES } from "@/lib/routes";
+import {
+  clearAppNavigationHistory,
+  recordAppPath,
+} from "@/lib/navigation-history";
+import { useAppBack } from "@/lib/use-app-back";
 import { cn } from "@/lib/utils";
 
 function SidebarLink({
@@ -64,21 +70,28 @@ function SidebarLink({
 
 export function AppShell({ userName, children }: { userName: string; children: ReactNode }) {
   const pathname = usePathname();
-  const router = useRouter();
   const isHome = pathname === ROUTES.home;
   const [menuOpen, setMenuOpen] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
+  const backOverrideRef = useRef<(() => void) | null>(null);
+  const appBack = useAppBack();
+  const handleBack = useCallback(() => {
+    if (backOverrideRef.current) {
+      backOverrideRef.current();
+      return;
+    }
+    appBack();
+  }, [appBack]);
+  const registerBackHandler = useCallback((handler: (() => void) | null) => {
+    backOverrideRef.current = handler;
+  }, []);
   // Onboarding post-login con una sola máquina de estados (mismo
   // comportamiento que el cableado disperso anterior).
   const onboarding = useOnboardingMachine();
 
-  const handleBack = useCallback(() => {
-    if (window.history.length > 1) {
-      router.back();
-    } else {
-      router.push(ROUTES.home);
-    }
-  }, [router]);
+  useEffect(() => {
+    recordAppPath(pathname);
+  }, [pathname]);
 
   useEffect(() => {
     void useSessionStore.persist.rehydrate();
@@ -95,14 +108,16 @@ export function AppShell({ userName, children }: { userName: string; children: R
       // La guarda de bienvenida es por-día ("No mostrar más hoy") y NO se
       // limpia al cerrar sesión: persiste hasta el día siguiente.
       window.sessionStorage.removeItem("gosession-categories-auto-opened");
+      clearAppNavigationHistory();
     } catch {
       // Storage unavailable.
     }
   }, []);
 
   return (
-    <div className="flex min-h-screen flex-col bg-background">
-      <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b border-border bg-background px-4 sm:px-6">
+    <AppBackProvider register={registerBackHandler}>
+      <div className="flex min-h-screen flex-col bg-background">
+        <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b border-border bg-background px-4 sm:px-6">
         <Link href={ROUTES.home} aria-label="Ir al inicio" title="Ir al inicio">
           <Logo />
         </Link>
@@ -152,6 +167,12 @@ export function AppShell({ userName, children }: { userName: string; children: R
             label="Inicio"
             active={pathname === ROUTES.home}
           />
+          <SidebarLink
+            href={ROUTES.activityView()}
+            icon={Settings2}
+            label="Actividades"
+            active={pathname === ROUTES.activityView()}
+          />
           <button
             type="button"
             onClick={() => usePlanningStore.getState().open()}
@@ -200,7 +221,6 @@ export function AppShell({ userName, children }: { userName: string; children: R
             >
               <ArrowLeft className="size-4" />
             </button>
-            <Breadcrumbs pathname={pathname} compact />
           </div>
         )}
         <main className="flex flex-1 flex-col px-4 pt-4 pb-8 sm:px-6 sm:pt-6">{children}</main>
@@ -233,6 +253,7 @@ export function AppShell({ userName, children }: { userName: string; children: R
       <MoodModal open={onboarding.showMood} userName={userName} onClose={onboarding.closeMood} />
       <TrashUndoModal />
       {!pathname.startsWith(ROUTES.session) && <ResumeSessionPrompt userName={userName} />}
-    </div>
+      </div>
+    </AppBackProvider>
   );
 }

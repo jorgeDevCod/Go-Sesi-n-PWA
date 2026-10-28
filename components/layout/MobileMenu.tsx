@@ -10,6 +10,7 @@ import {
   History,
   Home,
   LogOut,
+  Settings2,
   SlidersHorizontal,
   Trash2,
   UserRound,
@@ -18,6 +19,7 @@ import {
 import { Logo } from "@/components/ui/Logo";
 import { logoutAction } from "@/features/auth/actions/logout.action";
 import { usePlanningStore } from "@/features/planning/store/planning.store";
+import { clearAppNavigationHistory } from "@/lib/navigation-history";
 import { ROUTES } from "@/lib/routes";
 
 type MenuItem = {
@@ -55,6 +57,7 @@ export function MobileMenu({
 
   const items: MenuItem[] = [
     { label: "Inicio", icon: Home, href: ROUTES.home },
+    { label: "Actividades", icon: Settings2, href: ROUTES.activityView() },
     {
       label: "Planificación",
       icon: CalendarCheck2,
@@ -133,6 +136,7 @@ export function MobileMenu({
                 onClick={() => {
                   try {
                     window.sessionStorage.removeItem("gosession-categories-auto-opened");
+                    clearAppNavigationHistory();
                   } catch {
                     // Storage unavailable.
                   }

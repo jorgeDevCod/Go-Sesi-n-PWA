@@ -3,7 +3,8 @@ import { render, screen } from "@testing-library/react";
 import { SessionWizard } from "./SessionWizard";
 
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ back: vi.fn(), push: vi.fn() }),
+  usePathname: () => "/app/actividades",
+  useRouter: () => ({ back: vi.fn(), push: vi.fn(), replace: vi.fn() }),
 }));
 
 vi.mock("@/features/session/actions/session.actions", () => ({

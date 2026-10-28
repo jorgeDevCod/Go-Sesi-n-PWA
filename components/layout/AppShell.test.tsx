@@ -4,12 +4,13 @@ import userEvent from "@testing-library/user-event";
 import { AppShell } from "./AppShell";
 
 const mockBack = vi.fn();
+const mockReplace = vi.fn();
 
 let mockPathname = "/app/historial";
 
 vi.mock("next/navigation", () => ({
   usePathname: () => mockPathname,
-  useRouter: () => ({ back: mockBack, push: vi.fn() }),
+  useRouter: () => ({ back: mockBack, push: vi.fn(), replace: mockReplace }),
 }));
 
 vi.mock("@/components/ui/ThemeToggle", () => ({
@@ -63,6 +64,7 @@ import { usePlanningStore } from "@/features/planning/store/planning.store";
 describe("AppShell", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    window.sessionStorage.clear();
     usePlanningStore.setState({ isOpen: false, isPromptOpen: false, context: null, planVersion: 0 });
   });
 
@@ -112,7 +114,31 @@ describe("AppShell", () => {
     expect(mockBack).toHaveBeenCalledTimes(1);
   });
 
-  it("muestra la navegación lateral de escritorio sin Actividades", () => {
+  it("vuelve a la vista anterior registrada si no hay historial del navegador", async () => {
+    Object.defineProperty(window, "history", {
+      value: { length: 1 },
+      writable: true,
+    });
+    mockPathname = "/app/inicio";
+    const user = userEvent.setup();
+    const { rerender } = render(
+      <AppShell userName="Test">
+        <p>inicio</p>
+      </AppShell>,
+    );
+
+    mockPathname = "/app/actividades";
+    rerender(
+      <AppShell userName="Test">
+        <p>actividades</p>
+      </AppShell>,
+    );
+
+    await user.click(screen.getAllByLabelText("Volver")[0]);
+    expect(mockReplace).toHaveBeenCalledWith("/app/inicio");
+  });
+
+  it("muestra Actividades en la navegación lateral", () => {
     mockPathname = "/app/historial";
     render(
       <AppShell userName="Test">
@@ -122,7 +148,10 @@ describe("AppShell", () => {
     expect(
       screen.getByRole("navigation", { name: "Navegación principal" }),
     ).toBeInTheDocument();
-    expect(screen.queryByRole("link", { name: "Actividades" })).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Actividades" })).toHaveAttribute(
+      "href",
+      "/app/actividades",
+    );
   });
 
   it("opens the planning modal from the sidebar", async () => {
