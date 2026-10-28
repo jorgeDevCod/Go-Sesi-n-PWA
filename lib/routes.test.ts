@@ -23,6 +23,7 @@ describe("rutas canónicas", () => {
     expect(ROUTES.sessionNew("cat-1", "sub-1")).toBe(
       "/app/sesion/nueva?categoria=cat-1&actividad=sub-1",
     );
+    expect(ROUTES.sessionFinished("ses-1")).toBe("/app/sesion/finalizada/ses-1");
   });
 
   it("mantiene las rutas de auth actuales", () => {

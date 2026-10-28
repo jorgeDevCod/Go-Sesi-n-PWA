@@ -80,19 +80,20 @@ export function RecommendationsTab({
   }
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-6">
       {/* Header */}
-      <div className="text-center">
-        <h2 className="font-display text-base font-bold text-foreground py-4">Personaliza tus recomendaciones, a tu gusto</h2>
-        <p className="mx-auto mt-2 max-w-3xl text-sm leading-relaxed text-pretty text-muted-foreground">
-          Ajusta tu dificultad y energía para recibir recomendaciones adaptadas a tu ritmo y
-          energía.
+      <div className="text-start">
+        <h2 className="font-display text-base font-bold text-foreground">
+          Ajusta tus recomendaciones
+        </h2>
+        <p className="mt-1 max-w-3xl text-sm leading-relaxed text-pretty text-muted-foreground">
+          Elige tu energía y la dificultad; después marca las actividades que quieres recibir.
         </p>
       </div>
 
       {/* Energy selector */}
       <div>
-        <p className="mb-4 text-sm font-medium text-foreground">Elige el nivel de energía</p>
+        <p className="mb-2 text-sm font-medium text-foreground">¿Cómo estás de energía?</p>
         <div className="grid grid-cols-3 gap-2">
           {ENERGY_OPTIONS.map(({ level, icon: Icon }) => {
             const active = energy === level;
@@ -115,7 +116,7 @@ export function RecommendationsTab({
       {/* Difficulty selector */}
       <div>
         <p className="mb-2 text-sm font-medium text-foreground">
-          Define la dificultad de tus actividades
+          Dificultad de las recomendaciones
         </p>
         <div className="grid grid-cols-3 gap-2">
           {COMPLEXITY_LEVELS.map((c) => {
@@ -134,12 +135,13 @@ export function RecommendationsTab({
       </div>
       {/* Categories + Activities accordion */}
       <div>
-        <p className="mb-4 ms-2 text-md font-medium text-foreground">
-          ¿Qué actividades quieres recomendar para estos niveles?
+        <p className="mb-2 text-sm font-medium text-foreground">
+          Actividades que quieres ver
         </p>
-        <p className="mb-6 ms-2 text-sm leading-relaxed text-muted-foreground text-start">
-          Abre una categoría y marca las actividades a recomendar segun tu energia:{" "}
-          {ENERGY_NAMES[energy].toLowerCase()} y Dificultad: {COMPLEXITY_LABELS[difficulty].toLowerCase()}.
+        <p className="mb-3 text-sm leading-relaxed text-muted-foreground">
+          Abre una categoría y marca las que quieres recibir con energía{" "}
+          {ENERGY_NAMES[energy].toLowerCase()} y dificultad{" "}
+          {COMPLEXITY_LABELS[difficulty].toLowerCase()}.
         </p>
         {categories.length === 0 ? (
           <p className="text-sm text-muted-foreground">No hay categorías aún.</p>
@@ -218,9 +220,9 @@ export function RecommendationsTab({
       {/* Active combos */}
       {activeCombos.length > 0 && (
         <div>
-          <h3 className="mb-3 text-sm font-semibold text-foreground">
+          <h3 className="mb-2 text-sm font-semibold text-foreground">
             <Sparkles className="mr-1 inline size-3.5 text-accent-aprender" />
-            Combinaciones configuradas
+            Tus combinaciones
           </h3>
           <div className="flex flex-col gap-2">
             {activeCombos.map(([key, c]) => {

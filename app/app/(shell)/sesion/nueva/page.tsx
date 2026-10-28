@@ -60,7 +60,7 @@ export default async function NewSessionPage({
   }
 
   return (
-    <div className="mx-auto w-full max-w-5xl py-4 sm:py-8">
+    <div className="mx-auto w-full max-w-5xl pb-4 sm:pb-8">
       <SessionWizard
         categoryName={category.name}
         startWithId={activityParam}

@@ -1,7 +1,11 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { useSessionStore, SESSION_STORAGE_KEY } from "@/features/session/store/session.store";
+import {
+  readPersistedSession,
+  useSessionStore,
+  SESSION_STORAGE_KEY,
+} from "@/features/session/store/session.store";
 import { getActiveSessionAction } from "@/features/session/actions/session.actions";
 import type { SessionDTO } from "@/services/session/session.dto";
 
@@ -20,7 +24,17 @@ export function useActiveSession(initialSession?: SessionDTO | null) {
   useEffect(() => {
     if (!rehydratedRef.current) {
       rehydratedRef.current = true;
-      if (initialSession) setSession(initialSession);
+      if (initialSession) {
+        // Una vista cacheada puede traer la sesión como ACTIVE después de
+        // finalizarla. La copia terminal persistida manda para no reabrir el
+        // cronómetro con el tiempo restante.
+        const persisted = readPersistedSession();
+        const terminal =
+          persisted?.id === initialSession.id && persisted.status !== "ACTIVE"
+            ? persisted
+            : null;
+        setSession(terminal ?? initialSession);
+      }
       void useSessionStore.persist.rehydrate();
     }
     // Seeding only ever happens once, on mount-initialSession/setSession

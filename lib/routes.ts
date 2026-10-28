@@ -42,6 +42,7 @@ export const ROUTES = {
     return `/app/sesion/nueva${query ? `?${query}` : ""}`;
   },
   session: "/app/sesion",
+  sessionFinished: (id: string) => `/app/sesion/finalizada/${encodeURIComponent(id)}`,
 } as const;
 
 /** Rutas antiguas que se mantienen con redirección durante la migración. */

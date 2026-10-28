@@ -35,7 +35,7 @@ export default async function RecommendPage() {
   }));
 
   return (
-    <div className="mx-auto w-full max-w-3xl py-8">
+    <div className="mx-auto w-full max-w-3xl pb-8">
       <RecommendationScreen
         allSubcategories={allSubcategories}
         categories={categories.map((c) => ({

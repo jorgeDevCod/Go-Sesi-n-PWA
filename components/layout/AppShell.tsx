@@ -210,20 +210,27 @@ export function AppShell({ userName, children }: { userName: string; children: R
       </aside>
 
       <div className="flex flex-1 flex-col min-[1030px]:pl-60">
-        {!isHome && (
-          <div className="flex items-center gap-2 border-b border-border px-4 py-2 sm:px-6">
-            <button
-              type="button"
-              onClick={handleBack}
-              aria-label="Volver"
-              title="Volver"
-              className="flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-full text-foreground transition-colors duration-200 hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender"
-            >
-              <ArrowLeft className="size-4" />
-            </button>
-          </div>
-        )}
-        <main className="flex flex-1 flex-col px-4 pt-4 pb-8 sm:px-6 sm:pt-6">{children}</main>
+        <main
+          className={cn(
+            "flex flex-1 flex-col px-4 pb-8 sm:px-6",
+            isHome ? "pt-4 sm:pt-6" : "pt-1",
+          )}
+        >
+          {!isHome && (
+            <div className="mb-1 flex items-center">
+              <button
+                type="button"
+                onClick={handleBack}
+                aria-label="Volver"
+                title="Volver"
+                className="flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-full text-foreground transition-colors duration-200 hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender"
+              >
+                <ArrowLeft className="size-4" />
+              </button>
+            </div>
+          )}
+          {children}
+        </main>
       </div>
 
       <PlanningManager />

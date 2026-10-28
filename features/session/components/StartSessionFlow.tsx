@@ -430,6 +430,36 @@ export function StartSessionFlow({
                       suggestedMinutes={defaultMinutes}
                       onEdit={(next) => setEditingMinutes(next)}
                     />
+                    <div className="mt-4 border-t border-border pt-3">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <div>
+                          <p className="text-xs font-semibold text-foreground">Cuenta regresiva</p>
+                          <p className="text-[11px] text-muted-foreground">
+                            Tiempo para prepararte antes de empezar.
+                          </p>
+                        </div>
+                        <span className="rounded-full bg-surface-muted px-2.5 py-1 text-[11px] font-medium text-foreground">
+                          {countdownLabel}
+                        </span>
+                      </div>
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {COUNTDOWN_OPTIONS.map((seconds) => (
+                          <button
+                            key={seconds}
+                            type="button"
+                            onClick={() => handleCountdownChange(seconds)}
+                            aria-pressed={countdownSeconds === seconds}
+                            className={`cursor-pointer rounded-full border px-2.5 py-1 text-[11px] font-medium transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender ${
+                              countdownSeconds === seconds
+                                ? "border-accent-aprender bg-accent-aprender/10 text-accent-aprender"
+                                : "border-border bg-surface text-muted-foreground hover:bg-surface-hover"
+                            }`}
+                          >
+                            {seconds === 0 ? "Sin cuenta" : `${seconds}s`}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
                   </section>
                 ) : (
                   <section className="rounded-3xl border border-border bg-surface p-4 shadow-sm sm:p-5">
@@ -527,40 +557,6 @@ export function StartSessionFlow({
                   <p className="text-center text-[11px] text-muted-foreground">
                     Podrás pausar o terminar la sesión cuando quieras.
                   </p>
-                  {mode === "CLASSIC" && (
-                    <div className="rounded-2xl border border-border bg-surface p-4 shadow-sm">
-                      <div className="flex items-start justify-between gap-3">
-                        <div>
-                          <p className="text-xs font-semibold text-foreground">
-                            Cuenta regresiva
-                          </p>
-                          <p className="mt-0.5 text-[11px] leading-relaxed text-muted-foreground">
-                            Un momento para prepararte antes de empezar.
-                          </p>
-                        </div>
-                        <span className="shrink-0 rounded-full bg-surface-muted px-2.5 py-1 text-[11px] font-medium text-foreground">
-                          {countdownLabel}
-                        </span>
-                      </div>
-                      <div className="mt-3 flex flex-wrap gap-2">
-                        {COUNTDOWN_OPTIONS.map((seconds) => (
-                          <button
-                            key={seconds}
-                            type="button"
-                            onClick={() => handleCountdownChange(seconds)}
-                            aria-pressed={countdownSeconds === seconds}
-                            className={`cursor-pointer rounded-full border px-2.5 py-1 text-[11px] font-medium transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender ${
-                              countdownSeconds === seconds
-                                ? "border-accent-aprender bg-accent-aprender/10 text-accent-aprender"
-                                : "border-border bg-surface text-muted-foreground hover:bg-surface-hover"
-                            }`}
-                          >
-                            {seconds === 0 ? "Sin cuenta" : `${seconds}s`}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
                   {error && (
                     <p className="text-center text-sm text-red-500" role="alert">
                       {error}
@@ -595,12 +591,6 @@ export function StartSessionFlow({
                       <dt className="text-muted-foreground">Modo</dt>
                       <dd className="text-right font-medium text-foreground">{modeLabel}</dd>
                     </div>
-                    {mode === "CLASSIC" && (
-                      <div className="flex items-center justify-between gap-3 py-3">
-                        <dt className="text-muted-foreground">Cuenta regresiva</dt>
-                        <dd className="text-right font-medium text-foreground">{countdownLabel}</dd>
-                      </div>
-                    )}
                   </dl>
                 </section>
 

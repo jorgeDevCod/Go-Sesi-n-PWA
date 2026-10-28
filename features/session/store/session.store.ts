@@ -11,6 +11,19 @@ type SessionStoreState = {
 
 export const SESSION_STORAGE_KEY = "gosession-active-session";
 
+/** Lee la sesión persistida sin esperar a la rehidratación de Zustand. */
+export function readPersistedSession(): SessionDTO | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.localStorage.getItem(SESSION_STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as { state?: { session?: SessionDTO | null } };
+    return parsed.state?.session ?? null;
+  } catch {
+    return null;
+  }
+}
+
 export const useSessionStore = create<SessionStoreState>()(
   persist(
     (set) => ({
