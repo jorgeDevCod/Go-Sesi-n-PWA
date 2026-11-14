@@ -24,6 +24,7 @@ export const activityPomodoroSchema = z.object({
   autoStart: z.boolean(),
   longBreakMin: z.number().int().min(0).max(90).optional(),
   skipBreaks: z.boolean().optional(),
+  skipLastBreak: z.boolean().optional(),
 });
 
 export const createSubcategorySchema = z.object({

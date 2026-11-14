@@ -20,29 +20,13 @@ describe("onboarding machine", () => {
     expect(r.effects).toEqual(["close-welcome", "go-recommend"]);
   });
 
-  it("START con ánimo pendiente abre mood y luego va a Home", () => {
-    const mood = nextOnboardingState(ONBOARDING_INITIAL, {
-      type: "START",
-      needsMood: true,
-    });
-    expect(mood.state.step).toBe("mood");
-    expect(mood.effects).toEqual(["close-welcome", "show-categories", "open-mood"]);
-
-    const done = nextOnboardingState(mood.state, { type: "MOOD_DONE" });
-    expect(done.state.step).toBe("done");
-    expect(done.effects).toEqual(["expand-categories", "go-home"]);
-  });
-
-  it("START sin ánimo pendiente va directo a Home", () => {
-    const r = nextOnboardingState(ONBOARDING_INITIAL, {
-      type: "START",
-      needsMood: false,
-    });
+  it("START cierra y va directo a Home", () => {
+    const r = nextOnboardingState(ONBOARDING_INITIAL, { type: "START" });
     expect(r.state.step).toBe("done");
-    expect(r.effects).toEqual(["close-welcome", "show-categories", "go-home"]);
+    expect(r.effects).toEqual(["close-welcome", "go-home"]);
   });
 
   it("ignora eventos fuera de estado", () => {
-    expect(nextOnboardingState({ step: "done" }, { type: "MOOD_DONE" }).effects).toEqual([]);
+    expect(nextOnboardingState({ step: "done" }, { type: "START" }).effects).toEqual([]);
   });
 });

@@ -9,6 +9,8 @@ import {
 } from "@/repositories/subcategory.repository";
 import { SubcategoryNotOwnedError } from "./session.errors";
 import { toSessionDTO } from "./session.dto";
+import { endSession } from "./end-session.util";
+import { isSessionExpired } from "./session-expiry";
 import type { PomodoroConfig } from "./pomodoro";
 
 type SessionMode = "CLASSIC" | "POMODORO";
@@ -50,7 +52,9 @@ function resolvePomodoroConfig(
         pomodoroConfig.longBreakMin < 0 ||
         pomodoroConfig.longBreakMin > 90)) ||
     (pomodoroConfig.skipBreaks !== undefined &&
-      typeof pomodoroConfig.skipBreaks !== "boolean")
+      typeof pomodoroConfig.skipBreaks !== "boolean") ||
+    (pomodoroConfig.skipLastBreak !== undefined &&
+      typeof pomodoroConfig.skipLastBreak !== "boolean")
   ) {
     throw new InvalidPomodoroConfigError();
   }
@@ -66,7 +70,14 @@ export async function startSessionForUser({
 }: StartSessionInput) {
   const existing = await findActiveByUserId(userId);
   if (existing) {
-    return { session: toSessionDTO(existing), reused: true as const };
+    const nowMs = Date.now();
+    const existingDto = toSessionDTO(existing, nowMs);
+    if (!isSessionExpired(existingDto, nowMs)) {
+      return { session: existingDto, reused: true as const };
+    }
+    // Una sesión vieja que ya cumplió su tiempo no debe reaparecer al iniciar
+    // otra actividad. Se guarda como completada y se crea la nueva.
+    await endSession(existing, "COMPLETED", nowMs);
   }
 
   const subcategory = await findSubcategoryById(subcategoryId);

@@ -9,6 +9,34 @@ export function findActiveByUserId(userId: string) {
   });
 }
 
+export function listActiveSessions() {
+  return prisma.focusSession.findMany({
+    where: { status: "ACTIVE" },
+    include: { subcategory: { include: { category: true } } },
+  });
+}
+
+export function listRecentTerminalSessions(endedAfter: Date) {
+  return prisma.focusSession.findMany({
+    where: {
+      status: { in: ["COMPLETED", "INTERRUPTED"] },
+      endedAt: { gte: endedAfter },
+      completionNotifiedAt: null,
+    },
+    include: { subcategory: { include: { category: true } } },
+  });
+}
+
+export function updateSessionNotificationState(
+  id: string,
+  data: {
+    lastNotifiedPhaseKey?: string | null;
+    completionNotifiedAt?: Date | null;
+  },
+) {
+  return prisma.focusSession.update({ where: { id }, data });
+}
+
 export function listSessionsForUser(userId: string) {
   return prisma.focusSession.findMany({
     where: { userId, status: { in: ["COMPLETED", "INTERRUPTED"] } },

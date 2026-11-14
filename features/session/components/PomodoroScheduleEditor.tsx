@@ -136,6 +136,7 @@ export function PomodoroScheduleEditor({
 }) {
   const longBreakMin = config.longBreakMin ?? 0;
   const skipBreaks = config.skipBreaks ?? false;
+  const skipLastBreak = config.skipLastBreak ?? false;
 
   return (
     <div className="flex flex-col gap-4">
@@ -179,6 +180,11 @@ export function PomodoroScheduleEditor({
           label="Encadenar sin descansos"
           checked={skipBreaks}
           onChange={(value) => onChange({ ...config, skipBreaks: value })}
+        />
+        <Toggle
+          label="Saltar último descanso"
+          checked={skipLastBreak}
+          onChange={(value) => onChange({ ...config, skipLastBreak: value })}
         />
       </div>
 

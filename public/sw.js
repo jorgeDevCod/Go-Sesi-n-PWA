@@ -27,7 +27,14 @@ self.addEventListener("push", (event) => {
     self.registration.showNotification(title, {
       body: payload.body || "Tu espacio de enfoque te espera.",
       icon: "/icons/192",
-      data: { action: "open", sessionId: payload.sessionId },
+      badge: "/icons/192",
+      tag: payload.tag,
+      data: payload.data || { action: "open", sessionId: payload.sessionId },
+      silent: payload.silent === true,
+      renotify: payload.renotify === true,
+      requireInteraction: payload.requireInteraction === true,
+      actions: payload.actions,
+      vibrate: payload.silent === true ? undefined : [200, 100, 200],
     }),
   );
 });
@@ -42,11 +49,10 @@ self.addEventListener("notificationclick", (event) => {
   const action = event.action ?? data.action ?? "open";
 
   const url =
-    action === "finish"
+    data.url ||
+    (action === "finish" || action === "view" || action === "phase" || action === "live"
       ? "/app/sesion"
-      : action === "view"
-        ? "/app/sesion"
-        : "/app/inicio";
+      : "/app/inicio");
 
   event.waitUntil(
     self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((clients) => {

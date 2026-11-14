@@ -12,7 +12,7 @@ describe("PushSettings", () => {
   it("sin clave VAPID muestra nota informativa sin romper", () => {
     render(<PushSettings />);
     expect(
-      screen.getByText("Notificaciones no configuradas en este entorno."),
+      screen.getByText("Notificaciones en la app instalada"),
     ).toBeInTheDocument();
     expect(
       screen.queryByRole("button", { name: "Activar notificaciones" }),

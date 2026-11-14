@@ -62,6 +62,12 @@ describe("pomodoro core", () => {
     expect(pomodoroPlannedMinutes({ ...config, skipBreaks: true })).toBe(50);
   });
 
+  it("skipLastBreak omite el descanso largo final", () => {
+    const withLong = { ...config, longBreakMin: 15, skipLastBreak: true };
+    expect(pomodoroPlannedMinutes(withLong)).toBe(55);
+    expect(derivePomodoroView(50 * MIN + 5 * MIN, withLong).phase).toBe("done");
+  });
+
   it("config legacy (sin campos nuevos) sigue funcionando", () => {
     const legacy = { focusMin: 25, breakMin: 5, cycles: 2, autoStart: false };
     const view = derivePomodoroView(25 * MIN, legacy);

@@ -25,3 +25,10 @@ export class SessionNotExtendableError extends Error {
     this.name = "SessionNotExtendableError";
   }
 }
+
+export class SessionNotSkippableError extends Error {
+  constructor() {
+    super("Esta sesión no permite saltar fases.");
+    this.name = "SessionNotSkippableError";
+  }
+}

@@ -4,15 +4,17 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
-import { Play, AlertCircle } from "lucide-react";
+import { AlertCircle, Check, Play } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { useSessionStore } from "@/features/session/store/session.store";
 import { deriveTimerView } from "@/features/session/timer-view";
 import { ROUTES } from "@/lib/routes";
 import {
+  completeSessionAction,
   getActiveSessionAction,
   interruptSessionAction,
 } from "@/features/session/actions/session.actions";
+import { isSessionExpired } from "@/services/session/session-expiry";
 
 const DISMISSED_KEY = "gosession-resume-dismissed-for";
 
@@ -58,6 +60,8 @@ export function ResumeSessionPrompt({ userName }: { userName: string }) {
 
   if (!activeSession) return null;
 
+  const expired = isSessionExpired(activeSession);
+
   try {
     if (window.localStorage.getItem(getDismissedKey(activeSession.id)) === "1") {
       return null;
@@ -76,6 +80,22 @@ export function ResumeSessionPrompt({ userName }: { userName: string }) {
 
   function handleContinue() {
     router.push(ROUTES.session);
+  }
+
+  async function handleFinishExpired() {
+    if (!activeSession) return;
+    setIsIgnoring(true);
+    const result = await completeSessionAction({ id: activeSession.id });
+    if (result.success) {
+      clearSession();
+    }
+    try {
+      window.localStorage.setItem(getDismissedKey(activeSession.id), "1");
+    } catch {
+      // Storage unavailable.
+    }
+    setDismissed(true);
+    setIsIgnoring(false);
   }
 
   async function handleIgnore() {
@@ -120,31 +140,56 @@ export function ResumeSessionPrompt({ userName }: { userName: string }) {
             </span>
             <div>
               <h2 className="font-display text-lg font-semibold text-foreground">
-                Parece que dejaste una sesión sin terminar, {userName}
+                {expired
+                  ? "Tu sesión anterior ya terminó"
+                  : `Parece que dejaste una sesión sin terminar, ${userName}`}
               </h2>
               <p className="mt-1 text-sm text-muted-foreground">
-                Estabas en{" "}
-                <span className="font-semibold text-foreground">
-                  {activeSession.subcategoryName}
-                </span>{" "}
-                y aún te quedan{" "}
-                <span className="font-semibold text-foreground">{remainingText}</span>.
+                {expired ? (
+                  <>
+                    La sesión de{" "}
+                    <span className="font-semibold text-foreground">
+                      {activeSession.subcategoryName}
+                    </span>{" "}
+                    cumplió su tiempo. Guárdala o descártala para empezar limpio.
+                  </>
+                ) : (
+                  <>
+                    Estabas en{" "}
+                    <span className="font-semibold text-foreground">
+                      {activeSession.subcategoryName}
+                    </span>{" "}
+                    y aún te quedan{" "}
+                    <span className="font-semibold text-foreground">{remainingText}</span>.
+                  </>
+                )}
               </p>
             </div>
           </div>
 
           <div className="flex flex-col gap-3">
-            <Button onClick={handleContinue} className="w-full gap-2">
-              <Play className="size-4 fill-current" />
-              Continuar donde la dejé
-            </Button>
+            {expired ? (
+              <Button onClick={handleFinishExpired} disabled={isIgnoring} className="w-full gap-2">
+                <Check className="size-4" />
+                {isIgnoring ? "Guardando..." : "Guardar y finalizar"}
+              </Button>
+            ) : (
+              <Button onClick={handleContinue} className="w-full gap-2">
+                <Play className="size-4 fill-current" />
+                Continuar donde la dejé
+              </Button>
+            )}
             <Button
               variant="ghost"
               onClick={handleIgnore}
               disabled={isIgnoring}
               className="w-full"
             >
-              {isIgnoring ? "Ignorando..." : "Ignorar esta actividad"}
+              {isIgnoring
+                ? "Procesando..."
+                : expired
+                  ? "Descartar esta sesión"
+                  : "Finalizar y guardar"}
             </Button>
           </div>
         </motion.div>

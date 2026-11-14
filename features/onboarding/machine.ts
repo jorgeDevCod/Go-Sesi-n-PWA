@@ -2,26 +2,22 @@
  * Máquina de estados del onboarding post-login.
  *
  * welcome → (personalizar | planificar | recomendaciones | vamos ya)
- * Si "Vamos Ya" no tiene ánimo respondido, pasa por mood y termina en Home.
+ * El modal de energía se muestra desde Home cuando corresponde.
  */
 
-export type OnboardingStep = "welcome" | "mood" | "done";
+export type OnboardingStep = "welcome" | "done";
 
 export type OnboardingEvent =
   | { type: "PERSONALIZE" }
   | { type: "PLAN" }
   | { type: "RECOMMEND" }
-  | { type: "START"; needsMood: boolean }
-  | { type: "MOOD_DONE" };
+  | { type: "START" };
 
 export type OnboardingEffect =
   | "close-welcome"
   | "open-planning"
   | "go-routine"
   | "go-recommend"
-  | "show-categories"
-  | "open-mood"
-  | "expand-categories"
   | "go-home";
 
 export type OnboardingState = {
@@ -44,23 +40,10 @@ export function nextOnboardingState(
         case "RECOMMEND":
           return { state: { step: "done" }, effects: ["close-welcome", "go-recommend"] };
         case "START":
-          return event.needsMood
-            ? {
-                state: { step: "mood" },
-                effects: ["close-welcome", "show-categories", "open-mood"],
-              }
-            : {
-                state: { step: "done" },
-                effects: ["close-welcome", "show-categories", "go-home"],
-              };
+          return { state: { step: "done" }, effects: ["close-welcome", "go-home"] };
         default:
           return { state, effects: [] };
       }
-    case "mood":
-      if (event.type === "MOOD_DONE") {
-        return { state: { step: "done" }, effects: ["expand-categories", "go-home"] };
-      }
-      return { state, effects: [] };
     case "done":
       return { state, effects: [] };
   }

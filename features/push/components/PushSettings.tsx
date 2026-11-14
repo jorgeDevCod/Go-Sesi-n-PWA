@@ -3,6 +3,7 @@
 import { useEffect, useState, useTransition } from "react";
 import { Bell, BellOff } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { useIsStandalonePwa } from "@/lib/use-pwa-standalone";
 import {
   removePushSubscriptionAction,
   savePushSubscriptionAction,
@@ -32,6 +33,7 @@ async function currentSubscription(): Promise<PushSubscription | null> {
  * muestra nota informativa en vez de romper.
  */
 export function PushSettings() {
+  const isStandalone = useIsStandalonePwa();
   const [isPending, startTransition] = useTransition();
   const [endpoint, setEndpoint] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
@@ -47,6 +49,25 @@ export function PushSettings() {
       }
     })();
   }, []);
+
+  if (!isStandalone) {
+    return (
+      <div className="flex flex-col gap-3 rounded-2xl border border-border bg-surface p-5">
+        <div className="flex items-start gap-3">
+          <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-accent-aprender/10 text-accent-aprender">
+            <BellOff className="size-5" />
+          </span>
+          <div className="flex min-w-0 flex-col gap-1 text-left">
+            <p className="font-medium text-foreground">Notificaciones en la app instalada</p>
+            <p className="text-sm leading-relaxed text-muted-foreground">
+              Instala Go Sesión como PWA para recibir avisos y recordatorios. En el navegador
+              seguirás teniendo alertas y sonidos dentro de la app.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (!PUBLIC_KEY) {
     return (

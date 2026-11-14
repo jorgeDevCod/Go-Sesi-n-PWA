@@ -16,6 +16,8 @@ export type SessionDTO = {
   pausedAtMs: number | null;
   extendedCount: number;
   extendedMinutes: number;
+  skippedFocusMs: number;
+  skippedBreakMs: number;
   mode: "CLASSIC" | "POMODORO";
   /** Config validada o null (nunca rompe la UI con JSON corrupto). */
   pomodoroConfig: PomodoroConfig | null;
@@ -50,6 +52,7 @@ export function parsePomodoroConfig(value: unknown): PomodoroConfig | null {
     // Campos opcionales (configurations antiguas no los traen).
     longBreakMin: Number.isInteger(v.longBreakMin) ? (v.longBreakMin as number) : 0,
     skipBreaks: v.skipBreaks === true,
+    skipLastBreak: v.skipLastBreak === true,
   };
 }
 
@@ -68,6 +71,8 @@ export function toSessionDTO(
     pausedAtMs: session.pausedAt ? session.pausedAt.getTime() : null,
     extendedCount: session.extendedCount,
     extendedMinutes: session.extendedMinutes,
+    skippedFocusMs: session.skippedFocusMs,
+    skippedBreakMs: session.skippedBreakMs,
     mode: session.mode,
     pomodoroConfig: session.mode === "POMODORO" ? parsePomodoroConfig(session.pomodoroConfig) : null,
     subcategoryId: session.subcategoryId,

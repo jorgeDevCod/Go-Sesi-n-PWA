@@ -12,6 +12,7 @@ import { resumeSessionForUser } from "@/services/session/resume-session.service"
 import { completeSessionForUser } from "@/services/session/complete-session.service";
 import { interruptSessionForUser } from "@/services/session/interrupt-session.service";
 import { extendSessionForUser } from "@/services/session/extend-session.service";
+import { skipPomodoroPhaseForUser } from "@/services/session/skip-pomodoro-phase.service";
 import { getActiveSessionForUser } from "@/services/session/get-active-session.service";
 import { deleteSessionHistoryForUser } from "@/services/session/delete-session-history.service";
 import type { SessionDTO } from "@/services/session/session.dto";
@@ -102,6 +103,19 @@ export async function interruptSessionAction(input: unknown): Promise<SessionAct
   try {
     const userId = await requireUserId();
     const session = await interruptSessionForUser(parsed.data.id, userId);
+    return { success: true, session };
+  } catch (error) {
+    return toErrorResult(error);
+  }
+}
+
+export async function skipPomodoroPhaseAction(input: unknown): Promise<SessionActionResult> {
+  const parsed = sessionIdSchema.safeParse(input);
+  if (!parsed.success) return { success: false, error: "Datos inválidos." };
+
+  try {
+    const userId = await requireUserId();
+    const session = await skipPomodoroPhaseForUser(parsed.data.id, userId);
     return { success: true, session };
   } catch (error) {
     return toErrorResult(error);

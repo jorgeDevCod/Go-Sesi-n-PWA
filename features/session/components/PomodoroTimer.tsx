@@ -6,20 +6,19 @@ import { CircularProgress } from "@/features/session/components/CircularProgress
 import { DynamicIcon } from "@/components/ui/DynamicIcon";
 import { Button } from "@/components/ui/Button";
 import { InfoModal } from "@/components/ui/InfoModal";
-import { Pause, Play } from "lucide-react";
+import { Pause, Play, SkipForward } from "lucide-react";
 import { formatRemaining } from "@/features/session/timer-view";
-import { derivePomodoroView } from "@/services/session/pomodoro";
-import { completeSessionAction } from "@/features/session/actions/session.actions";
-import { useSessionStore } from "@/features/session/store/session.store";
+import { derivePomodoroView, pomodoroSkippedMs } from "@/services/session/pomodoro";
 import {
-  playBreakWarning,
-  playFocusEndAlarm,
-  playSoftStartSound,
-} from "@/features/session/session-sound";
+  completeSessionAction,
+  skipPomodoroPhaseAction,
+} from "@/features/session/actions/session.actions";
+import { useSessionStore } from "@/features/session/store/session.store";
+import { playSessionSound } from "@/features/session/sound-manager";
 import type { SessionDTO } from "@/services/session/session.dto";
 
-/** Margen del pre-aviso: el viento empieza antes de que el descanso acabe. */
-const WARNING_LEAD_MS = 6_000;
+/** Margen del pre-aviso antes de que termine el descanso. */
+const WARNING_LEAD_MS = 5_000;
 /** Duración del aviso "¡Iniciemos!". */
 const CUE_MS = 3_000;
 
@@ -52,12 +51,12 @@ export function PomodoroTimer({
   const setSession = useSessionStore((s) => s.setSession);
   const [nowMs, setNowMs] = useState(() => session.serverNowMs);
   const [, startTransition] = useTransition();
+  const [isSkipping, startSkipTransition] = useTransition();
   const [prompt, setPrompt] = useState<{ title: string; message: string } | null>(null);
   const [cue, setCue] = useState<string | null>(null);
   const lastPhaseKey = useRef<string | null>(null);
   const warnedPhaseKey = useRef<string | null>(null);
   const completingForId = useRef<string | null>(null);
-  const alarmStopRef = useRef<(() => void) | null>(null);
   const cueTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   function showCue(message: string) {
@@ -74,7 +73,11 @@ export function PomodoroTimer({
       0,
       referenceNow - session.startedAtMs - session.pausedMs,
     );
-    return derivePomodoroView(elapsedMs, config, session.extendedMinutes * 60_000);
+    return derivePomodoroView(
+      elapsedMs + pomodoroSkippedMs(session),
+      config,
+      session.extendedMinutes * 60_000,
+    );
   }
 
   // El aviso de fase vive en el callback del intervalo (contexto de evento),
@@ -89,16 +92,14 @@ export function PomodoroTimer({
       if (!next) return;
       const key = `${next.phase}:${next.cycleIndex}:${next.isLongBreak}:${session.id}`;
 
-      // Pre-aviso: a pocos segundos de terminar el descanso, el viento
-      // empieza y sigue sonando hasta que llega a 0.
+      // Aviso cuando faltan pocos segundos para volver al enfoque.
       if (
         next.phase === "break" &&
         next.phaseRemainingMs <= WARNING_LEAD_MS &&
         warnedPhaseKey.current !== key
       ) {
         warnedPhaseKey.current = key;
-        alarmStopRef.current?.();
-        alarmStopRef.current = playBreakWarning(Math.ceil(next.phaseRemainingMs / 1000) + 1);
+        playSessionSound("break-ending");
       }
 
       if (lastPhaseKey.current === null) {
@@ -109,15 +110,10 @@ export function PomodoroTimer({
       const previousKey = lastPhaseKey.current;
       lastPhaseKey.current = key;
 
-      // Al terminar el foco (o al encadenar ciclos): alarma de 8s.
       if (previousKey.startsWith("focus")) {
-        alarmStopRef.current?.();
-        alarmStopRef.current = playFocusEndAlarm(8);
+        playSessionSound("focus-complete");
       } else {
-        // El descanso terminó: el foco reinicia solo con el aviso "¡Iniciemos!".
-        alarmStopRef.current?.();
-        alarmStopRef.current = null;
-        playSoftStartSound();
+        playSessionSound("break-complete");
         showCue("¡Iniciemos!");
       }
 
@@ -142,8 +138,6 @@ export function PomodoroTimer({
     }, 1000);
     return () => {
       clearInterval(interval);
-      alarmStopRef.current?.();
-      alarmStopRef.current = null;
       if (cueTimerRef.current) clearTimeout(cueTimerRef.current);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -161,7 +155,11 @@ export function PomodoroTimer({
     if (!config) return null;
     const referenceNow = session.pausedAtMs ?? nowMs + skewMs;
     const elapsedMs = Math.max(0, referenceNow - session.startedAtMs - session.pausedMs);
-    return derivePomodoroView(elapsedMs, config, session.extendedMinutes * 60_000);
+    return derivePomodoroView(
+      elapsedMs + pomodoroSkippedMs(session),
+      config,
+      session.extendedMinutes * 60_000,
+    );
   }, [config, session, nowMs, skewMs]);
 
   function handleFinish() {
@@ -174,6 +172,18 @@ export function PomodoroTimer({
     onFinish();
   }
 
+  function handleSkip() {
+    startSkipTransition(async () => {
+      const result = await skipPomodoroPhaseAction({ id: session.id });
+      if (result.success) {
+        setSession(result.session);
+        if (result.session.status === "ACTIVE") {
+          showCue(view?.phase === "focus" ? "Descanso" : "Enfoque");
+        }
+      }
+    });
+  }
+
   if (!config || !view) return null;
 
   const isPaused = session.pausedAtMs !== null;
@@ -181,6 +191,12 @@ export function PomodoroTimer({
   const ringColor = isPaused ? "#F59E0B" : color;
   const phaseTotalMs = view.phaseElapsedMs + view.phaseRemainingMs;
   const progressRatio = phaseTotalMs > 0 ? 1 - view.phaseRemainingMs / phaseTotalMs : 0;
+  const skipLabel =
+    view.phase === "focus"
+      ? "Saltar foco"
+      : view.isLongBreak
+        ? "Saltar descanso final"
+        : "Saltar descanso";
 
   return (
     <div className="relative flex flex-col items-center justify-center gap-6 overflow-hidden bg-background px-4 py-12 text-center">
@@ -266,9 +282,28 @@ export function PomodoroTimer({
             <Pause className="size-7 fill-current" />
           )}
         </button>
-        <Button variant="danger" onClick={handleFinish} disabled={isPending} title="Finalizar" size="md">
-          Finalizar sesión
-        </Button>
+        <div className="flex flex-wrap items-center justify-center gap-2">
+          <Button
+            variant="secondary"
+            onClick={handleSkip}
+            disabled={isPending || isSkipping}
+            title={skipLabel}
+            size="md"
+            className="gap-2"
+          >
+            <SkipForward className="size-4" />
+            {isSkipping ? "Saltando..." : skipLabel}
+          </Button>
+          <Button
+            variant="danger"
+            onClick={handleFinish}
+            disabled={isPending || isSkipping}
+            title="Finalizar"
+            size="md"
+          >
+            Finalizar sesión
+          </Button>
+        </div>
       </div>
 
       <InfoModal

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { ChevronDown } from "lucide-react";
 import { DynamicIcon } from "@/components/ui/DynamicIcon";
 import { SubcategoryList } from "@/features/categories/components/SubcategoryList";
 import { ROUTES } from "@/lib/routes";
@@ -25,10 +26,12 @@ export function ActivitiesTab({
       ? initialCategoryId
       : categories[0]?.id ?? "",
   );
+  const [categoriesOpen, setCategoriesOpen] = useState(false);
   const current = categories.find((c) => c.id === selected) ?? categories[0];
 
   function selectCategory(categoryId: string) {
     setSelected(categoryId);
+    setCategoriesOpen(false);
     try {
       const url = activityBasePath
         ? `${activityBasePath}?categoria=${encodeURIComponent(categoryId)}`
@@ -48,32 +51,56 @@ export function ActivitiesTab({
         </span>
       </div>
 
-      <div className="flex flex-wrap gap-2">
-        {categories.map((category) => {
-          const isSelected = selected === category.id;
-          return (
-            <button
-              key={category.id}
-              type="button"
-              onClick={() => selectCategory(category.id)}
-              aria-pressed={isSelected}
-              className={cn(
-                "flex cursor-pointer items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender",
-                isSelected
-                  ? "border-accent-aprender bg-accent-aprender/10 text-accent-aprender"
-                  : "border-border bg-surface text-foreground hover:bg-surface-hover",
-              )}
-            >
-              <span
-                className="flex size-4 items-center justify-center rounded"
-                style={{ backgroundColor: `${category.color}33` }}
-              >
-                <DynamicIcon name={category.icon} className="size-2.5" style={{ color: category.color }} />
-              </span>
-              {category.name}
-            </button>
-          );
-        })}
+      <div>
+        <button
+          type="button"
+          onClick={() => setCategoriesOpen((value) => !value)}
+          aria-expanded={categoriesOpen}
+          aria-controls="activity-categories"
+          className="flex w-full cursor-pointer items-center justify-between gap-2 rounded-2xl border border-border bg-surface px-4 py-3 text-sm font-medium text-foreground shadow-sm transition-colors duration-200 hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender"
+        >
+          <span>Ver todas las actividades</span>
+          <ChevronDown
+            className={cn(
+              "size-4 shrink-0 text-muted-foreground transition-transform duration-200",
+              categoriesOpen && "rotate-180",
+            )}
+          />
+        </button>
+
+        {categoriesOpen && (
+          <div id="activity-categories" className="mt-2 flex flex-wrap gap-2">
+            {categories.map((category) => {
+              const isSelected = selected === category.id;
+              return (
+                <button
+                  key={category.id}
+                  type="button"
+                  onClick={() => selectCategory(category.id)}
+                  aria-pressed={isSelected}
+                  className={cn(
+                    "flex cursor-pointer items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender",
+                    isSelected
+                      ? "border-accent-aprender bg-accent-aprender/10 text-accent-aprender"
+                      : "border-border bg-surface text-foreground hover:bg-surface-hover",
+                  )}
+                >
+                  <span
+                    className="flex size-4 items-center justify-center rounded"
+                    style={{ backgroundColor: `${category.color}33` }}
+                  >
+                    <DynamicIcon
+                      name={category.icon}
+                      className="size-2.5"
+                      style={{ color: category.color }}
+                    />
+                  </span>
+                  {category.name}
+                </button>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {current ? (

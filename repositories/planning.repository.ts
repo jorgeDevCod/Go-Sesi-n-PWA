@@ -9,6 +9,7 @@ export type PlanItemData = {
   completed: boolean;
   categoryId: string | null;
   subcategoryId: string | null;
+  remindAt: string | null;
 };
 
 export type DailyPlanData = {
@@ -41,13 +42,20 @@ export type PlanItemWrite = {
   categoryId?: string | null;
   subcategoryId?: string | null;
   order: number;
+  remindAt?: string | null;
 };
 
-export function createPlan(userId: string, date: Date, items: PlanItemWrite[]) {
+export function createPlan(
+  userId: string,
+  date: Date,
+  items: PlanItemWrite[],
+  timeZone?: string,
+) {
   return prisma.dailyPlan.create({
     data: {
       userId,
       date,
+      timeZone: timeZone ?? null,
       items: {
         create: items.map((item) => ({
           title: item.title,
@@ -56,6 +64,7 @@ export function createPlan(userId: string, date: Date, items: PlanItemWrite[]) {
           categoryId: item.categoryId ?? null,
           subcategoryId: item.subcategoryId ?? null,
           order: item.order,
+          remindAt: item.remindAt ?? null,
         })),
       },
     },
@@ -77,6 +86,7 @@ export function updatePlanItems(planId: string, items: PlanItemWrite[]) {
             categoryId: item.categoryId ?? null,
             subcategoryId: item.subcategoryId ?? null,
             order: item.order,
+            remindAt: item.remindAt ?? null,
           })),
         },
       },
@@ -109,4 +119,30 @@ export function deletePlanItem(itemId: string) {
 
 export function deletePlan(planId: string) {
   return prisma.dailyPlan.delete({ where: { id: planId } });
+}
+
+export function listPendingPlanReminders() {
+  return prisma.planItem.findMany({
+    where: {
+      completed: false,
+      remindAt: { not: null },
+      reminderSentAt: null,
+    },
+    include: {
+      plan: {
+        select: {
+          userId: true,
+          date: true,
+          timeZone: true,
+        },
+      },
+    },
+  });
+}
+
+export function markPlanReminderSent(itemId: string, sentAt: Date = new Date()) {
+  return prisma.planItem.update({
+    where: { id: itemId },
+    data: { reminderSentAt: sentAt },
+  });
 }

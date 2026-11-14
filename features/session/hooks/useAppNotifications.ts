@@ -2,12 +2,14 @@
 
 import { useEffect, useRef } from "react";
 import { ROUTES } from "@/lib/routes";
+import { isStandalonePwa } from "@/lib/pwa";
 import type { SessionDTO } from "@/services/session/session.dto";
 
 const ICON_URL = "/icons/512";
 
 function canNotify(): boolean {
   return (
+    isStandalonePwa() &&
     typeof window !== "undefined" &&
     typeof Notification !== "undefined" &&
     Notification.permission === "granted"

@@ -3,11 +3,11 @@
 import { useState, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
-import { PartyPopper } from "lucide-react";
+import { Sparkles, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { EnergyPicker } from "@/components/ui/EnergyPicker";
 import { useRecommendationPrefs } from "@/features/recommendation/store/recommendation.store";
-import { markMoodAnsweredToday } from "@/features/recommendation/mood.storage";
+import { suppressMoodPromptToday } from "@/features/recommendation/mood.storage";
 import {
   ENERGY_COLORS,
   ENERGY_LABELS,
@@ -31,6 +31,7 @@ export function MoodModal({
 }) {
   const prefs = useRecommendationPrefs();
   const [energy, setEnergy] = useState<EnergyLevel>("media");
+  const [dontShowAgain, setDontShowAgain] = useState(false);
   const isClient = useSyncExternalStore(subscribeNoop, () => true, () => false);
 
   if (typeof document === "undefined") return null;
@@ -39,59 +40,67 @@ export function MoodModal({
   const energyLabel = ENERGY_LABELS[energy];
   const maxLabel = effectiveMaxLabel(energy, prefs);
 
-  function handleConfirm() {
-    prefs.setEnergy(energy);
-    prefs.setPreferredMinutes(suggested);
-    markMoodAnsweredToday();
+  function handleClose() {
+    setDontShowAgain(false);
     onClose();
   }
 
-  function handleDismissToday() {
-    markMoodAnsweredToday();
-    onClose();
+  function handleConfirm() {
+    prefs.setEnergy(energy);
+    prefs.setPreferredMinutes(suggested);
+    if (dontShowAgain) suppressMoodPromptToday();
+    handleClose();
   }
 
   return createPortal(
     <AnimatePresence>
       {open && (
         <motion.div
-          className="fixed inset-0 z-[70] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
+          className="fixed inset-0 z-[70] flex items-end justify-center bg-black/25 p-3 backdrop-blur-[2px] sm:items-center sm:p-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.2 }}
+          transition={{ duration: 0.18 }}
           role="presentation"
         >
           <motion.div
             role="dialog"
             aria-modal="true"
             aria-label="¿Cómo te sientes hoy?"
-            initial={{ opacity: 0, scale: 0.92, y: 16 }}
+            initial={{ opacity: 0, scale: 0.97, y: 18 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.92, y: 16 }}
+            exit={{ opacity: 0, scale: 0.97, y: 12 }}
             transition={{ duration: 0.2, ease: "easeOut" }}
-            className="flex max-h-[92vh] w-full max-w-md flex-col gap-5 overflow-y-auto rounded-3xl border border-border bg-surface p-6 shadow-xl"
+            className="relative flex max-h-[92vh] w-full max-w-sm flex-col gap-4 overflow-y-auto rounded-3xl border border-border bg-surface p-5 shadow-xl"
           >
-            <div className="flex flex-col items-center gap-1.5 text-center">
-              <span className="flex size-11 items-center justify-center rounded-2xl bg-accent-aprender/10 text-accent-aprender">
-                <PartyPopper className="size-5" />
+            <button
+              type="button"
+              onClick={handleClose}
+              aria-label="Cerrar"
+              className="absolute top-3.5 right-3.5 flex size-8 cursor-pointer items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-surface-hover hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender"
+            >
+              <X className="size-4" />
+            </button>
+
+            <div className="flex items-start gap-3 pr-8">
+              <span className="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-accent-aprender/10 text-accent-aprender">
+                <Sparkles className="size-5" />
               </span>
-              <h2 className="font-display text-xl font-semibold text-foreground">
-                ¿Cómo te sientes hoy, {userName}?
-              </h2>
-              <p className="text-sm leading-relaxed text-muted-foreground">
-                Con tu ánimo ajustamos las actividades y tiempos para hoy.
-              </p>
+              <div>
+                <h2 className="font-display text-lg font-semibold text-foreground">
+                  ¿Cómo estás hoy, {userName}?
+                </h2>
+                <p className="mt-0.5 text-sm leading-relaxed text-muted-foreground">
+                  Con tu energía ajustamos las sugerencias. Puedes cambiarla cuando quieras.
+                </p>
+              </div>
             </div>
 
-            <div className="flex flex-col gap-2">
-              <p className="font-display text-sm font-semibold text-foreground">Elige tu energía</p>
-              <EnergyPicker value={energy} onChange={setEnergy} />
-            </div>
+            <EnergyPicker value={energy} onChange={setEnergy} />
 
             {isClient && (
               <p
-                className="rounded-2xl px-4 py-3 text-center text-sm text-muted-foreground"
+                className="rounded-2xl px-4 py-2.5 text-center text-sm text-muted-foreground"
                 style={{
                   backgroundColor: `${ENERGY_COLORS[energy]}14`,
                   borderColor: `${ENERGY_COLORS[energy]}40`,
@@ -105,17 +114,31 @@ export function MoodModal({
               </p>
             )}
 
-            <Button size="lg" onClick={handleConfirm} className="w-full">
-              Ir a mi espacio
-            </Button>
+            <label className="flex cursor-pointer items-start gap-2.5 rounded-2xl bg-surface-muted px-3.5 py-3 text-left text-xs text-foreground">
+              <input
+                type="checkbox"
+                checked={dontShowAgain}
+                onChange={(event) => setDontShowAgain(event.target.checked)}
+                className="mt-0.5 size-4 shrink-0 cursor-pointer accent-[var(--accent-aprender)]"
+              />
+              <span>
+                <span className="font-medium">No volver a mostrar hoy</span>
+                <span className="mt-0.5 block text-muted-foreground">
+                  {dontShowAgain
+                    ? "No aparecerá hasta mañana."
+                    : "Si no lo marcas, volverá en la próxima apertura."}
+                </span>
+              </span>
+            </label>
 
-            <button
-              type="button"
-              onClick={handleDismissToday}
-              className="cursor-pointer self-center text-sm text-muted-foreground underline hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender"
-            >
-              No mostrar más hoy
-            </button>
+            <div className="flex flex-col gap-2">
+              <Button size="lg" onClick={handleConfirm} className="w-full">
+                Guardar y continuar
+              </Button>
+              <Button variant="ghost" onClick={handleClose} className="w-full">
+                Ahora no
+              </Button>
+            </div>
           </motion.div>
         </motion.div>
       )}

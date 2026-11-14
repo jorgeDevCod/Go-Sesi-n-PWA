@@ -28,8 +28,13 @@ const CATEGORIES = [
 ];
 
 describe("ActivitiesTab", () => {
-  it("muestra las categorías y la lista de actividades", () => {
+  it("muestra el desplegable cerrado y las actividades al abrirlo", () => {
     render(<ActivitiesTab categories={CATEGORIES} itemsByCategory={{}} />);
+    const toggle = screen.getByRole("button", { name: "Ver todas las actividades" });
+    expect(toggle).toHaveAttribute("aria-expanded", "false");
+    expect(screen.queryByRole("button", { name: /Aprender/ })).not.toBeInTheDocument();
+    fireEvent.click(toggle);
+    expect(toggle).toHaveAttribute("aria-expanded", "true");
     expect(screen.getByRole("button", { name: /Aprender/ })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Diversión/ })).toBeInTheDocument();
     expect(screen.getByText("lista de actividades")).toBeInTheDocument();
@@ -44,8 +49,12 @@ describe("ActivitiesTab", () => {
 
   it("cambia de categoría sin volver al Home", () => {
     render(<ActivitiesTab categories={CATEGORIES} itemsByCategory={{}} />);
+    fireEvent.click(screen.getByRole("button", { name: "Ver todas las actividades" }));
     const diversion = screen.getByRole("button", { name: /Diversión/ });
     fireEvent.click(diversion);
-    expect(diversion).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByRole("button", { name: "Ver todas las actividades" })).toHaveAttribute(
+      "aria-expanded",
+      "false",
+    );
   });
 });

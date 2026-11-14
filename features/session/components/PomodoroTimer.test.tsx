@@ -8,20 +8,18 @@ import type { SessionDTO } from "@/services/session/session.dto";
 const { mocks } = vi.hoisted(() => ({
   mocks: {
     completeSessionAction: vi.fn(),
-    playBreakWarning: vi.fn(() => vi.fn()),
-    playFocusEndAlarm: vi.fn(() => vi.fn()),
-    playSoftStartSound: vi.fn(),
+    skipPomodoroPhaseAction: vi.fn(),
+    playSessionSound: vi.fn(),
   },
 }));
 
 vi.mock("@/features/session/actions/session.actions", () => ({
   completeSessionAction: mocks.completeSessionAction,
+  skipPomodoroPhaseAction: mocks.skipPomodoroPhaseAction,
 }));
 
-vi.mock("@/features/session/session-sound", () => ({
-  playBreakWarning: mocks.playBreakWarning,
-  playFocusEndAlarm: mocks.playFocusEndAlarm,
-  playSoftStartSound: mocks.playSoftStartSound,
+vi.mock("@/features/session/sound-manager", () => ({
+  playSessionSound: mocks.playSessionSound,
 }));
 
 // AnimatePresence retiene el modal en exit-animation y los fake timers no la
@@ -50,6 +48,8 @@ function makeSession(autoStart: boolean): SessionDTO {
     pausedAtMs: null,
     extendedCount: 0,
     extendedMinutes: 0,
+    skippedFocusMs: 0,
+    skippedBreakMs: 0,
     mode: "POMODORO",
     pomodoroConfig: {
       focusMin: 25,
@@ -104,20 +104,20 @@ describe("PomodoroTimer", () => {
     expect(screen.getByRole("img", { name: "Ciclo 1 de 2" })).toBeInTheDocument();
   });
 
-  it("al terminar el foco suena la alarma de 8s", () => {
+  it("al terminar el foco suena el audio de fin de foco", () => {
     renderTimer(true);
     act(() => {
       vi.advanceTimersByTime(25 * MIN);
     });
-    expect(mocks.playFocusEndAlarm).toHaveBeenCalledWith(8);
+    expect(mocks.playSessionSound).toHaveBeenCalledWith("focus-complete");
   });
 
-  it("pre-avisa 6s antes de terminar el descanso", () => {
+  it("pre-avisa 5s antes de terminar el descanso", () => {
     renderTimer(true);
     act(() => {
       vi.advanceTimersByTime(25 * MIN + 5 * MIN - 5_000);
     });
-    expect(mocks.playBreakWarning).toHaveBeenCalled();
+    expect(mocks.playSessionSound).toHaveBeenCalledWith("break-ending");
   });
 
   it("al terminar el descanso muestra ¡Iniciemos! y reinicia el foco", () => {
@@ -126,7 +126,7 @@ describe("PomodoroTimer", () => {
       vi.advanceTimersByTime(25 * MIN + 5 * MIN);
     });
     expect(screen.getByText("¡Iniciemos!")).toBeInTheDocument();
-    expect(mocks.playSoftStartSound).toHaveBeenCalled();
+    expect(mocks.playSessionSound).toHaveBeenCalledWith("break-complete");
   });
 
   it("modo manual: avisa al terminar el foco", () => {

@@ -13,7 +13,12 @@ import { CountdownOverlay } from "@/features/session/components/CountdownOverlay
 import { useRegisterAppBack } from "@/components/layout/AppBackContext";
 import { startSessionAction } from "@/features/session/actions/session.actions";
 import { saveActivityTimerPreferenceAction } from "@/features/categories/actions/subcategory.actions";
-import { playSoftStartSound, unlockAudioContext } from "@/features/session/session-sound";
+import { unlockAudioContext } from "@/features/session/session-sound";
+import {
+  playSessionSound,
+  preloadSessionSounds,
+  unlockSessionSounds,
+} from "@/features/session/sound-manager";
 import {
   getStoredCountdownSeconds,
   setStoredCountdownSeconds,
@@ -48,6 +53,8 @@ import {
   recommendationOverridesFromPrefs,
 } from "@/features/recommendation/store/recommendation.store";
 import { ROUTES } from "@/lib/routes";
+import { isStandalonePwa } from "@/lib/pwa";
+import { ensurePushSubscription } from "@/features/push/push-client";
 import { useAppBack } from "@/lib/use-app-back";
 import { cn } from "@/lib/utils";
 
@@ -64,7 +71,8 @@ function samePlan(a: PomodoroConfig, b: PomodoroConfig) {
     a.breakMin === b.breakMin &&
     a.cycles === b.cycles &&
     (a.longBreakMin ?? 0) === (b.longBreakMin ?? 0) &&
-    (a.skipBreaks ?? false) === (b.skipBreaks ?? false)
+    (a.skipBreaks ?? false) === (b.skipBreaks ?? false) &&
+    (a.skipLastBreak ?? false) === (b.skipLastBreak ?? false)
   );
 }
 
@@ -201,6 +209,9 @@ export function StartSessionFlow({
     detail: POMODORO_TIER_DETAILS[key],
     config: pomodoroPresetFor(key, prefs.pomodoroPresets),
   }));
+  const hasCustomPomodoro = !tierConfigs.some((option) =>
+    samePlan(pomodoroConfig, option.config),
+  );
 
   function handleCountdownChange(seconds: number) {
     setCountdownSeconds(seconds);
@@ -241,10 +252,7 @@ export function StartSessionFlow({
       return;
     }
     unlockAudioContext();
-    playSoftStartSound();
-    if (typeof Notification !== "undefined" && Notification.permission === "default") {
-      void Notification.requestPermission();
-    }
+    playSessionSound("focus-start");
     setError(null);
     startTransition(async () => {
       const result = await startSessionAction({
@@ -270,6 +278,9 @@ export function StartSessionFlow({
   }
 
   function handleComenzar() {
+    preloadSessionSounds();
+    unlockSessionSounds();
+    if (isStandalonePwa()) void ensurePushSubscription();
     if (countdownSeconds > 0) {
       setStep("countdown");
       return;
@@ -517,6 +528,39 @@ export function StartSessionFlow({
                           );
                         })}
                       </div>
+
+                      {hasCustomPomodoro && (
+                        <div className="rounded-2xl border border-accent-aprender bg-accent-aprender/10 p-4 ring-1 ring-accent-aprender">
+                          <div className="flex items-start justify-between gap-2">
+                            <div>
+                              <div className="flex flex-wrap items-center gap-2">
+                                <p className="text-sm font-semibold text-foreground">
+                                  Tu configuración
+                                </p>
+                                <span className="rounded-full bg-accent-aprender/15 px-2 py-0.5 text-[10px] font-semibold text-accent-aprender">
+                                  En uso
+                                </span>
+                              </div>
+                              <p className="mt-1 text-sm font-medium text-foreground">
+                                {pomodoroConfig.focusMin} min foco ·{" "}
+                                {pomodoroConfig.breakMin} min descanso ·{" "}
+                                {pomodoroConfig.cycles} ciclos
+                              </p>
+                              <p className="mt-0.5 text-xs text-muted-foreground">
+                                {describePomodoroPlan(pomodoroConfig)}
+                              </p>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => setEditingPomodoro(pomodoroConfig)}
+                              className="shrink-0 cursor-pointer rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-surface-hover hover:text-foreground"
+                              aria-label="Editar tu configuración"
+                            >
+                              <Pencil className="size-4" />
+                            </button>
+                          </div>
+                        </div>
+                      )}
 
                       <div className="rounded-2xl border border-border bg-surface-muted p-4">
                         <div className="flex items-center justify-between gap-2">

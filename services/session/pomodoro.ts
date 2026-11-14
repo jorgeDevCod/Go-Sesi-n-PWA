@@ -16,6 +16,8 @@ export type PomodoroConfig = {
   longBreakMin?: number;
   /** true = encadena los ciclos de foco sin fases de descanso. */
   skipBreaks?: boolean;
+  /** true = omite el descanso largo final aunque longBreakMin esté configurado. */
+  skipLastBreak?: boolean;
 };
 
 export type PomodoroView = {
@@ -110,6 +112,7 @@ export function parsePomodoroConfig(value: unknown): PomodoroConfig | null {
     autoStart: v.autoStart as boolean,
     longBreakMin: Number.isInteger(v.longBreakMin) ? (v.longBreakMin as number) : 0,
     skipBreaks: v.skipBreaks === true,
+    skipLastBreak: v.skipLastBreak === true,
   };
 }
 
@@ -159,8 +162,16 @@ export function resolvePomodoroConfigForStart(args: {
 }
 
 /** Minutos planificados (reloj total) incluyendo descansos y descanso largo. */
+/** Avance adicional acumulado por fases saltadas. */
+export function pomodoroSkippedMs(session: {
+  skippedFocusMs?: number;
+  skippedBreakMs?: number;
+}): number {
+  return (session.skippedFocusMs ?? 0) + (session.skippedBreakMs ?? 0);
+}
+
 export function pomodoroPlannedMinutes(config: PomodoroConfig): number {
-  const longBreak = config.longBreakMin ?? 0;
+  const longBreak = config.skipLastBreak ? 0 : (config.longBreakMin ?? 0);
   const breaks = config.skipBreaks ? 0 : (config.cycles - 1) * config.breakMin + longBreak;
   return config.cycles * config.focusMin + breaks;
 }
@@ -176,7 +187,7 @@ export function describePomodoroPlan(config: PomodoroConfig): string {
     if (config.cycles > 1) {
       parts.push(`${config.cycles - 1} descansos de ${config.breakMin} min`);
     }
-    const longBreak = config.longBreakMin ?? 0;
+    const longBreak = config.skipLastBreak ? 0 : (config.longBreakMin ?? 0);
     if (longBreak > 0) parts.push(`descanso largo de ${longBreak} min`);
   }
   const total = pomodoroPlannedMinutes(config);
@@ -199,7 +210,7 @@ export function derivePomodoroView(
   extraFocusMs = 0,
 ): PomodoroView {
   const { focusMin, breakMin, cycles } = config;
-  const longBreakMin = config.longBreakMin ?? 0;
+  const longBreakMin = config.skipLastBreak ? 0 : (config.longBreakMin ?? 0);
   const skipBreaks = config.skipBreaks ?? false;
   if (!Number.isFinite(focusMin) || focusMin <= 0) throw new RangeError("focusMin inválido.");
   if (!Number.isFinite(breakMin) || breakMin < 0) throw new RangeError("breakMin inválido.");

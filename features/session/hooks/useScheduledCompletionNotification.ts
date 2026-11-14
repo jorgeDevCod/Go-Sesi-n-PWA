@@ -6,6 +6,7 @@ import {
   completionTargetMs,
   scheduleCompletionNotification,
 } from "@/features/session/scheduled-notification";
+import { isStandalonePwa } from "@/lib/pwa";
 import type { SessionDTO } from "@/services/session/session.dto";
 
 /**
@@ -17,6 +18,7 @@ export function useScheduledCompletionNotification(session: SessionDTO | null) {
   const scheduledFor = useRef<string | null>(null);
 
   useEffect(() => {
+    if (!isStandalonePwa()) return;
     if (!session || session.status !== "ACTIVE") {
       if (scheduledFor.current) {
         const id = scheduledFor.current;

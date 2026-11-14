@@ -5,9 +5,8 @@ import { useRouter } from "next/navigation";
 import { useActiveSession } from "@/features/session/hooks/useActiveSession";
 import { useTimer } from "@/features/session/hooks/useTimer";
 import { useWakeLock } from "@/features/session/hooks/useWakeLock";
-import { useScheduledCompletionNotification } from "@/features/session/hooks/useScheduledCompletionNotification";
+import { useLiveSessionNotification } from "@/features/session/hooks/useLiveSessionNotification";
 import { useSessionCompletionEffects } from "@/features/session/hooks/useSessionNotification";
-import { useAppNotifications } from "@/features/session/hooks/useAppNotifications";
 import { TimerScreen } from "@/features/session/components/TimerScreen";
 import { PomodoroTimer } from "@/features/session/components/PomodoroTimer";
 import { SessionLoading } from "@/components/ui/Skeleton";
@@ -22,13 +21,10 @@ export function SessionExperience({ initialSession }: { initialSession: SessionD
     autoComplete: initialSession.mode !== "POMODORO",
   });
   useSessionCompletionEffects(session);
-  useAppNotifications(session);
+  useLiveSessionNotification(session);
   const router = useRouter();
   // Pantalla encendida solo con sesión activa (best-effort, sin UI ni home).
   useWakeLock(session?.status === "ACTIVE");
-  // Aviso de fin aunque la app quede en segundo plano (solo si el navegador
-  // soporta notificaciones programadas y hay permiso).
-  useScheduledCompletionNotification(session);
 
   useEffect(() => {
     if (session === null) {

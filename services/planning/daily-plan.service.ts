@@ -23,6 +23,8 @@ export type PlanItemInput = {
   categoryId?: string | null;
   subcategoryId?: string | null;
   order: number;
+  /** Hora local HH:mm para el recordatorio. */
+  remindAt?: string | null;
 };
 
 function getTodayDate(now: Date = new Date()): Date {
@@ -53,12 +55,19 @@ export async function getTodayPlan(userId: string) {
 export async function saveTodayPlan(userId: string, items: PlanItemInput[]) {
   const today = getTodayDate();
   const existing = await findPlanByUserAndDate(userId, today);
+  const normalized = items.map((item) => ({
+    ...item,
+    remindAt:
+      item.remindAt && /^([01]\d|2[0-3]):[0-5]\d$/.test(item.remindAt)
+        ? item.remindAt
+        : null,
+  }));
 
   if (existing) {
-    return updatePlanItems(existing.id, items);
+    return updatePlanItems(existing.id, normalized);
   }
 
-  return createPlan(userId, today, items);
+  return createPlan(userId, today, normalized, PLAN_TIME_ZONE);
 }
 
 async function assertPlanItemOwnership(itemId: string, userId: string) {

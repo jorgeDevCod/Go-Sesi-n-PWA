@@ -11,7 +11,13 @@ import { updateSession } from "@/repositories/focus-session.repository";
 export function computePomodoroFocusMinutes(
   session: Pick<
     SessionWithRelations,
-    "startedAt" | "pausedMs" | "pausedAt" | "pomodoroConfig" | "extendedMinutes"
+    | "startedAt"
+    | "pausedMs"
+    | "pausedAt"
+    | "pomodoroConfig"
+    | "extendedMinutes"
+    | "skippedFocusMs"
+    | "skippedBreakMs"
   >,
   nowMs: number,
 ): number {
@@ -21,8 +27,15 @@ export function computePomodoroFocusMinutes(
   if (!config) {
     return Math.floor(elapsedMs / 60_000);
   }
-  const view = derivePomodoroView(elapsedMs, config, session.extendedMinutes * 60_000);
-  return Math.floor(view.focusDoneMs / 60_000);
+  const skippedFocusMs = session.skippedFocusMs ?? 0;
+  const skippedBreakMs = session.skippedBreakMs ?? 0;
+  const view = derivePomodoroView(
+    elapsedMs + skippedFocusMs + skippedBreakMs,
+    config,
+    session.extendedMinutes * 60_000,
+  );
+  // El foco saltado no debe contar como tiempo real de enfoque.
+  return Math.floor(Math.max(0, view.focusDoneMs - skippedFocusMs) / 60_000);
 }
 
 export function endSession(

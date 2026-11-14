@@ -60,6 +60,7 @@ export type PlanningContextActionResult =
           color: string;
           categoryId: string | null;
           subcategoryId: string | null;
+          remindAt: string | null;
           practiced: boolean;
         }[];
       };
@@ -105,6 +106,7 @@ export async function getPlanningContextAction(): Promise<PlanningContextActionR
             color: item.color,
             categoryId: item.categoryId,
             subcategoryId: item.subcategoryId,
+            remindAt: item.remindAt,
             practiced: deriveItemPracticed(item, practicedSubcategoryIds, practicedCategoryIds),
           })) ?? [],
       },
@@ -130,6 +132,7 @@ export async function getTodayPlanAction(): Promise<
           categoryIcon: string;
           categoryColor: string;
           subcategoryId: string | null;
+          remindAt: string | null;
           practiced: boolean;
         }[];
       } | null;
@@ -177,6 +180,7 @@ export async function getTodayPlanAction(): Promise<
           categoryIcon: item.category?.icon ?? item.icon,
           categoryColor: item.category?.color ?? item.color,
           subcategoryId: item.subcategoryId,
+          remindAt: item.remindAt,
           practiced: deriveItemPracticed(item, practicedSubcategoryIds, practicedCategoryIds),
         })),
       },
@@ -195,6 +199,7 @@ export async function saveTodayPlanAction(
     categoryId?: string | null;
     subcategoryId?: string | null;
     order: number;
+    remindAt?: string | null;
   }[],
 ): Promise<ActionResult> {
   try {

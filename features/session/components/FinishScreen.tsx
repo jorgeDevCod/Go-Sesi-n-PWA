@@ -59,15 +59,17 @@ export function FinishScreen({
                 >
                   Volver al Home
                 </Button>
-                <Button
-                  variant="secondary"
-                  onClick={() => setShowExtend(true)}
-                  disabled={isPending}
-                  title="Seguir con esta actividad"
-                  className="w-full"
-                >
-                  Sí, seguir un rato más
-                </Button>
+                {session.mode !== "POMODORO" && (
+                  <Button
+                    variant="secondary"
+                    onClick={() => setShowExtend(true)}
+                    disabled={isPending}
+                    title="Seguir con esta actividad"
+                    className="w-full"
+                  >
+                    Sí, seguir un rato más
+                  </Button>
+                )}
                 <Button
                   variant="ghost"
                   onClick={() => router.push(ROUTES.recommend)}

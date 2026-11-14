@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo, useRef, useSyncExternalStore } from "react";
+import { useState, useEffect, useMemo, useSyncExternalStore } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "next-themes";
 import { BatteryFull, BatteryLow, BatteryMedium, ChevronRight, Sparkles } from "lucide-react";
@@ -14,6 +14,9 @@ import {
 } from "@/features/categories/components/CreateCategoryCard";
 import { DismissibleHint } from "@/components/ui/DismissibleHint";
 import { DynamicIcon } from "@/components/ui/DynamicIcon";
+import { InfoModal } from "@/components/ui/InfoModal";
+import { playSessionSound } from "@/features/session/sound-manager";
+import { todayKey } from "@/lib/day";
 import { AddTaskFlow } from "@/features/home/components/AddTaskFlow";
 import {
   PlannedCategories,
@@ -64,18 +67,8 @@ export function CategoryHomeGrid({
   // Planning state
   const [planItems, setPlanItems] = useState<PlannedItem[]>([]);
   const [activeSession, setActiveSession] = useState<ActiveSessionInfo>(null);
-  // Read the one-shot "show categories" flag during init, so we never call
-  // setState synchronously inside an effect.
-  const [showAllCategories, setShowAllCategories] = useState<boolean>(() => {
-    if (typeof window === "undefined") return true;
-    try {
-      return sessionStorage.getItem("gosession-show-categories") === "1" || true;
-    } catch {
-      return true;
-    }
-  });
-  const categoriesRef = useRef<HTMLButtonElement>(null);
-  const categoriesSectionRef = useRef<HTMLDivElement>(null);
+  const [planReminder, setPlanReminder] = useState<PlannedItem | null>(null);
+  const [showAllCategories, setShowAllCategories] = useState(true);
 
   const planVersion = usePlanningStore((state) => state.planVersion);
   const prefs = useRecommendationPrefs();
@@ -100,6 +93,7 @@ export function CategoryHomeGrid({
           categoryIcon: item.categoryIcon,
           categoryColor: item.categoryColor,
           subcategoryId: item.subcategoryId,
+          remindAt: item.remindAt,
           practiced: item.practiced,
         })),
       );
@@ -125,16 +119,6 @@ export function CategoryHomeGrid({
       }
     });
 
-    // Si el flag de "mostrar categorías" está activo, hacer scroll a ellas.
-    try {
-      if (sessionStorage.getItem("gosession-show-categories") === "1") {
-        sessionStorage.removeItem("gosession-show-categories");
-        setTimeout(() => {
-          categoriesRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-        }, 400);
-      }
-    } catch {}
-
     return () => {
       cancelled = true;
     };
@@ -147,31 +131,40 @@ export function CategoryHomeGrid({
       if (cancelled) return;
       applyPlanResult(result);
     });
-    // Revisar si el flag de expandir categorías fue activado
-    try {
-      if (sessionStorage.getItem("gosession-show-categories") === "1") {
-        sessionStorage.removeItem("gosession-show-categories");
-        setTimeout(() => {
-          categoriesRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-        }, 400);
-      }
-    } catch {}
     return () => {
       cancelled = true;
     };
   }, [planVersion]);
 
-  // Escucha el evento de expandir categorías post-modal
+  // Alertas de planificación para la web/PWA abierta.
   useEffect(() => {
-    function onExpand() {
-      setShowAllCategories(true);
-      setTimeout(() => {
-        categoriesRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-      }, 300);
+    function checkReminders() {
+      const now = new Date();
+      const minutesNow = now.getHours() * 60 + now.getMinutes();
+      for (const item of planItems) {
+        if (!item.remindAt || item.practiced) continue;
+        const [hour, minute] = item.remindAt.split(":").map(Number);
+        if (!Number.isFinite(hour) || !Number.isFinite(minute)) continue;
+        if (minutesNow < hour * 60 + minute) continue;
+        const key = `gosession-plan-reminded-${todayKey(now)}-${item.id}`;
+        try {
+          if (window.localStorage.getItem(key) === "1") continue;
+          window.localStorage.setItem(key, "1");
+        } catch {
+          // Storage unavailable.
+        }
+        playSessionSound("planning-reminder");
+        setPlanReminder(item);
+        break;
+      }
     }
-    window.addEventListener("gosession-expand-categories", onExpand);
-    return () => window.removeEventListener("gosession-expand-categories", onExpand);
-  }, []);
+    const initial = setTimeout(checkReminders, 1200);
+    const interval = setInterval(checkReminders, 30_000);
+    return () => {
+      clearTimeout(initial);
+      clearInterval(interval);
+    };
+  }, [planItems]);
 
   // Refresca estados de sesión (En curso/En espera/Realizada) al volver a la pestaña.
   useEffect(() => {
@@ -182,16 +175,6 @@ export function CategoryHomeGrid({
           applyPlanResult(result);
         }
       });
-      // Revisar flag de expandir categorías al volver a la pestaña
-      try {
-        if (sessionStorage.getItem("gosession-show-categories") === "1") {
-          setShowAllCategories(true);
-          sessionStorage.removeItem("gosession-show-categories");
-          setTimeout(() => {
-            categoriesRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-          }, 400);
-        }
-      } catch {}
     }
     document.addEventListener("visibilitychange", onVisibilityChange);
     return () => {
@@ -201,16 +184,6 @@ export function CategoryHomeGrid({
 
   function handleEnergyChange(level: EnergyLevel) {
     prefs.setEnergy(level);
-    // Hace scroll suave hasta la sección de categorías, que se reordenan
-    // según el nivel elegido.
-    requestAnimationFrame(() => {
-      setTimeout(() => {
-        categoriesSectionRef.current?.scrollIntoView({
-          behavior: "smooth",
-          block: "start",
-        });
-      }, 200);
-    });
   }
 
   function handleCategoryCreated(category: CreatedCategory) {
@@ -300,7 +273,6 @@ export function CategoryHomeGrid({
 
       {/* Categories toggle */}
       <motion.button
-        ref={categoriesRef}
         type="button"
         onClick={() => setShowAllCategories((value) => !value)}
         title={
@@ -325,7 +297,7 @@ export function CategoryHomeGrid({
         </span>
       </motion.button>
 
-      <div ref={categoriesSectionRef} className="scroll-mt-20">
+      <div>
       <AnimatePresence initial={false}>
         {showAllCategories && (
           <motion.div
@@ -370,6 +342,18 @@ export function CategoryHomeGrid({
 
       {/* Accessos rápidos (actividades marcadas para el home) */}
       <HomeQuickSection />
+
+      <InfoModal
+        open={planReminder !== null}
+        onClose={() => setPlanReminder(null)}
+        title="Es hora de tu actividad"
+        message={
+          planReminder
+            ? `Tu plan de hoy incluye “${planReminder.title}”. Cuando quieras, empieza tu sesión.`
+            : ""
+        }
+        confirmLabel="Entendido"
+      />
     </div>
   );
 }

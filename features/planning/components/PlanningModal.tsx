@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   CalendarCheck2,
   Check,
+  Clock,
   HelpCircle,
   Pencil,
   Plus,
@@ -31,6 +32,7 @@ export type PlanItem = {
   color: string;
   categoryId: string | null;
   subcategoryId: string | null;
+  remindAt: string | null;
 };
 
 export type PlanningSubcategory = {
@@ -149,6 +151,7 @@ export function PlanningModal({
           color: sub.color,
           categoryId: category.id,
           subcategoryId: sub.id,
+          remindAt: null,
         },
       ];
     });
@@ -158,6 +161,14 @@ export function PlanningModal({
   function removeActivity(item: PlanItem) {
     setSelectedItems((prev) => prev.filter((selected) => selected.id !== item.id));
     if (editingId === item.id) setEditingId(null);
+  }
+
+  function updateReminder(itemId: string, remindAt: string) {
+    setSelectedItems((prev) =>
+      prev.map((item) =>
+        item.id === itemId ? { ...item, remindAt: remindAt || null } : item,
+      ),
+    );
   }
 
   function startEdit(item: PlanItem) {
@@ -224,6 +235,7 @@ export function PlanningModal({
           color: created.color,
           categoryId: created.categoryId,
           subcategoryId: created.id,
+          remindAt: null,
         },
       ];
     });
@@ -534,6 +546,19 @@ export function PlanningModal({
                                     {category.name}
                                   </span>
                                 )}
+                                <label className="mt-1 flex items-center gap-1.5 text-[10px] text-muted-foreground">
+                                  <Clock className="size-3" />
+                                  <span>Recordatorio</span>
+                                  <input
+                                    type="time"
+                                    value={item.remindAt ?? ""}
+                                    onChange={(event) =>
+                                      updateReminder(item.id, event.target.value)
+                                    }
+                                    aria-label={`Hora de recordatorio para ${item.title}`}
+                                    className="h-7 rounded-lg border border-border bg-surface px-1.5 text-[11px] text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender"
+                                  />
+                                </label>
                               </>
                             )}
                           </div>

@@ -26,6 +26,8 @@ import { logoutAction } from "@/features/auth/actions/logout.action";
 import { usePlanningStore } from "@/features/planning/store/planning.store";
 import { PlanningManager } from "@/features/planning/components/PlanningManager";
 import { MoodModal } from "@/features/recommendation/components/MoodModal";
+import { useDailyMoodPrompt } from "@/features/recommendation/hooks/useDailyMoodPrompt";
+import { clearMoodAnswered } from "@/features/recommendation/mood.storage";
 import { TrashUndoModal } from "@/features/categories/components/TrashUndoModal";
 import { useSessionStore } from "@/features/session/store/session.store";
 import { useServerPrefsSync } from "@/features/preferences/hooks/useServerPrefsSync";
@@ -88,6 +90,7 @@ export function AppShell({ userName, children }: { userName: string; children: R
   // Onboarding post-login con una sola máquina de estados (mismo
   // comportamiento que el cableado disperso anterior).
   const onboarding = useOnboardingMachine();
+  const moodPrompt = useDailyMoodPrompt(!onboarding.showWelcome);
 
   useEffect(() => {
     recordAppPath(pathname);
@@ -108,6 +111,8 @@ export function AppShell({ userName, children }: { userName: string; children: R
       // La guarda de bienvenida es por-día ("No mostrar más hoy") y NO se
       // limpia al cerrar sesión: persiste hasta el día siguiente.
       window.sessionStorage.removeItem("gosession-categories-auto-opened");
+      window.sessionStorage.removeItem("gosession-mood-prompt-shown");
+      clearMoodAnswered();
       clearAppNavigationHistory();
     } catch {
       // Storage unavailable.
@@ -257,7 +262,7 @@ export function AppShell({ userName, children }: { userName: string; children: R
         }}
         onDontShowToday={onboarding.dismissToday}
       />
-      <MoodModal open={onboarding.showMood} userName={userName} onClose={onboarding.closeMood} />
+      <MoodModal open={moodPrompt.open} userName={userName} onClose={moodPrompt.close} />
       <TrashUndoModal />
       {!pathname.startsWith(ROUTES.session) && <ResumeSessionPrompt userName={userName} />}
       </div>

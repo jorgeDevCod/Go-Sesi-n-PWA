@@ -17,6 +17,8 @@ function makeSession(overrides: Partial<SessionDTO> = {}): SessionDTO {
     pausedAtMs: null,
     extendedCount: 0,
     extendedMinutes: 0,
+    skippedFocusMs: 0,
+    skippedBreakMs: 0,
     mode: "CLASSIC",
     pomodoroConfig: null,
     subcategoryId: "sub-1",

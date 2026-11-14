@@ -59,6 +59,7 @@ export function PlanningManager() {
           categoryId: item.categoryId,
           subcategoryId: item.subcategoryId,
           order: index,
+          remindAt: item.remindAt ?? null,
         })),
       );
       if (result.success) {
@@ -72,7 +73,6 @@ export function PlanningManager() {
     setSaved(false);
     close();
     router.refresh();
-    window.dispatchEvent(new CustomEvent("gosession-scroll-to-plan"));
   }
 
   function handleSkip() {

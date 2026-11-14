@@ -11,7 +11,6 @@ import {
 } from "@/features/onboarding/machine";
 import { useOnboardingStore } from "@/features/onboarding/store/onboarding.store";
 import { usePlanningStore } from "@/features/planning/store/planning.store";
-import { hasAnsweredMoodToday } from "@/features/recommendation/mood.storage";
 import { todayKey } from "@/lib/day";
 import { ROUTES } from "@/lib/routes";
 
@@ -36,8 +35,6 @@ export function useOnboardingMachine() {
     hasWelcomeGuard() ? ONBOARDING_INITIAL : { step: "done" },
   );
   const machineRef = useRef(machine);
-  const storeMoodOpen = useOnboardingStore((state) => state.moodOpen);
-  const setStoreMoodOpen = useOnboardingStore((state) => state.setMoodOpen);
 
   const closeWelcome = useCallback(() => {
     try {
@@ -64,28 +61,13 @@ export function useOnboardingMachine() {
           case "go-recommend":
             router.push(ROUTES.recommend);
             break;
-          case "show-categories":
-            try {
-              sessionStorage.setItem("gosession-show-categories", "1");
-            } catch {
-              // Storage unavailable.
-            }
-            usePlanningStore.getState().bumpPlanVersion();
-            break;
-          case "open-mood":
-            setStoreMoodOpen(true);
-            break;
-          case "expand-categories":
-            setStoreMoodOpen(false);
-            window.dispatchEvent(new CustomEvent("gosession-expand-categories"));
-            break;
           case "go-home":
             router.push(ROUTES.home);
             break;
         }
       }
     },
-    [closeWelcome, router, setStoreMoodOpen],
+    [closeWelcome, router],
   );
 
   const send = useCallback(
@@ -98,11 +80,6 @@ export function useOnboardingMachine() {
     [runEffects],
   );
 
-  const closeMood = useCallback(() => {
-    setStoreMoodOpen(false);
-    send({ type: "MOOD_DONE" });
-  }, [send, setStoreMoodOpen]);
-
   const dismissToday = useCallback(() => {
     try {
       window.localStorage.setItem(getWelcomeKey(), "1");
@@ -113,12 +90,10 @@ export function useOnboardingMachine() {
 
   return {
     showWelcome: machine.step === "welcome",
-    showMood: storeMoodOpen,
     choosePersonalize: () => send({ type: "PERSONALIZE" }),
     choosePlan: () => send({ type: "PLAN" }),
     chooseRecommend: () => send({ type: "RECOMMEND" }),
-    chooseStart: () => send({ type: "START", needsMood: !hasAnsweredMoodToday() }),
-    closeMood,
+    chooseStart: () => send({ type: "START" }),
     dismissToday,
   };
 }

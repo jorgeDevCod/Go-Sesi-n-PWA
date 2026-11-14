@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -36,6 +36,7 @@ export type PlannedItem = {
   categoryIcon: string;
   categoryColor: string;
   subcategoryId: string | null;
+  remindAt?: string | null;
   practiced: boolean;
 };
 
@@ -88,31 +89,6 @@ export function PlannedCategories({
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editTitle, setEditTitle] = useState("");
   const [planCollapsed, setPlanCollapsed] = useState(false);
-  const planRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    let attempts = 0;
-    let timer: ReturnType<typeof setTimeout> | undefined;
-    function scrollToPlan() {
-      if (planRef.current) {
-        planRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
-        return;
-      }
-      if (attempts < 20) {
-        attempts += 1;
-        timer = setTimeout(scrollToPlan, 250);
-      }
-    }
-    function onScrollToPlan() {
-      attempts = 0;
-      timer = setTimeout(scrollToPlan, 300);
-    }
-    window.addEventListener("gosession-scroll-to-plan", onScrollToPlan);
-    return () => {
-      window.removeEventListener("gosession-scroll-to-plan", onScrollToPlan);
-      if (timer) clearTimeout(timer);
-    };
-  }, []);
 
   const visibleItems = useMemo(
     () => items.filter((item) => item.subcategoryId !== null),
@@ -205,7 +181,7 @@ export function PlannedCategories({
   }
 
   return (
-    <div ref={planRef} className="rounded-2xl border border-border bg-surface shadow-sm">
+    <div className="rounded-2xl border border-border bg-surface shadow-sm">
       <div className="flex items-center gap-2 border-b border-border p-3">
         <button
           type="button"
@@ -309,6 +285,12 @@ export function PlannedCategories({
                                 <DynamicIcon name={item.categoryIcon} className="size-2.5" />
                                 {item.categoryName}
                               </span>
+                              {item.remindAt && (
+                                <span className="inline-flex items-center gap-1 rounded-full bg-surface-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
+                                  <Clock className="size-2.5" />
+                                  {item.remindAt}
+                                </span>
+                              )}
                               {status && (
                                 <span
                                   className={cn(

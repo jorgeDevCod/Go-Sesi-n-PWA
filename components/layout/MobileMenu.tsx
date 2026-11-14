@@ -19,6 +19,7 @@ import {
 import { Logo } from "@/components/ui/Logo";
 import { logoutAction } from "@/features/auth/actions/logout.action";
 import { usePlanningStore } from "@/features/planning/store/planning.store";
+import { clearMoodAnswered } from "@/features/recommendation/mood.storage";
 import { clearAppNavigationHistory } from "@/lib/navigation-history";
 import { ROUTES } from "@/lib/routes";
 
@@ -136,6 +137,8 @@ export function MobileMenu({
                 onClick={() => {
                   try {
                     window.sessionStorage.removeItem("gosession-categories-auto-opened");
+                    window.sessionStorage.removeItem("gosession-mood-prompt-shown");
+                    clearMoodAnswered();
                     clearAppNavigationHistory();
                   } catch {
                     // Storage unavailable.

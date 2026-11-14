@@ -49,6 +49,61 @@ export async function removePushSubscriptionForUser(userId: string, endpoint: st
 
 export type PushSendSummary = { sent: number; failed: number; pruned: number };
 
+export type PushPayload = {
+  title: string;
+  body: string;
+  tag?: string;
+  data?: Record<string, unknown>;
+  silent?: boolean;
+  renotify?: boolean;
+  requireInteraction?: boolean;
+  actions?: { action: string; title: string }[];
+};
+
+async function sendToUserSubscriptions(
+  userId: string,
+  payload: PushPayload,
+): Promise<PushSendSummary> {
+  const details = vapidDetails();
+  if (!details) throw new PushNotConfiguredError();
+  webpush.setVapidDetails(details.subject, details.publicKey, details.privateKey);
+
+  const subs = await listPushSubscriptionsForUser(userId);
+  const summary: PushSendSummary = { sent: 0, failed: 0, pruned: 0 };
+
+  await Promise.all(
+    subs.map(async (sub) => {
+      const keys = parseKeys(sub.keys);
+      if (!keys) {
+        summary.failed += 1;
+        return;
+      }
+      try {
+        await webpush.sendNotification(
+          { endpoint: sub.endpoint, keys },
+          JSON.stringify(payload),
+        );
+        summary.sent += 1;
+      } catch (error: unknown) {
+        const status = (error as { statusCode?: number })?.statusCode;
+        if (status === 410 || status === 404) {
+          await deletePushSubscriptionByEndpoint(sub.endpoint);
+          summary.pruned += 1;
+        } else {
+          summary.failed += 1;
+        }
+      }
+    }),
+  );
+
+  return summary;
+}
+
+/** Envía un payload a todas las PWA suscritas del usuario. */
+export async function sendPushToUser(userId: string, payload: PushPayload) {
+  return sendToUserSubscriptions(userId, payload);
+}
+
 /**
  * Envía un push de prueba a todas las suscripciones del usuario.
  * Limpia las vencidas (410/404). Sin claves VAPID lanza PushNotConfiguredError.

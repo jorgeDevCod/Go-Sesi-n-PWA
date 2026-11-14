@@ -123,6 +123,14 @@ model FocusSession {
   pausedAt         DateTime?
   extendedCount    Int           @default(0)
   extendedMinutes  Int           @default(0)
+  /// Tiempo de foco omitido con "Saltar foco" (no cuenta como enfoque real).
+  skippedFocusMs   Int           @default(0)
+  /// Tiempo de descanso omitido con "Saltar descanso".
+  skippedBreakMs   Int           @default(0)
+  /// Última fase notificada por push para evitar duplicados.
+  lastNotifiedPhaseKey String?
+  /// Momento en que se envió el push de finalización.
+  completionNotifiedAt DateTime?
   energyLevel      String?
   comment          String?
 
@@ -213,6 +221,8 @@ model DailyPlan {
   id        String     @id @default(cuid())
   userId    String
   date      DateTime
+  /// Zona horaria del usuario para interpretar remindAt (IANA).
+  timeZone  String?
   user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   items     PlanItem[]
   createdAt DateTime   @default(now())
@@ -235,6 +245,10 @@ model PlanItem {
   color     String  @default("#6366F1")
   order     Int     @default(0)
   completed Boolean @default(false)
+  /// Hora local de recordatorio (HH:mm) para esta actividad del plan.
+  remindAt  String?
+  /// Momento en que se envió el recordatorio push.
+  reminderSentAt DateTime?
 
   @@index([planId, order])
   @@map("plan_items")
