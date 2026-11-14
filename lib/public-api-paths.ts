@@ -5,5 +5,10 @@
  * testearlo con Vitest; `proxy.ts` lo reutiliza.
  */
 export function isPublicApiPath(pathname: string): boolean {
-  return pathname === "/api/auth" || pathname.startsWith("/api/auth/");
+  return (
+    pathname === "/api/auth" ||
+    pathname.startsWith("/api/auth/") ||
+    pathname === "/api/cron/notifications" ||
+    pathname.startsWith("/api/cron/")
+  );
 }

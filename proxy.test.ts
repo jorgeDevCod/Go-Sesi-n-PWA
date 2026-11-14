@@ -11,6 +11,10 @@ describe("isPublicApiPath", () => {
     expect(isPublicApiPath("/api/auth/callback/credentials")).toBe(true);
   });
 
+  it("deja público el cron, que se autentica con CRON_SECRET", () => {
+    expect(isPublicApiPath("/api/cron/notifications")).toBe(true);
+  });
+
   it("protege el resto de /api y /app", () => {
     expect(isPublicApiPath("/api/other")).toBe(false);
     expect(isPublicApiPath("/api/authx")).toBe(false);
