@@ -36,6 +36,7 @@ export function TimerScreen({
   const color = session.subcategoryColor;
   const ringColor = view.isPaused ? "#F59E0B" : color;
   const remainingMinutes = Math.max(0, Math.ceil(view.remainingMs / 60_000));
+  const isFinalCountdown = view.remainingMs > 0 && view.remainingMs <= 15_000;
 
   return (
     <div className="relative flex flex-col items-center justify-center gap-6 overflow-hidden bg-background px-4 py-12 text-center">
@@ -60,8 +61,11 @@ export function TimerScreen({
           <div className="flex flex-col items-center leading-none">
             <span
               className={cn(
-                "font-bold tabular-nums text-foreground",
+                "font-bold tabular-nums",
                 view.hasHours ? "text-3xl sm:text-4xl" : "text-4xl sm:text-5xl",
+                isFinalCountdown
+                  ? "animate-pulse text-red-500 dark:text-red-400"
+                  : "text-foreground",
               )}
             >
               {view.formattedTime}

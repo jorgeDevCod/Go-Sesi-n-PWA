@@ -3,6 +3,10 @@
 import { useState } from "react";
 import { Minus, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
+import {
+  buildDurationOptions,
+  type DurationProfile,
+} from "@/features/session/duration-options";
 import { describePomodoroPlan, type PomodoroConfig } from "@/services/session/pomodoro";
 
 function NumberField({
@@ -130,22 +134,58 @@ function Toggle({
 export function PomodoroScheduleEditor({
   config,
   onChange,
+  durationProfile = "medium",
+  maxFocusMinutes = 90,
 }: {
   config: PomodoroConfig;
   onChange: (config: PomodoroConfig) => void;
+  durationProfile?: DurationProfile;
+  maxFocusMinutes?: number;
 }) {
   const longBreakMin = config.longBreakMin ?? 0;
   const skipBreaks = config.skipBreaks ?? false;
   const skipLastBreak = config.skipLastBreak ?? false;
+  const focusOptions = buildDurationOptions({
+    selectedMinutes: config.focusMin,
+    profile: durationProfile,
+    maxMinutes: maxFocusMinutes,
+  });
 
   return (
     <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-1.5">
+        <span className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+          Foco rápido
+        </span>
+        <div className="flex flex-wrap gap-1.5">
+          {focusOptions.map((minutes) => {
+            const selected = config.focusMin === minutes;
+            return (
+              <button
+                key={minutes}
+                type="button"
+                onClick={() => onChange({ ...config, focusMin: minutes })}
+                aria-pressed={selected}
+                className={cn(
+                  "cursor-pointer rounded-full border px-2.5 py-1 text-[11px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender",
+                  selected
+                    ? "border-accent-aprender bg-accent-aprender/10 text-accent-aprender"
+                    : "border-border bg-surface text-muted-foreground hover:bg-surface-hover",
+                )}
+              >
+                {minutes} min
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       <div className="grid grid-cols-3 gap-2">
         <NumberField
           label="Foco"
           value={config.focusMin}
           min={5}
-          max={180}
+          max={maxFocusMinutes}
           step={5}
           onChange={(focusMin) => onChange({ ...config, focusMin })}
         />

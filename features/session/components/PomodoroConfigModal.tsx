@@ -6,6 +6,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { PomodoroScheduleEditor } from "@/features/session/components/PomodoroScheduleEditor";
+import type { DurationProfile } from "@/features/session/duration-options";
 import type { PomodoroConfig } from "@/services/session/pomodoro";
 
 export function PomodoroConfigModal({
@@ -13,11 +14,15 @@ export function PomodoroConfigModal({
   initialConfig,
   onClose,
   onApply,
+  durationProfile = "medium",
+  maxFocusMinutes = 90,
 }: {
   open: boolean;
   initialConfig: PomodoroConfig;
   onClose: () => void;
   onApply: (config: PomodoroConfig) => void;
+  durationProfile?: DurationProfile;
+  maxFocusMinutes?: number;
 }) {
   const [config, setConfig] = useState(initialConfig);
   const [wasOpen, setWasOpen] = useState(open);
@@ -80,7 +85,12 @@ export function PomodoroConfigModal({
               </p>
             </div>
 
-            <PomodoroScheduleEditor config={config} onChange={setConfig} />
+            <PomodoroScheduleEditor
+              config={config}
+              onChange={setConfig}
+              durationProfile={durationProfile}
+              maxFocusMinutes={maxFocusMinutes}
+            />
 
             <div className="grid grid-cols-2 gap-2">
               <Button variant="ghost" onClick={onClose}>

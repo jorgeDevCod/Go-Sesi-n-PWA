@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { formatRemaining } from "@/features/session/timer-view";
 import {
   derivePomodoroView,
@@ -11,7 +11,7 @@ import { isStandalonePwa } from "@/lib/pwa";
 import { ROUTES } from "@/lib/routes";
 import type { SessionDTO } from "@/services/session/session.dto";
 
-const UPDATE_MS = 15_000;
+const UPDATE_MS = 1_000;
 
 function liveTag(sessionId: string): string {
   return `gosession-live-${sessionId}`;
@@ -40,7 +40,11 @@ function liveBody(session: SessionDTO, nowMs: number, skewMs: number): string {
         : view.isLongBreak
           ? "Descanso final"
           : "Descanso";
-    return `${phase} · quedan ${formatRemaining(view.phaseRemainingMs)}`;
+    const warning =
+      !session.pausedAtMs && view.phaseRemainingMs > 0 && view.phaseRemainingMs <= 15_000
+        ? "⚠️ "
+        : "";
+    return `${warning}${phase} · quedan ${formatRemaining(view.phaseRemainingMs)}`;
   }
 
   const reference = session.pausedAtMs ?? nowMs + skewMs;
@@ -49,18 +53,28 @@ function liveBody(session: SessionDTO, nowMs: number, skewMs: number): string {
     session.plannedMinutes * 60_000 -
       (reference - session.startedAtMs - session.pausedMs),
   );
-  return `${session.pausedAtMs !== null ? "Pausada" : "En curso"} · quedan ${formatRemaining(remaining)}`;
+  const warning =
+    !session.pausedAtMs && remaining > 0 && remaining <= 15_000 ? "⚠️ " : "";
+  return `${warning}${session.pausedAtMs !== null ? "Pausada" : "En curso"} · quedan ${formatRemaining(remaining)}`;
 }
 
 /**
  * Notificación persistente (best-effort) con el tiempo restante.
- * Solo PWA instalada; se actualiza mientras el proceso de la app sigue vivo.
+ * Mantiene un único tag y se actualiza cada segundo mientras la app vive.
+ * Solo PWA instalada.
  */
 export function useLiveSessionNotification(session: SessionDTO | null) {
   const skewMs = useSessionStore((s) => s.skewMs);
+  const sessionRef = useRef(session);
+  const sessionId = session?.id ?? null;
+  const status = session?.status ?? null;
 
   useEffect(() => {
-    if (!session || session.status !== "ACTIVE" || !canNotify()) return;
+    sessionRef.current = session;
+  }, [session]);
+
+  useEffect(() => {
+    if (!sessionId || status !== "ACTIVE" || !canNotify()) return;
     if (!("serviceWorker" in navigator)) return;
 
     let cancelled = false;
@@ -68,19 +82,20 @@ export function useLiveSessionNotification(session: SessionDTO | null) {
     let interval: ReturnType<typeof setInterval> | null = null;
 
     async function show() {
-      if (cancelled || !session) return;
+      const active = sessionRef.current;
+      if (cancelled || !active || active.status !== "ACTIVE") return;
       try {
         registration ??= await navigator.serviceWorker.ready;
         if (cancelled) return;
-        await registration.showNotification(session.subcategoryName, {
-          body: liveBody(session, Date.now(), skewMs),
+        await registration.showNotification(active.subcategoryName, {
+          body: liveBody(active, Date.now(), skewMs),
           icon: "/icons/192",
           badge: "/icons/192",
-          tag: liveTag(session.id),
+          tag: liveTag(active.id),
           silent: true,
           renotify: false,
-          requireInteraction: false,
-          data: { url: ROUTES.session, type: "live", sessionId: session.id },
+          requireInteraction: true,
+          data: { url: ROUTES.session, type: "live", sessionId: active.id },
         } as NotificationOptions & { renotify: boolean; silent: boolean });
       } catch {
         // Best-effort: sin soporte o permiso, no pasa nada.
@@ -96,12 +111,12 @@ export function useLiveSessionNotification(session: SessionDTO | null) {
       void (async () => {
         try {
           const reg = registration ?? (await navigator.serviceWorker.ready);
-          const notes = await reg.getNotifications({ tag: liveTag(session.id) });
+          const notes = await reg.getNotifications({ tag: liveTag(sessionId) });
           for (const note of notes) note.close();
         } catch {
           // Best-effort.
         }
       })();
     };
-  }, [session, skewMs]);
+  }, [sessionId, skewMs, status]);
 }

@@ -7,11 +7,13 @@ export function StartTimeSelector({
   chips,
   value,
   suggestedMinutes,
+  onSelect,
   onEdit,
 }: {
   chips: number[];
   value: number | null;
   suggestedMinutes?: number;
+  onSelect: (minutes: number) => void;
   onEdit: (minutes: number) => void;
 }) {
   return (
@@ -24,26 +26,25 @@ export function StartTimeSelector({
             <button
               key={minutes}
               type="button"
-              onClick={() => onEdit(minutes)}
+              onClick={() => onSelect(minutes)}
               aria-pressed={selected}
-              aria-label={`Ajustar ${minutes} minutos`}
+              aria-label={`Elegir ${minutes} minutos`}
               className={cn(
-                "flex cursor-pointer flex-col items-center gap-0.5 rounded-2xl border bg-surface px-2 py-3 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender",
+                "relative flex cursor-pointer flex-col items-center gap-0.5 rounded-2xl border bg-surface px-2 py-3 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender",
                 selected
                   ? "border-foreground bg-foreground text-background shadow-sm"
-                  : suggested
-                    ? "border-accent-aprender bg-accent-aprender/5 ring-1 ring-accent-aprender"
-                    : "border-border hover:border-foreground/40 hover:bg-surface-hover",
+                  : "border-border hover:border-foreground/40 hover:bg-surface-hover",
               )}
             >
+              {suggested && (
+                <span className="absolute -top-2 right-1.5 rounded-full bg-accent-aprender px-1.5 py-0.5 text-[8px] font-semibold leading-none text-white shadow-sm">
+                  Recomendado
+                </span>
+              )}
               <span
                 className={cn(
                   "text-xl font-bold tabular-nums",
-                  selected
-                    ? "text-background"
-                    : suggested
-                      ? "text-accent-aprender"
-                      : "text-foreground",
+                  selected ? "text-background" : "text-foreground",
                 )}
               >
                 {minutes}
@@ -56,16 +57,12 @@ export function StartTimeSelector({
               >
                 min
               </span>
-              {selected ? (
+              {selected && (
                 <span className="mt-0.5 inline-flex items-center gap-1 rounded-full bg-background px-1.5 py-0.5 text-[9px] font-semibold text-foreground">
                   <Check className="size-2.5" />
                   elegido
                 </span>
-              ) : suggested ? (
-                <span className="mt-0.5 rounded-full bg-accent-aprender px-1.5 py-0.5 text-[9px] font-semibold text-white">
-                  recomendado
-                </span>
-              ) : null}
+              )}
             </button>
           );
         })}

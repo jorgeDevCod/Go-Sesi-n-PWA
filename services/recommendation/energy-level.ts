@@ -71,23 +71,23 @@ export const ENERGY_RECOMMENDED_DURATION: Record<EnergyLevel, number> = {
 
 /** Opciones de duración mostradas por nivel de energía (la recomendada va Te recomendamos!!). */
 export const ENERGY_DURATION_OPTIONS: Record<EnergyLevel, number[]> = {
-  baja: [25, 30, 35, 40],
-  media: [45, 50, 55, 60],
-  alta: [60, 75, 90],
+  baja: [25, 30, 35, 40, 45, 60],
+  media: [45, 50, 55, 60, 75, 90],
+  alta: [60, 75, 90, 120, 150],
 };
 
 /** Límite máximo de duración por nivel de energía. */
 export const ENERGY_MAX_MINUTES: Record<EnergyLevel, number> = {
-  baja: 40,
-  media: 60,
-  alta: 90,
+  baja: 60,
+  media: 90,
+  alta: 150,
 };
 
 /** Etiqueta legible del límite máximo por nivel de energía. */
 export const ENERGY_MAX_LABEL: Record<EnergyLevel, string> = {
-  baja: "máx. 40 min",
-  media: "máx. 1 hora",
-  alta: "hasta 1 h 30",
+  baja: "máx. 1 hora",
+  media: "máx. 1 h 30",
+  alta: "hasta 2 h 30",
 };
 
 /** Mínimo por defecto de cada nivel de energía (primer chip disponible). */
@@ -104,9 +104,9 @@ export const DIFFICULTY_MIN_DURATION: Record<Complexity, number> = {
   HIGH: 60,
 };
 export const DIFFICULTY_MAX_DURATION: Record<Complexity, number> = {
-  LOW: 40,
-  MEDIUM: 60,
-  HIGH: 90,
+  LOW: 60,
+  MEDIUM: 90,
+  HIGH: 150,
 };
 
 /** Qué tipo de tareas encajan por nivel de energía. */

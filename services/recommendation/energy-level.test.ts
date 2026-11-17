@@ -43,30 +43,32 @@ describe("duración por energía", () => {
     }
   });
 
-  it("energía baja: máximo 40 min y opciones cortas", () => {
-    expect(ENERGY_MAX_MINUTES.baja).toBe(40);
-    expect(Math.max(...ENERGY_DURATION_OPTIONS.baja)).toBeLessThanOrEqual(40);
+  it("energía baja: máximo 60 min y opciones cortas", () => {
+    expect(ENERGY_MAX_MINUTES.baja).toBe(60);
+    expect(Math.max(...ENERGY_DURATION_OPTIONS.baja)).toBeLessThanOrEqual(60);
   });
 
-  it("energía media: máximo 1 hora (60 min)", () => {
-    expect(ENERGY_MAX_MINUTES.media).toBe(60);
-    expect(Math.max(...ENERGY_DURATION_OPTIONS.media)).toBe(60);
+  it("energía media: máximo 90 min", () => {
+    expect(ENERGY_MAX_MINUTES.media).toBe(90);
+    expect(Math.max(...ENERGY_DURATION_OPTIONS.media)).toBeLessThanOrEqual(90);
   });
 
-  it("energía alta: tiempos regulares a altos", () => {
-    expect(ENERGY_MAX_MINUTES.alta).toBeGreaterThanOrEqual(60);
+  it("energía alta: tiempos más largos", () => {
+    expect(ENERGY_MAX_MINUTES.alta).toBe(150);
     expect(ENERGY_RECOMMENDED_DURATION.alta).toBe(75);
+    expect(ENERGY_DURATION_OPTIONS.alta).toContain(150);
   });
 
   it("energyMaxMinutes devuelve el tope por nivel", () => {
-    expect(energyMaxMinutes("baja")).toBe(40);
-    expect(energyMaxMinutes("media")).toBe(60);
-    expect(energyMaxMinutes("alta")).toBe(90);
+    expect(energyMaxMinutes("baja")).toBe(60);
+    expect(energyMaxMinutes("media")).toBe(90);
+    expect(energyMaxMinutes("alta")).toBe(150);
   });
 
   it("las etiquetas de máximo son legibles", () => {
-    expect(ENERGY_MAX_LABEL.media).toContain("1 hora");
-    expect(ENERGY_MAX_LABEL.baja).toContain("40");
+    expect(ENERGY_MAX_LABEL.media).toContain("1 h 30");
+    expect(ENERGY_MAX_LABEL.baja).toContain("1 hora");
+    expect(ENERGY_MAX_LABEL.alta).toContain("2 h 30");
   });
 });
 
@@ -174,14 +176,14 @@ describe("límites personalizados (min/máx) por energía y dificultad", () => {
     expect(effectiveEnergyMin("media", minMaxOverrides)).toBe(15);
     expect(effectiveEnergyMax("media", minMaxOverrides)).toBe(50);
     expect(effectiveEnergyMin("baja", undefined)).toBe(25);
-    expect(effectiveEnergyMax("baja", undefined)).toBe(40);
+    expect(effectiveEnergyMax("baja", undefined)).toBe(60);
   });
 
   it("effectiveDifficultyMin/Max usa el override o el default", () => {
     expect(effectiveDifficultyMin("LOW", minMaxOverrides)).toBe(35);
     expect(effectiveDifficultyMax("LOW", minMaxOverrides)).toBe(45);
     expect(effectiveDifficultyMin("HIGH", undefined)).toBe(60);
-    expect(effectiveDifficultyMax("HIGH", undefined)).toBe(90);
+    expect(effectiveDifficultyMax("HIGH", undefined)).toBe(150);
   });
 
   it("effectiveDurationOptions respeta [min, max] e incluye rec/min/max ordenados", () => {
@@ -199,7 +201,7 @@ describe("límites personalizados (min/máx) por energía y dificultad", () => {
 
   it("effectiveMaxLabel y formatMaxLabel formatean el máximo efectivo", () => {
     expect(effectiveMaxLabel("media", minMaxOverrides)).toBe("máx. 50 min");
-    expect(effectiveMaxLabel("media", undefined)).toBe("máx. 1 hora");
+    expect(effectiveMaxLabel("media", undefined)).toBe("máx. 1 h 30 min");
     expect(formatMaxLabel(90)).toBe("máx. 1 h 30 min");
     expect(formatMaxLabel(40)).toBe("máx. 40 min");
   });

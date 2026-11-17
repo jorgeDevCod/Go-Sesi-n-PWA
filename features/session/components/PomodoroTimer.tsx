@@ -191,6 +191,8 @@ export function PomodoroTimer({
   const ringColor = isPaused ? "#F59E0B" : color;
   const phaseTotalMs = view.phaseElapsedMs + view.phaseRemainingMs;
   const progressRatio = phaseTotalMs > 0 ? 1 - view.phaseRemainingMs / phaseTotalMs : 0;
+  const isFinalCountdown =
+    view.phaseRemainingMs > 0 && view.phaseRemainingMs <= 15_000;
   const skipLabel =
     view.phase === "focus"
       ? "Saltar foco"
@@ -241,7 +243,14 @@ export function PomodoroTimer({
       <div className="relative flex flex-col items-center gap-4">
         <CircularProgress progressRatio={progressRatio} color={ringColor} size={260} strokeWidth={14}>
           <div className="flex flex-col items-center leading-none">
-            <span className="text-4xl font-bold tabular-nums text-foreground sm:text-5xl">
+            <span
+              className={cn(
+                "text-4xl font-bold tabular-nums sm:text-5xl",
+                isFinalCountdown
+                  ? "animate-pulse text-red-500 dark:text-red-400"
+                  : "text-foreground",
+              )}
+            >
               {formatRemaining(view.phaseRemainingMs)}
             </span>
             <span className="mt-1.5 text-xs font-medium uppercase tracking-wide text-muted-foreground sm:text-sm">

@@ -33,6 +33,7 @@ async function sendLive(
       tag: `gosession-live-${sessionId}`,
       silent: true,
       renotify: false,
+      requireInteraction: true,
       data: { url: ROUTES.session, type: "live", sessionId },
     });
     return true;
@@ -52,8 +53,9 @@ async function sendPhase(
     await sendPushToUser(userId, {
       title,
       body,
-      tag: `gosession-phase-${sessionId}`,
+      tag: `gosession-live-${sessionId}`,
       requireInteraction: true,
+      renotify: true,
       data: { url: ROUTES.session, type: "phase", sessionId },
     });
     return true;

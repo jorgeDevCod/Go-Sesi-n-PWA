@@ -15,11 +15,13 @@ export function TimeConfigModal({
   initialMinutes,
   onClose,
   onApply,
+  maxMinutes = MAX_MINUTES,
 }: {
   open: boolean;
   initialMinutes: number;
   onClose: () => void;
   onApply: (minutes: number) => void;
+  maxMinutes?: number;
 }) {
   const [draft, setDraft] = useState(String(initialMinutes));
   const [value, setValue] = useState(initialMinutes);
@@ -41,18 +43,23 @@ export function TimeConfigModal({
     };
   }, [open]);
 
+  function clamp(valueToClamp: number): number {
+    return Math.min(maxMinutes, Math.max(MIN_MINUTES, valueToClamp));
+  }
+
   function commit(raw: string) {
     const parsed = parseDurationInput(raw);
     if (parsed === null) {
       setDraft(String(value));
       return;
     }
-    setValue(parsed);
-    setDraft(String(parsed));
+    const next = clamp(parsed);
+    setValue(next);
+    setDraft(String(next));
   }
 
   function move(delta: number) {
-    const next = Math.min(MAX_MINUTES, Math.max(MIN_MINUTES, value + delta));
+    const next = clamp(value + delta);
     setValue(next);
     setDraft(String(next));
   }
@@ -101,7 +108,7 @@ export function TimeConfigModal({
             </div>
 
             <div className="grid grid-cols-4 gap-2">
-              {QUICK_MINUTES.map((minutes) => (
+              {QUICK_MINUTES.filter((minutes) => minutes <= maxMinutes).map((minutes) => (
                 <button
                   key={minutes}
                   type="button"
@@ -150,6 +157,7 @@ export function TimeConfigModal({
                   }}
                   onFocus={(event) => event.currentTarget.select()}
                   inputMode="numeric"
+                  max={maxMinutes}
                   aria-label="Minutos"
                   className="w-24 bg-transparent text-center text-4xl font-bold tabular-nums text-foreground outline-none"
                 />
@@ -173,7 +181,7 @@ export function TimeConfigModal({
               <Button
                 onClick={() => {
                   const parsed = parseDurationInput(draft);
-                  onApply(parsed ?? value);
+                  onApply(clamp(parsed ?? value));
                 }}
               >
                 Aplicar

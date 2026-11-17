@@ -3,10 +3,14 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
-import { PartyPopper, Check } from "lucide-react";
+import { Check, PartyPopper, Plus } from "lucide-react";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
 import { playCompletionAlarm, vibrateOnCompletion } from "@/features/session/session-sound";
 
-const ALARM_SECONDS = 15;
+const ALARM_SECONDS = 7;
+const MIN_EXTRA = 1;
+const MAX_EXTRA = 180;
 
 const MESSAGES = [
   "¡Lo lograste! Cada minuto suma. 🎉",
@@ -19,14 +23,20 @@ const MESSAGES = [
 export function CompletionAlarm({
   session,
   onDone,
+  onExtend,
+  canExtend = false,
+  isPending = false,
 }: {
   session: { subcategoryName: string; categoryName: string };
   onDone: () => void;
+  onExtend?: (minutes: number) => void;
+  canExtend?: boolean;
+  isPending?: boolean;
 }) {
   const [remaining, setRemaining] = useState(ALARM_SECONDS);
+  const [showExtend, setShowExtend] = useState(false);
+  const [minutes, setMinutes] = useState(10);
   const stopAlarmRef = useRef<(() => void) | null>(null);
-  // useState perezoso: se calcula una vez y es valor de render, sin refs
-  // en render ni funciones impuras fuera del inicializador.
   const [message] = useState(
     () => MESSAGES[Math.floor(Math.random() * MESSAGES.length)],
   );
@@ -35,29 +45,42 @@ export function CompletionAlarm({
     stopAlarmRef.current = playCompletionAlarm(ALARM_SECONDS);
     vibrateOnCompletion();
 
-    const interval = setInterval(() => {
-      setRemaining((prev) => Math.max(0, prev - 1));
-    }, 1000);
-
     return () => {
-      clearInterval(interval);
       stopAlarmRef.current?.();
     };
   }, []);
 
-  // Al agotarse el tiempo, se apaga el sonido y se pasa a la vista de finalización.
   useEffect(() => {
-    if (remaining === 0) {
+    if (showExtend) return;
+    const interval = setInterval(() => {
+      setRemaining((prev) => Math.max(0, prev - 1));
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [showExtend]);
+
+  useEffect(() => {
+    if (remaining === 0 && !showExtend) {
       stopAlarmRef.current?.();
       onDone();
     }
-  }, [remaining, onDone]);
+  }, [remaining, showExtend, onDone]);
 
   if (typeof document === "undefined") return null;
 
   function handleDismiss() {
     stopAlarmRef.current?.();
     onDone();
+  }
+
+  function handleShowExtend() {
+    stopAlarmRef.current?.();
+    setShowExtend(true);
+  }
+
+  function handleExtend() {
+    if (!onExtend) return;
+    onExtend(Math.min(MAX_EXTRA, Math.max(MIN_EXTRA, Math.round(minutes))));
   }
 
   const progress = 1 - remaining / ALARM_SECONDS;
@@ -98,29 +121,71 @@ export function CompletionAlarm({
               <h2 className="font-display text-2xl font-bold text-foreground">{message}</h2>
             </div>
 
-            {/* Barra de progreso de la alarma */}
-            <div className="w-full">
-              <div className="h-1.5 w-full overflow-hidden rounded-full bg-surface-muted">
-                <motion.div
-                  className="h-full rounded-full bg-accent-aprender"
-                  initial={{ width: 0 }}
-                  animate={{ width: `${progress * 100}%` }}
-                  transition={{ ease: "linear", duration: 1 }}
-                />
-              </div>
-              <p className="mt-2 text-xs text-muted-foreground">
-                Se apagará sola en {remaining}s
-              </p>
-            </div>
+            {!showExtend ? (
+              <>
+                <div className="w-full">
+                  <div className="h-1.5 w-full overflow-hidden rounded-full bg-surface-muted">
+                    <motion.div
+                      className="h-full rounded-full bg-accent-aprender"
+                      initial={{ width: 0 }}
+                      animate={{ width: `${progress * 100}%` }}
+                      transition={{ ease: "linear", duration: 1 }}
+                    />
+                  </div>
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    Se apagará sola en {remaining}s
+                  </p>
+                </div>
 
-            <button
-              type="button"
-              onClick={handleDismiss}
-              className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-2xl bg-accent-aprender px-4 py-3 text-base font-semibold text-white shadow-sm transition-colors duration-200 hover:bg-accent-aprender-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender"
-            >
-              <Check className="size-5" />
-              ¡Genial! Vamos por más
-            </button>
+                <Button onClick={handleDismiss} className="w-full gap-2">
+                  <Check className="size-5" />
+                  ¡Genial! Vamos por más
+                </Button>
+
+                {canExtend && onExtend && (
+                  <button
+                    type="button"
+                    onClick={handleShowExtend}
+                    className="flex cursor-pointer items-center gap-1.5 text-sm font-medium text-accent-aprender underline underline-offset-4 transition-colors hover:text-accent-aprender-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender"
+                  >
+                    <Plus className="size-4" />
+                    Agregar más tiempo
+                  </button>
+                )}
+              </>
+            ) : (
+              <div className="flex w-full flex-col gap-3">
+                <label className="flex flex-col gap-1.5 text-left">
+                  <span className="text-sm font-medium text-foreground">Minutos extra</span>
+                  <Input
+                    type="number"
+                    min={MIN_EXTRA}
+                    max={MAX_EXTRA}
+                    value={minutes}
+                    onChange={(event) => {
+                      const value = Number(event.target.value);
+                      setMinutes(Number.isFinite(value) ? value : MIN_EXTRA);
+                    }}
+                    aria-label="Minutos extra"
+                  />
+                </label>
+                <Button
+                  onClick={handleExtend}
+                  disabled={isPending || minutes < MIN_EXTRA}
+                  className="w-full"
+                >
+                  {isPending ? "Iniciando..." : "Iniciemos"}
+                </Button>
+                <button
+                  type="button"
+                  onClick={() => setShowExtend(false)}
+                  disabled={isPending}
+                  className="cursor-pointer text-sm text-muted-foreground underline underline-offset-4 hover:text-foreground"
+                >
+                  Volver
+                </button>
+              </div>
+            )}
           </motion.div>
         </motion.div>
       )}

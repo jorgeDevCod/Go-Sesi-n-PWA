@@ -45,9 +45,16 @@ describe("StartSessionFlow (1 pantalla)", () => {
     expect(screen.getByRole("button", { name: /Comenzar · 50 min/ })).toBeInTheDocument();
   });
 
-  it("abre el modal al tocar un tiempo y aplica el valor escrito", () => {
+  it("selecciona un chip sin abrir el modal", () => {
     renderFlow();
-    fireEvent.click(screen.getByRole("button", { name: "Ajustar 50 minutos" }));
+    fireEvent.click(screen.getByRole("button", { name: "Elegir 30 minutos" }));
+    expect(screen.getByRole("button", { name: /Comenzar · 30 min/ })).toBeInTheDocument();
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+
+  it("abre el modal desde Ajustar y aplica el valor escrito", () => {
+    renderFlow();
+    fireEvent.click(screen.getByRole("button", { name: /Ajustar/ }));
 
     const input = screen.getByLabelText("Minutos");
     fireEvent.change(input, { target: { value: "35" } });
@@ -56,7 +63,7 @@ describe("StartSessionFlow (1 pantalla)", () => {
     expect(screen.getByRole("button", { name: /Comenzar · 35 min/ })).toBeInTheDocument();
   });
 
-  it("en Pomodoro muestra las 3 tarjetas grandes y abre el editor al tocar una", () => {
+  it("en Pomodoro selecciona un tier y abre el editor con el lápiz", () => {
     renderFlow();
     fireEvent.click(screen.getByRole("button", { name: "Pomodoro" }));
 
@@ -67,6 +74,8 @@ describe("StartSessionFlow (1 pantalla)", () => {
 
     expect(screen.queryByLabelText("Foco")).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: /^Medio/ }));
+    expect(screen.queryByLabelText("Foco")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Editar Medio" }));
     expect(screen.getByLabelText("Foco")).toBeInTheDocument();
     expect(screen.getByLabelText("Descanso")).toBeInTheDocument();
     expect(screen.getByLabelText("Ciclos")).toBeInTheDocument();
@@ -76,6 +85,7 @@ describe("StartSessionFlow (1 pantalla)", () => {
     renderFlow();
     fireEvent.click(screen.getByRole("button", { name: "Pomodoro" }));
     fireEvent.click(screen.getByRole("button", { name: /^Medio/ }));
+    fireEvent.click(screen.getByRole("button", { name: "Editar Medio" }));
 
     const focus = screen.getByLabelText("Foco");
     fireEvent.change(focus, { target: { value: "30" } });
@@ -87,11 +97,10 @@ describe("StartSessionFlow (1 pantalla)", () => {
     ).toBeInTheDocument();
   });
 
-  it("al elegir Intenso y aplicar, usa su preset", () => {
+  it("al elegir Intenso se usa su preset", () => {
     renderFlow();
     fireEvent.click(screen.getByRole("button", { name: "Pomodoro" }));
     fireEvent.click(screen.getByRole("button", { name: /^Intenso/ }));
-    fireEvent.click(screen.getByRole("button", { name: "Aplicar" }));
 
     expect(
       screen.getByRole("button", { name: /Comenzar · 2 ciclos de 75 min/ }),

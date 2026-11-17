@@ -43,15 +43,14 @@ import {
   resolvePomodoroConfigForStart,
   type PomodoroConfig,
 } from "@/services/session/pomodoro";
+import type { EnergyLevel } from "@/services/recommendation/energy-level";
 import {
-  effectiveDurationOptions,
-  type EnergyLevel,
-} from "@/services/recommendation/energy-level";
+  DURATION_PROFILE_MAX,
+  buildDurationOptions,
+  durationProfileFor,
+} from "@/features/session/duration-options";
 import type { Complexity } from "@/lib/constants/default-subcategories";
-import {
-  useRecommendationPrefs,
-  recommendationOverridesFromPrefs,
-} from "@/features/recommendation/store/recommendation.store";
+import { useRecommendationPrefs } from "@/features/recommendation/store/recommendation.store";
 import { ROUTES } from "@/lib/routes";
 import { isStandalonePwa } from "@/lib/pwa";
 import { ensurePushSubscription } from "@/features/push/push-client";
@@ -62,7 +61,6 @@ type SubcategoryOption = { id: string; name: string; icon: string; color: string
 type Step = "duration" | "countdown";
 type SessionMode = "CLASSIC" | "POMODORO";
 
-const DURATION_CHIPS = [10, 20, 30, 40, 50, 60];
 const SAVE_DEBOUNCE_MS = 700;
 
 function samePlan(a: PomodoroConfig, b: PomodoroConfig) {
@@ -107,7 +105,6 @@ export function StartSessionFlow({
   const appBack = useAppBack();
   useRegisterAppBack(onBack ?? null);
   const prefs = useRecommendationPrefs();
-  const overrides = recommendationOverridesFromPrefs(prefs);
   const [step, setStep] = useState<Step>("duration");
   const [autoStart, setAutoStart] = useState(() => getStoredPomodoroAutoStart());
   const effectiveEnergy: EnergyLevel = energy ?? "media";
@@ -188,19 +185,14 @@ export function StartSessionFlow({
     [subcategory.id],
   );
 
-  const baseDurationChips = energy
-    ? effectiveDurationOptions(energy, overrides)
-    : DURATION_CHIPS;
-  const durationChips = [
-    ...new Set(
-      [
-        ...baseDurationChips,
-        defaultMinutes,
-        lastClassicMinutes,
-        classicMinutes,
-      ].filter((value): value is number => typeof value === "number"),
-    ),
-  ].sort((a, b) => a - b);
+  const durationProfile = durationProfileFor(energy, complexity);
+  const durationChips = buildDurationOptions({
+    selectedMinutes:
+      classicMinutes ?? defaultMinutes ?? lastClassicMinutes ?? 30,
+    profile: durationProfile,
+    recommendedMinutes: defaultMinutes,
+    maxMinutes: DURATION_PROFILE_MAX[durationProfile],
+  });
 
   const recommendedTier = POMODORO_TIER_BY_COMPLEXITY[complexity];
   const tierConfigs = POMODORO_TIERS.map((key) => ({
@@ -439,6 +431,7 @@ export function StartSessionFlow({
                       chips={durationChips}
                       value={classicMinutes}
                       suggestedMinutes={defaultMinutes}
+                      onSelect={handleMinutesChange}
                       onEdit={(next) => setEditingMinutes(next)}
                     />
                     <div className="mt-4 border-t border-border pt-3">
@@ -488,43 +481,50 @@ export function StartSessionFlow({
                           const selected = samePlan(pomodoroConfig, option.config);
                           const recommended = option.key === recommendedTier;
                           return (
-                            <button
+                            <div
                               key={option.key}
-                              type="button"
-                              onClick={() => setEditingPomodoro(option.config)}
                               className={cn(
-                                "flex w-full cursor-pointer flex-col gap-1 rounded-2xl border p-4 text-left transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender",
+                                "relative rounded-2xl border transition-all duration-200",
                                 selected
                                   ? "border-accent-aprender bg-accent-aprender/10 ring-1 ring-accent-aprender"
-                                  : recommended
-                                    ? "border-accent-aprender/50 bg-surface hover:bg-surface-hover"
-                                    : "border-border bg-surface hover:bg-surface-hover",
+                                  : "border-border bg-surface hover:bg-surface-hover",
                               )}
                             >
-                              <span className="flex items-center justify-between gap-2">
-                                <span className="flex flex-wrap items-center gap-2">
+                              <button
+                                type="button"
+                                onClick={() => handlePomodoroConfigChange(option.config)}
+                                className="flex w-full cursor-pointer flex-col gap-1 rounded-2xl p-4 pr-12 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender"
+                              >
+                                <span className="flex flex-wrap items-center gap-2 pr-10">
                                   <span className="text-base font-semibold text-foreground">
                                     {option.label}
                                   </span>
-                                  {recommended && (
-                                    <span className="rounded-full bg-accent-aprender px-2 py-0.5 text-[10px] font-semibold text-white">
-                                      Recomendada
-                                    </span>
-                                  )}
                                   {selected && (
                                     <span className="rounded-full bg-accent-aprender/15 px-2 py-0.5 text-[10px] font-semibold text-accent-aprender">
                                       En uso
                                     </span>
                                   )}
                                 </span>
-                                <Pencil className="size-4 shrink-0 text-muted-foreground" />
-                              </span>
-                              <span className="text-sm font-medium text-foreground">
-                                {option.config.focusMin} min foco · {option.config.breakMin} min
-                                descanso · {option.config.cycles} ciclos
-                              </span>
-                              <span className="text-xs text-muted-foreground">{option.detail}</span>
-                            </button>
+                                <span className="text-sm font-medium text-foreground">
+                                  {option.config.focusMin} min foco · {option.config.breakMin} min
+                                  descanso · {option.config.cycles} ciclos
+                                </span>
+                                <span className="text-xs text-muted-foreground">{option.detail}</span>
+                              </button>
+                              {recommended && (
+                                <span className="absolute top-2 right-2 rounded-full bg-accent-aprender px-2 py-0.5 text-[9px] font-semibold text-white">
+                                  Recomendado
+                                </span>
+                              )}
+                              <button
+                                type="button"
+                                onClick={() => setEditingPomodoro(option.config)}
+                                aria-label={`Editar ${option.label}`}
+                                className="absolute right-2 bottom-2 flex size-7 cursor-pointer items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-surface-hover hover:text-foreground"
+                              >
+                                <Pencil className="size-3.5" />
+                              </button>
+                            </div>
                           );
                         })}
                       </div>
@@ -673,6 +673,7 @@ export function StartSessionFlow({
           handleMinutesChange(next);
           setEditingMinutes(null);
         }}
+        maxMinutes={DURATION_PROFILE_MAX[durationProfile]}
       />
 
       <PomodoroConfigModal
@@ -683,6 +684,8 @@ export function StartSessionFlow({
           handlePomodoroConfigChange(next);
           setEditingPomodoro(null);
         }}
+        durationProfile={durationProfile}
+        maxFocusMinutes={DURATION_PROFILE_MAX[durationProfile]}
       />
     </div>
   );
