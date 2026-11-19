@@ -14,9 +14,9 @@ type ThemeOption = {
 const THEMES: ThemeOption[] = [
   { key: "blanco", label: "Blanco", swatch: "#FFFFFF" },
   { key: "dark", label: "Oscuro", swatch: "#26262B" },
-  { key: "humo", label: "Blanco humo", swatch: "#FAF6F6" },
-  { key: "rosa", label: "Rosa", swatch: "#F2A9C4" },
-  { key: "celeste", label: "Celeste", swatch: "#8A97E0" },
+  { key: "humo", label: "Blanco humo", swatch: "#F1F5F9" },
+  { key: "rosa", label: "Rosa", swatch: "#FCE7F3" },
+  { key: "celeste", label: "Celeste", swatch: "#E0F2FE" },
 ];
 
 function subscribeNoop() {
@@ -94,9 +94,9 @@ export function ThemeToggle({
           aria-hidden="true"
         >
           <span style={{ backgroundColor: "#29292E" }} />
-          <span style={{ backgroundColor: "#FAF6F6" }} />
-          <span style={{ backgroundColor: "#8995D8" }} />
-          <span style={{ backgroundColor: "#F2A9C4" }} />
+          <span style={{ backgroundColor: "#F1F5F9" }} />
+          <span style={{ backgroundColor: "#E0F2FE" }} />
+          <span style={{ backgroundColor: "#FCE7F3" }} />
         </span>
       </button>
 

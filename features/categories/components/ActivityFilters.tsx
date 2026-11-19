@@ -54,7 +54,7 @@ export function ActivityFilters({
               : "border-border bg-surface text-foreground hover:bg-surface-hover",
           )}
         >
-          Todas
+          Todas las actividades
         </button>
         {DIFFICULTY_OPTIONS.map(({ value, label }) => {
           const selected = selectedDifficulties.includes(value);

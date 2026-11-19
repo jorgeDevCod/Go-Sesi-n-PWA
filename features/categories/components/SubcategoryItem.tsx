@@ -27,6 +27,7 @@ export function SubcategoryItem({
   category,
   selectMode = false,
   selected = false,
+  showEdit = true,
   onToggleSelect,
 }: {
   item: SubcategoryItemType;
@@ -35,6 +36,7 @@ export function SubcategoryItem({
   category?: { id: string; name: string; icon: string; color: string };
   selectMode?: boolean;
   selected?: boolean;
+  showEdit?: boolean;
   onToggleSelect?: (id: string) => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
@@ -154,15 +156,17 @@ export function SubcategoryItem({
             <Play className="size-3.5" />
             Iniciar
           </button>
-          <button
-            type="button"
-            onClick={onEdit}
-            aria-label={`Editar ${item.name}`}
-            title={`Editar ${item.name}`}
-            className="flex size-8 cursor-pointer items-center justify-center rounded-lg text-muted-foreground hover:bg-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender"
-          >
-            <Pencil className="size-4" />
-          </button>
+          {showEdit && (
+            <button
+              type="button"
+              onClick={onEdit}
+              aria-label={`Editar ${item.name}`}
+              title={`Editar ${item.name}`}
+              className="flex size-8 cursor-pointer items-center justify-center rounded-lg text-muted-foreground hover:bg-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender"
+            >
+              <Pencil className="size-4" />
+            </button>
+          )}
           <button
             type="button"
             onClick={onDelete}

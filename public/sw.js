@@ -1,4 +1,4 @@
-const CACHE_NAME = "gosession-shell-v2";
+const CACHE_NAME = "gosession-shell-v3";
 const OFFLINE_URL = "/offline.html";
 
 self.addEventListener("install", (event) => {
@@ -24,18 +24,29 @@ self.addEventListener("push", (event) => {
 
   const title = payload.title || "Go Sesión";
   event.waitUntil(
-    self.registration.showNotification(title, {
-      body: payload.body || "Tu espacio de enfoque te espera.",
-      icon: "/icons/192",
-      badge: "/icons/192",
-      tag: payload.tag,
-      data: payload.data || { action: "open", sessionId: payload.sessionId },
-      silent: payload.silent === true,
-      renotify: payload.renotify === true,
-      requireInteraction: payload.requireInteraction === true,
-      actions: payload.actions,
-      vibrate: payload.silent === true ? undefined : [200, 100, 200],
-    }),
+    (async () => {
+      const sessionId = payload.data?.sessionId || payload.sessionId;
+      // Al terminar la sesión, la notificación de tiempo en curso desaparece.
+      if (payload.data?.type === "complete" && sessionId) {
+        const live = await self.registration.getNotifications({
+          tag: `gosession-live-${sessionId}`,
+        });
+        for (const note of live) note.close();
+      }
+
+      await self.registration.showNotification(title, {
+        body: payload.body || "Tu espacio de enfoque te espera.",
+        icon: "/icons/192",
+        badge: "/icons/192",
+        tag: payload.tag,
+        data: payload.data || { action: "open", sessionId: payload.sessionId },
+        silent: payload.silent === true,
+        renotify: payload.renotify === true,
+        requireInteraction: payload.requireInteraction === true,
+        actions: payload.actions,
+        vibrate: payload.silent === true ? undefined : [200, 100, 200],
+      });
+    })(),
   );
 });
 
@@ -43,16 +54,38 @@ self.addEventListener("push", (event) => {
 // notificación lleva un dato con la acción y el id de sesión para decidir
 // a dónde navegar.
 self.addEventListener("notificationclick", (event) => {
-  event.notification.close();
-
   const data = event.notification.data ?? {};
   const action = event.action ?? data.action ?? "open";
 
+  if (action === "toggle" || action === "finish") {
+    event.waitUntil(
+      (async () => {
+        try {
+          await fetch("/api/session/notification-action", {
+            method: "POST",
+            credentials: "include",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({ id: data.sessionId, action }),
+          });
+        } catch {
+          // Si falla, la app puede resolverlo al abrirse.
+        } finally {
+          event.notification.close();
+        }
+      })(),
+    );
+    return;
+  }
+
+  event.notification.close();
+
   const url =
-    data.url ||
-    (action === "finish" || action === "view" || action === "phase" || action === "live"
-      ? "/app/sesion"
-      : "/app/inicio");
+    action === "extend" && data.sessionId
+      ? `/app/sesion/finalizada/${data.sessionId}?extender=1`
+      : data.url ||
+        (action === "finish" || action === "view" || action === "phase" || action === "live"
+          ? "/app/sesion"
+          : "/app/inicio");
 
   event.waitUntil(
     self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((clients) => {

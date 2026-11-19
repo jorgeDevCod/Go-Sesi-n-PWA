@@ -68,6 +68,7 @@ export default async function ActivitiesPage({
         itemsByCategory={itemsByCategory}
         initialCategoryId={initialCategoryId}
         activityBasePath="/app/actividades"
+        allowEdit={false}
       />
     </div>
   );

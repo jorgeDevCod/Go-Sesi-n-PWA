@@ -95,8 +95,19 @@ export function useLiveSessionNotification(session: SessionDTO | null) {
           silent: true,
           renotify: false,
           requireInteraction: true,
+          actions: [
+            {
+              action: "toggle",
+              title: active.pausedAtMs !== null ? "Reanudar" : "Pausar",
+            },
+            { action: "finish", title: "Finalizar sesión" },
+          ],
           data: { url: ROUTES.session, type: "live", sessionId: active.id },
-        } as NotificationOptions & { renotify: boolean; silent: boolean });
+        } as NotificationOptions & {
+          renotify: boolean;
+          silent: boolean;
+          actions: { action: string; title: string }[];
+        });
       } catch {
         // Best-effort: sin soporte o permiso, no pasa nada.
       }

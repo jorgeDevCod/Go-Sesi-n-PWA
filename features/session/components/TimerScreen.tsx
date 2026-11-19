@@ -108,6 +108,9 @@ export function TimerScreen({
             <Pause className="size-7 fill-current" />
           )}
         </button>
+        <span className="text-xs font-medium text-muted-foreground">
+          {view.isPaused ? "Reanudar" : "Pausar"}
+        </span>
         <Button
           variant="danger"
           onClick={handleFinish}

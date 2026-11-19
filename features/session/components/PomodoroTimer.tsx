@@ -291,6 +291,9 @@ export function PomodoroTimer({
             <Pause className="size-7 fill-current" />
           )}
         </button>
+        <span className="text-xs font-medium text-muted-foreground">
+          {isPaused ? "Reanudar" : "Pausar"}
+        </span>
         <div className="flex flex-wrap items-center justify-center gap-2">
           <Button
             variant="secondary"

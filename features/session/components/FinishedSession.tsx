@@ -1,8 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useState, useSyncExternalStore, useTransition } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { CompletionAlarm } from "@/features/session/components/CompletionAlarm";
+import { ExtendSessionModal } from "@/features/session/components/ExtendSessionModal";
 import { FinishScreen } from "@/features/session/components/FinishScreen";
 import { extendSessionAction } from "@/features/session/actions/session.actions";
 import { playSessionSound } from "@/features/session/sound-manager";
@@ -27,9 +28,13 @@ function readAlarmSeen(sessionId: string): boolean {
 
 export function FinishedSession({ session }: { session: SessionDTO }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const setSession = useSessionStore((s) => s.setSession);
   const [isPending, startTransition] = useTransition();
   const [alarmDone, setAlarmDone] = useState(false);
+  const [extendOpen, setExtendOpen] = useState(
+    searchParams.get("extender") === "1",
+  );
   const alarmSeen = useSyncExternalStore(
     subscribeNoop,
     () => readAlarmSeen(session.id),
@@ -75,7 +80,23 @@ export function FinishedSession({ session }: { session: SessionDTO }) {
     [router, session.id, setSession],
   );
 
+  const handleFinalizeExtend = useCallback(() => {
+    setExtendOpen(false);
+    router.replace(ROUTES.sessionFinished(session.id));
+  }, [router, session.id]);
+
   if (session.status === "ACTIVE") return null;
+
+  if (extendOpen && session.status === "COMPLETED") {
+    return (
+      <ExtendSessionModal
+        open
+        isPending={isPending}
+        onAdd={handleExtend}
+        onFinalize={handleFinalizeExtend}
+      />
+    );
+  }
 
   if (!alarmDone && !alarmSeen) {
     return (

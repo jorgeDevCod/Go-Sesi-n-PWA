@@ -1,8 +1,6 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
 import { StartSessionFlow } from "@/features/session/components/StartSessionFlow";
-import { EnergyPromptModal } from "@/features/session/components/EnergyPromptModal";
 import { useRecommendationPrefs } from "@/features/recommendation/store/recommendation.store";
 import {
   suggestedMinutesFor,
@@ -24,10 +22,6 @@ type SubcategoryOption = {
   lastMode?: "CLASSIC" | "POMODORO" | null;
 };
 
-function subscribeNoop() {
-  return () => {};
-}
-
 /**
  * Arranque de una actividad concreta. La selección de categoría/actividad
  * vive en Personalizar → Actividades, así que aquí no duplicamos la lista.
@@ -42,21 +36,14 @@ export function SessionWizard({
   startWithId?: string;
 }) {
   const prefs = useRecommendationPrefs();
-  const isClient = useSyncExternalStore(subscribeNoop, () => true, () => false);
   const selected = subcategories.find((sub) => sub.id === startWithId);
 
   if (!selected) return null;
 
   const energy = prefs.energy;
-  const showEnergyModal = isClient && !energy;
 
   return (
     <div className="flex w-full flex-col gap-2">
-      <EnergyPromptModal
-        open={showEnergyModal}
-        onSelect={(next) => prefs.setEnergy(next)}
-        onSkip={() => prefs.setEnergy("media")}
-      />
       <StartSessionFlow
         subcategory={selected}
         categoryName={categoryName}

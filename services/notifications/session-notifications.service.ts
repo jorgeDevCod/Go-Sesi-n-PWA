@@ -25,6 +25,7 @@ async function sendLive(
   sessionId: string,
   title: string,
   body: string,
+  paused = false,
 ): Promise<boolean> {
   try {
     await sendPushToUser(userId, {
@@ -34,6 +35,10 @@ async function sendLive(
       silent: true,
       renotify: false,
       requireInteraction: true,
+      actions: [
+        { action: "toggle", title: paused ? "Reanudar" : "Pausar" },
+        { action: "finish", title: "Finalizar sesión" },
+      ],
       data: { url: ROUTES.session, type: "live", sessionId },
     });
     return true;
@@ -76,6 +81,10 @@ async function sendCompletion(
       body,
       tag: `gosession-done-${sessionId}`,
       requireInteraction: true,
+      actions: [
+        { action: "extend", title: "Agregar tiempo" },
+        { action: "open", title: "Ver resumen" },
+      ],
       data: { url: ROUTES.sessionFinished(sessionId), type: "complete", sessionId },
     });
     return true;
@@ -234,6 +243,7 @@ export async function processSessionNotifications(nowMs = Date.now()): Promise<C
           session.id,
           session.subcategory.name,
           `${phaseLabel} · quedan ${formatRemaining(view.phaseRemainingMs)}`,
+          session.pausedAt !== null,
         );
         if (live) summary.liveNotified += 1;
       }
@@ -254,6 +264,7 @@ export async function processSessionNotifications(nowMs = Date.now()): Promise<C
       session.id,
       session.subcategory.name,
       `${session.pausedAt ? "Pausada" : "En curso"} · quedan ${formatRemaining(remaining)}`,
+      session.pausedAt !== null,
     );
     if (live) summary.liveNotified += 1;
   }

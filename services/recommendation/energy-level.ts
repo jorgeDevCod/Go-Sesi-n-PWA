@@ -323,6 +323,16 @@ export function isEnergyCompatible(
  * - Energía media → lo normal y cotidiano (MEDIUM).
  * - Energía baja → siempre algo simple (LOW).
  */
+/** Dificultad que debe preseleccionarse al entrar a Actividades. */
+export function defaultComplexityForEnergy(
+  energy: EnergyLevel | null | undefined,
+): Complexity | null {
+  if (energy === "alta") return "HIGH";
+  if (energy === "media") return "MEDIUM";
+  if (energy === "baja") return "LOW";
+  return null;
+}
+
 export function preferredComplexity(
   energy: EnergyLevel,
   minutes: number,

@@ -14,12 +14,15 @@ export function ActivitiesTab({
   itemsByCategory,
   initialCategoryId,
   activityBasePath,
+  allowEdit = true,
 }: {
   categories: RoutineCategory[];
   itemsByCategory: Record<string, SubcategoryItem[]>;
   initialCategoryId?: string | null;
   /** Ruta base de la vista (Personalizar o Actividades). */
   activityBasePath?: string;
+  /** La vista standalone no permite editar actividades. */
+  allowEdit?: boolean;
 }) {
   const [selected, setSelected] = useState(() =>
     initialCategoryId && categories.some((category) => category.id === initialCategoryId)
@@ -112,7 +115,7 @@ export function ActivitiesTab({
             categoryColor={current.color}
             categoryComplexity={current.complexity}
             initialItems={itemsByCategory[current.id] ?? []}
-            showFilters={false}
+            allowEdit={allowEdit}
             enableBulkDelete
           />
       ) : (

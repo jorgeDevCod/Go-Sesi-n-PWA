@@ -50,9 +50,9 @@ const MENU_ITEMS = [
 const THEMES = [
   { label: "Oscuro", color: "#1c1c1f" },
   { label: "Blanco", color: "#d5d8e0" },
-  { label: "Humo", color: "#FAF6F6" },
-  { label: "Rosa", color: "#d3adbf" },
-  { label: "Celeste", color: "#8a97e0" },
+  { label: "Humo", color: "#F1F5F9" },
+  { label: "Rosa", color: "#FCE7F3" },
+  { label: "Celeste", color: "#E0F2FE" },
 ];
 
 const CATEGORY_TABS = [
@@ -139,9 +139,9 @@ export function AppHeroMockup() {
                 >
                   <span className="grid size-4 grid-cols-2 overflow-hidden rounded-full border border-border/60">
                     <span style={{ backgroundColor: "#29292E" }} />
-                    <span style={{ backgroundColor: "#FAFAFA" }} />
-                    <span style={{ backgroundColor: "#8995D8" }} />
-                    <span style={{ backgroundColor: "#F2A9C4" }} />
+                    <span style={{ backgroundColor: "#F1F5F9" }} />
+                    <span style={{ backgroundColor: "#E0F2FE" }} />
+                    <span style={{ backgroundColor: "#FCE7F3" }} />
                   </span>
                 </button>
                 <AnimatePresence>

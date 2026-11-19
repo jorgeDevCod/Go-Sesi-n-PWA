@@ -115,6 +115,13 @@ export function CategoriesTab({ categories }: { categories: RoutineCategory[] })
 
   return (
     <div className="flex flex-col gap-4">
+      <div className="flex flex-wrap items-center gap-2">
+        <Button size="md" onClick={() => setShowCreateModal(true)} className="gap-2">
+          <Plus className="size-4" />
+          Crear categoría
+        </Button>
+      </div>
+
       <p className="text-sm leading-relaxed text-muted-foreground">
         Crea categorías para enfocarte en lo que quieres mejorar, organizar tus actividades o dedicarte a tus nuevos hobbies. Personaliza cada una y hazla completamente tuya.
       </p>
@@ -160,11 +167,9 @@ export function CategoriesTab({ categories }: { categories: RoutineCategory[] })
 
       {list.length === 0 ? (
         <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-border bg-surface-muted p-6 text-center">
-          <p className="text-sm text-muted-foreground">Aún no tienes categorías. Crea la primera:</p>
-          <Button size="md" onClick={() => setShowCreateModal(true)}>
-            <Plus className="size-4" />
-            Crear categoría
-          </Button>
+          <p className="text-sm text-muted-foreground">
+            Aún no tienes categorías. Crea la primera con el botón de arriba.
+          </p>
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -232,15 +237,6 @@ export function CategoriesTab({ categories }: { categories: RoutineCategory[] })
             </div>
             );
           })}
-        </div>
-      )}
-
-      {list.length > 0 && (
-        <div className="flex justify-center">
-          <Button size="md" onClick={() => setShowCreateModal(true)} variant="secondary">
-            <Plus className="size-4" />
-            Crear categoría
-          </Button>
         </div>
       )}
 

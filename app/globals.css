@@ -3,14 +3,14 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  --background: #e6ebf2;
+  --background: #f0f8ff;
   --foreground: #1c1c1a;
   --surface: #FFFFFF;
-  --surface-muted: #F1F4F8;
-  --surface-hover: #E3E8EF;
-  --border: #C9D0D9;
-  --border-hover: #9AA4B0;
-  --muted-foreground: #4B5563;
+  --surface-muted: #e0f2fe;
+  --surface-hover: #bae6fd;
+  --border: #c7e3f4;
+  --border-hover: #7fb8d9;
+  --muted-foreground: #475569;
 
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow-md: 0 4px 8px -1px rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.06);
@@ -33,37 +33,43 @@
    Solo varían los neutros; los acentos y las formas son compartidos con el
    resto de temas. */
 .celeste {
-  --background: #cee9f9;
+  --bg-celeste: #f0f8ff;
+  --bg-celeste-soft: #e0f2fe;
+  --background: var(--bg-celeste);
   --foreground: #1c1c1a;
-  --surface: #FFFFFF;
-  --surface-muted: #edf1fa;
-  --surface-hover: #E2E7F2;
-  --border: #c5cce0;
-  --border-hover: #9ba4c7;
-  --muted-foreground: #4a5170;
+  --surface: #ffffff;
+  --surface-muted: var(--bg-celeste-soft);
+  --surface-hover: #bae6fd;
+  --border: #c7e3f4;
+  --border-hover: #7fb8d9;
+  --muted-foreground: #475569;
 }
 
-/* Tema blanco humo: neutro cálido, casi blanco. */
+/* Tema blanco humo: gris azulado ultra claro. */
 .humo {
-  --background: #dcdee7;
+  --bg-humo: #f8fafc;
+  --bg-humo-card: #f1f5f9;
+  --background: var(--bg-humo);
   --foreground: #1c1c1a;
-  --surface: #FFFFFF;
-  --surface-muted: #F3ECEC;
-  --surface-hover: #EDE3E3;
-  --border: #D8CCCC;
-  --border-hover: #B9A9A9;
-  --muted-foreground: #564B4B;
+  --surface: var(--bg-humo-card);
+  --surface-muted: #e2e8f0;
+  --surface-hover: #cbd5e1;
+  --border: #cbd5e1;
+  --border-hover: #94a3b8;
+  --muted-foreground: #475569;
 }
 
 /* Tema rosa: neutros suaves rosados. */
 .rosa {
-  --background: #f3dee9;
+  --bg-rosa: #fdf2f8;
+  --bg-rosa-soft: #fce7f3;
+  --background: var(--bg-rosa);
   --foreground: #241317;
   --surface: #ffffff;
-  --surface-muted: #FAEDF3;
-  --surface-hover: #F1DCE6;
-  --border: #d3adbf;
-  --border-hover: #b07f95;
+  --surface-muted: var(--bg-rosa-soft);
+  --surface-hover: #fbcfe8;
+  --border: #f5c2d9;
+  --border-hover: #f9a8d4;
   --muted-foreground: #5c3a47;
 }
 

@@ -18,9 +18,9 @@ import { cn } from "@/lib/utils";
 import { ENERGY_COLORS, COMPLEXITY_LABELS } from "@/services/recommendation/energy-level";
 
 const THEME_SWATCHES = [
-  { key: "celeste", label: "Celeste", color: "#e6ebfa" },
-  { key: "rosa", label: "Rosa", color: "#f4e2eb" },
-  { key: "humo", label: "Humo", color: "#FAF6F6" },
+  { key: "celeste", label: "Celeste", color: "#F0F8FF" },
+  { key: "rosa", label: "Rosa", color: "#FDF2F8" },
+  { key: "humo", label: "Humo", color: "#F8FAFC" },
   { key: "blanco", label: "Blanco", color: "#ffffff" },
   { key: "oscuro", label: "Oscuro", color: "#1c1c1f" },
 ];

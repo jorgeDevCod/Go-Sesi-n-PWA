@@ -30,6 +30,8 @@ import { SubcategoryItem } from "@/features/categories/components/SubcategoryIte
 import { ActivityModal, type ActivityModalInitial } from "@/features/categories/components/ActivityModal";
 import { ActivityFilters } from "@/features/categories/components/ActivityFilters";
 import { useHomeQuickStore } from "@/features/home/store/home-quick.store";
+import { useRecommendationPrefs } from "@/features/recommendation/store/recommendation.store";
+import { defaultComplexityForEnergy } from "@/services/recommendation/energy-level";
 import { Button } from "@/components/ui/Button";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { InfoModal } from "@/components/ui/InfoModal";
@@ -51,6 +53,7 @@ export function SubcategoryList({
   showFilters = true,
   showEnergyInModal = true,
   enableBulkDelete = false,
+  allowEdit = true,
 }: {
   categoryId: string;
   categoryName: string;
@@ -61,8 +64,10 @@ export function SubcategoryList({
   showFilters?: boolean;
   showEnergyInModal?: boolean;
   enableBulkDelete?: boolean;
+  allowEdit?: boolean;
 }) {
   const router = useRouter();
+  const energy = useRecommendationPrefs((s) => s.energy);
   const setItems = useSubcategoryStore((s) => s.setItems);
   const reorder = useSubcategoryStore((s) => s.reorder);
   const removeManyQuick = useHomeQuickStore((s) => s.removeMany);
@@ -73,7 +78,12 @@ export function SubcategoryList({
   const [createOpen, setCreateOpen] = useState(false);
   const [editing, setEditing] = useState<ActivityModalInitial | null>(null);
   const [reorderError, setReorderError] = useState<string | null>(null);
-  const [selectedDifficulties, setSelectedDifficulties] = useState<Complexity[]>([]);
+  const [selectedDifficulties, setSelectedDifficulties] = useState<Complexity[]>(() => {
+    const preferred = defaultComplexityForEnergy(energy);
+    return preferred && initialItems.some((item) => item.complexity === preferred)
+      ? [preferred]
+      : [];
+  });
   const [search, setSearch] = useState("");
   const [selectMode, setSelectMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -183,13 +193,18 @@ export function SubcategoryList({
 
   return (
     <div className="flex flex-col gap-4">
+      <motion.div whileTap={{ scale: 0.97 }} transition={{ duration: 0.08 }}>
+        <Button variant="secondary" onClick={() => setCreateOpen(true)} className="gap-2">
+          <Plus className="size-4" />
+          Agregar Actividad
+        </Button>
+      </motion.div>
+
       {showFilters && (
         <ActivityFilters
           selectedDifficulties={selectedDifficulties}
           onToggleDifficulty={(value) =>
-            setSelectedDifficulties((prev) =>
-              prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value],
-            )
+            setSelectedDifficulties((prev) => (prev.includes(value) ? [] : [value]))
           }
         />
       )}
@@ -277,6 +292,7 @@ export function SubcategoryList({
                 }}
                 selectMode={selectMode}
                 selected={selectedIds.has(item.id)}
+                showEdit={allowEdit}
                 onToggleSelect={toggleSelect}
                 onEdit={() =>
                   setEditing({
@@ -309,13 +325,6 @@ export function SubcategoryList({
             : "Todavía no tienes Actividades aquí. Agrega la primera cuando quieras."}
         </p>
       )}
-
-      <motion.div whileTap={{ scale: 0.97 }} transition={{ duration: 0.08 }}>
-        <Button variant="secondary" onClick={() => setCreateOpen(true)} className="self-start">
-          <Plus className="size-4" />
-          Agregar Actividad
-        </Button>
-      </motion.div>
 
       <ActivityModal
         open={createOpen}
