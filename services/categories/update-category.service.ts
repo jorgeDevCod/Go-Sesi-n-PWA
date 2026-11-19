@@ -9,6 +9,7 @@ import {
   DuplicateCategoryNameError,
 } from "./category.errors";
 import type { Complexity } from "@/lib/constants/default-subcategories";
+import type { EnergyLevel } from "@/services/recommendation/energy-level";
 
 type UpdateCategoryInput = {
   id: string;
@@ -17,6 +18,8 @@ type UpdateCategoryInput = {
   icon?: string;
   color?: string;
   complexity?: Complexity;
+  energyLevel?: EnergyLevel | null;
+  energyComplexity?: Complexity | null;
 };
 
 export async function updateCategoryForUser({ id, userId, ...data }: UpdateCategoryInput) {

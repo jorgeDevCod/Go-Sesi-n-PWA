@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { auth } from "@/auth";
 import {
+  bulkUpdateSubcategoriesSchema,
   createSubcategorySchema,
   deleteSubcategorySchema,
   reorderSubcategoriesSchema,
@@ -16,6 +17,7 @@ import { updateSubcategoryForUser } from "@/services/categories/update-subcatego
 import { deleteSubcategoryForUser } from "@/services/categories/delete-subcategory.service";
 import { reorderSubcategoriesForUser } from "@/services/categories/reorder-subcategories.service";
 import { softDeleteManySubcategoriesToTrash } from "@/services/categories/trash.service";
+import { bulkUpdateSubcategoriesForUser } from "@/services/categories/bulk-update-subcategories.service";
 import { setActivityPomodoroForUser } from "@/services/categories/activity-pomodoro.service";
 import { saveActivityTimerPreferenceForUser } from "@/services/categories/activity-timer.service";
 import { ROUTES } from "@/lib/routes";
@@ -95,6 +97,32 @@ export async function updateSubcategoryAction(input: unknown): Promise<ActionRes
   }
 
   revalidatePath(ROUTES.customize);
+  return { success: true };
+}
+
+export async function bulkUpdateSubcategoriesAction(
+  input: unknown,
+): Promise<ActionResult> {
+  const parsed = bulkUpdateSubcategoriesSchema.safeParse(input);
+  if (!parsed.success) {
+    return { success: false, error: parsed.error.issues[0]?.message ?? "Datos inválidos." };
+  }
+
+  try {
+    const userId = await requireUserId();
+    await bulkUpdateSubcategoriesForUser(userId, parsed.data.ids, {
+      complexity: parsed.data.complexity,
+      energyLevel: parsed.data.energyLevel,
+      energyComplexity: parsed.data.energyComplexity ?? parsed.data.complexity,
+    });
+  } catch (error) {
+    return toErrorResult(error);
+  }
+
+  revalidatePath(ROUTES.customize);
+  revalidatePath(ROUTES.activities());
+  revalidatePath(ROUTES.activityView());
+  revalidatePath(ROUTES.home);
   return { success: true };
 }
 

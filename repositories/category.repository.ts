@@ -87,3 +87,19 @@ export function oldestDeletedCategoryIds(userId: string, take: number) {
     take,
   });
 }
+
+/** Actualiza dificultad y energía de varias categorías propias a la vez. */
+export function bulkUpdateCategories(
+  userId: string,
+  ids: string[],
+  data: {
+    complexity: "LOW" | "MEDIUM" | "HIGH";
+    energyLevel: string | null;
+    energyComplexity: "LOW" | "MEDIUM" | "HIGH" | null;
+  },
+) {
+  return prisma.category.updateMany({
+    where: { id: { in: ids }, userId, deletedAt: null },
+    data,
+  });
+}

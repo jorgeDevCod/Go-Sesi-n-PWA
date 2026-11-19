@@ -55,6 +55,7 @@ import { ROUTES } from "@/lib/routes";
 import { isStandalonePwa } from "@/lib/pwa";
 import { ensurePushSubscription } from "@/features/push/push-client";
 import { useAppBack } from "@/lib/use-app-back";
+import { useSessionStore } from "@/features/session/store/session.store";
 import { cn } from "@/lib/utils";
 
 type SubcategoryOption = { id: string; name: string; icon: string; color: string };
@@ -265,6 +266,9 @@ export function StartSessionFlow({
         );
       }
 
+      // La sesión nueva debe mandar sobre cualquier terminal cacheada antes
+      // de navegar al cronómetro.
+      useSessionStore.getState().setSession(result.session);
       router.push(ROUTES.session);
     });
   }

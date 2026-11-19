@@ -65,7 +65,11 @@ self.addEventListener("notificationclick", (event) => {
             method: "POST",
             credentials: "include",
             headers: { "content-type": "application/json" },
-            body: JSON.stringify({ id: data.sessionId, action }),
+            body: JSON.stringify({
+              id: data.sessionId,
+              action,
+              pausedAtMs: action === "toggle" ? Date.now() : undefined,
+            }),
           });
         } catch {
           // Si falla, la app puede resolverlo al abrirse.

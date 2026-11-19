@@ -64,6 +64,13 @@ export const updateSubcategorySchema = z
 
 export type UpdateSubcategoryInput = z.infer<typeof updateSubcategorySchema>;
 
+export const bulkUpdateSubcategoriesSchema = z.object({
+  ids: z.array(cuid).min(1, "Selecciona al menos una actividad."),
+  complexity,
+  energyLevel,
+  energyComplexity,
+});
+
 export const deleteSubcategorySchema = z.object({
   id: cuid,
 });

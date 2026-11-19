@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { useActiveSession } from "@/features/session/hooks/useActiveSession";
 import { useTimer } from "@/features/session/hooks/useTimer";
 import { useWakeLock } from "@/features/session/hooks/useWakeLock";
-import { useLiveSessionNotification } from "@/features/session/hooks/useLiveSessionNotification";
 import { useSessionCompletionEffects } from "@/features/session/hooks/useSessionNotification";
 import { TimerScreen } from "@/features/session/components/TimerScreen";
 import { PomodoroTimer } from "@/features/session/components/PomodoroTimer";
@@ -21,7 +20,6 @@ export function SessionExperience({ initialSession }: { initialSession: SessionD
     autoComplete: initialSession.mode !== "POMODORO",
   });
   useSessionCompletionEffects(session);
-  useLiveSessionNotification(session);
   const router = useRouter();
   // Pantalla encendida solo con sesión activa (best-effort, sin UI ni home).
   useWakeLock(session?.status === "ACTIVE");

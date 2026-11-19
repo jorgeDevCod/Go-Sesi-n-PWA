@@ -3,6 +3,7 @@
 import { auth } from "@/auth";
 import {
   extendSessionSchema,
+  pauseSessionSchema,
   sessionIdSchema,
   startSessionSchema,
 } from "@/features/session/schemas/session.schema";
@@ -58,12 +59,16 @@ export async function startSessionAction(input: unknown): Promise<SessionActionR
 }
 
 export async function pauseSessionAction(input: unknown): Promise<SessionActionResult> {
-  const parsed = sessionIdSchema.safeParse(input);
+  const parsed = pauseSessionSchema.safeParse(input);
   if (!parsed.success) return { success: false, error: "Datos inválidos." };
 
   try {
     const userId = await requireUserId();
-    const session = await pauseSessionForUser(parsed.data.id, userId);
+    const session = await pauseSessionForUser(
+      parsed.data.id,
+      userId,
+      parsed.data.pausedAtMs,
+    );
     return { success: true, session };
   } catch (error) {
     return toErrorResult(error);

@@ -16,7 +16,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "No autorizado." }, { status: 401 });
   }
 
-  let body: { id?: unknown; action?: unknown };
+  let body: { id?: unknown; action?: unknown; pausedAtMs?: unknown };
   try {
     body = await request.json();
   } catch {
@@ -24,6 +24,8 @@ export async function POST(request: Request) {
   }
 
   const id = typeof body.id === "string" ? body.id : null;
+  const pausedAtMs =
+    typeof body.pausedAtMs === "number" ? body.pausedAtMs : undefined;
   const action = body.action as NotificationAction | undefined;
   if (!id || !action || !["toggle", "pause", "resume", "finish"].includes(action)) {
     return NextResponse.json({ error: "Datos inválidos." }, { status: 400 });
@@ -44,7 +46,7 @@ export async function POST(request: Request) {
       action === "resume" || (action === "toggle" && active.pausedAtMs !== null);
     const updated = shouldResume
       ? await resumeSessionForUser(id, userId)
-      : await pauseSessionForUser(id, userId);
+      : await pauseSessionForUser(id, userId, pausedAtMs);
     return NextResponse.json({
       ok: true,
       paused: updated.pausedAtMs !== null,

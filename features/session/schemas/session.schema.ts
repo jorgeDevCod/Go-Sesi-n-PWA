@@ -34,6 +34,12 @@ export const sessionIdSchema = z.object({
   id: cuid,
 });
 
+export const pauseSessionSchema = z.object({
+  id: cuid,
+  /** Instante del clic en pausa para no perder los segundos de red. */
+  pausedAtMs: z.number().int().positive().optional(),
+});
+
 export const extendSessionSchema = z.object({
   id: cuid,
   extraMinutes: minutes,

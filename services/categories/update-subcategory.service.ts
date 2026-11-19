@@ -9,6 +9,7 @@ import {
   SubcategoryNotFoundError,
 } from "./subcategory.errors";
 import type { Complexity } from "@/lib/constants/default-subcategories";
+import type { EnergyLevel } from "@/services/recommendation/energy-level";
 import type { PomodoroConfig } from "@/services/session/pomodoro";
 
 type UpdateSubcategoryInput = {
@@ -18,6 +19,8 @@ type UpdateSubcategoryInput = {
   icon?: string;
   color?: string;
   complexity?: Complexity;
+  energyLevel?: EnergyLevel | null;
+  energyComplexity?: Complexity | null;
   pomodoroConfig?: PomodoroConfig | null;
 };
 

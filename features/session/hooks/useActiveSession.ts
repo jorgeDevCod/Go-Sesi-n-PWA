@@ -22,21 +22,30 @@ export function useActiveSession(initialSession?: SessionDTO | null) {
   const rehydratedRef = useRef(false);
 
   useEffect(() => {
-    if (!rehydratedRef.current) {
-      rehydratedRef.current = true;
-      if (initialSession) {
-        // Una vista cacheada puede traer la sesión como ACTIVE después de
-        // finalizarla. La copia terminal persistida manda para no reabrir el
-        // cronómetro con el tiempo restante.
-        const persisted = readPersistedSession();
-        const terminal =
-          persisted?.id === initialSession.id && persisted.status !== "ACTIVE"
-            ? persisted
-            : null;
-        setSession(terminal ?? initialSession);
-      }
-      void useSessionStore.persist.rehydrate();
-    }
+    if (rehydratedRef.current) return;
+    rehydratedRef.current = true;
+    let cancelled = false;
+
+    const persisted = readPersistedSession();
+    // Si la vista cacheada trae una sesión ACTIVE pero ya existe una copia
+    // terminal del mismo id, gana la terminal. Si la sesión inicial es una
+    // sesión nueva, gana sobre cualquier copia terminal antigua.
+    const terminal =
+      initialSession &&
+      persisted?.id === initialSession.id &&
+      persisted.status !== "ACTIVE"
+        ? persisted
+        : null;
+    const desired = terminal ?? initialSession ?? persisted ?? null;
+
+    void Promise.resolve(useSessionStore.persist.rehydrate()).then(() => {
+      if (cancelled) return;
+      if (desired) setSession(desired);
+    });
+
+    return () => {
+      cancelled = true;
+    };
     // Seeding only ever happens once, on mount-initialSession/setSession
     // intentionally excluded from deps.
     // eslint-disable-next-line react-hooks/exhaustive-deps

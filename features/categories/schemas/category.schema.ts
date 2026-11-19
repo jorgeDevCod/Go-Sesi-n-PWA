@@ -48,6 +48,13 @@ export const updateCategorySchema = z
 
 export type UpdateCategoryInput = z.infer<typeof updateCategorySchema>;
 
+export const bulkUpdateCategoriesSchema = z.object({
+  ids: z.array(cuid).min(1, "Selecciona al menos una categoría."),
+  complexity,
+  energyLevel,
+  energyComplexity,
+});
+
 export const deleteCategorySchema = z.object({
   id: cuid,
   password: z.string().optional(),

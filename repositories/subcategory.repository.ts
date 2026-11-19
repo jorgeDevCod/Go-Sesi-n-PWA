@@ -113,3 +113,19 @@ export async function updateSubcategoryOrders(
     ),
   );
 }
+
+/** Actualiza dificultad y energía de varias actividades propias a la vez. */
+export function bulkUpdateSubcategories(
+  userId: string,
+  ids: string[],
+  data: {
+    complexity: "LOW" | "MEDIUM" | "HIGH";
+    energyLevel: string | null;
+    energyComplexity: "LOW" | "MEDIUM" | "HIGH" | null;
+  },
+) {
+  return prisma.subcategory.updateMany({
+    where: { id: { in: ids }, userId, deletedAt: null },
+    data,
+  });
+}

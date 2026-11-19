@@ -23,7 +23,14 @@ export function useTimer(
   options?: { autoComplete?: boolean },
 ) {
   const storeSession = useSessionStore((s) => s.session);
-  const session = storeSession ?? fallbackSession ?? null;
+  // Si el servidor entrega una sesión nueva distinta de la cacheada, la nueva
+  // manda. Si es la misma, el store conserva pausas/reanudaciones recientes.
+  const session =
+    storeSession && storeSession.id === fallbackSession?.id
+      ? storeSession
+      : fallbackSession?.status === "ACTIVE"
+        ? fallbackSession
+        : storeSession ?? fallbackSession ?? null;
   const skewMs = useSessionStore((s) => s.skewMs);
   const setSession = useSessionStore((s) => s.setSession);
   // Seeded from the server-provided DTO's own `serverNowMs` (plain prop
@@ -74,8 +81,9 @@ export function useTimer(
 
   function pause() {
     if (!session) return;
+    const pausedAtMs = Date.now();
     startTransition(async () => {
-      const result = await pauseSessionAction({ id: session.id });
+      const result = await pauseSessionAction({ id: session.id, pausedAtMs });
       if (result.success) setSession(result.session);
     });
   }

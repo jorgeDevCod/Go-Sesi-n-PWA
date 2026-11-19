@@ -62,7 +62,7 @@ export function ActivitiesTab({
           aria-controls="activity-categories"
           className="flex w-full cursor-pointer items-center justify-between gap-2 rounded-2xl border border-border bg-surface px-4 py-3 text-sm font-medium text-foreground shadow-sm transition-colors duration-200 hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender"
         >
-          <span>Ver todas las actividades</span>
+          <span>Cambiar de categoría</span>
           <ChevronDown
             className={cn(
               "size-4 shrink-0 text-muted-foreground transition-transform duration-200",

@@ -8,7 +8,14 @@ import { Button } from "@/components/ui/Button";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { InfoModal } from "@/components/ui/InfoModal";
 import { CategoryModal } from "@/features/categories/components/CategoryModal";
-import { updateCategoryAction } from "@/features/categories/actions/category.actions";
+import {
+  BulkEditModal,
+  type BulkEditValues,
+} from "@/features/categories/components/BulkEditModal";
+import {
+  bulkUpdateCategoriesAction,
+  updateCategoryAction,
+} from "@/features/categories/actions/category.actions";
 import { deleteCategoryAction } from "@/features/categories/actions/category.actions";
 import { createCategoryAction } from "@/features/categories/actions/category.actions";
 import { COMPLEXITY_LABELS } from "@/services/recommendation/energy-level";
@@ -28,10 +35,18 @@ export function CategoriesTab({ categories }: { categories: RoutineCategory[] })
   const [selectMode, setSelectMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [blockedCategory, setBlockedCategory] = useState<RoutineCategory | null>(null);
-  const [bulkTarget, setBulkTarget] = useState<"selected" | "all" | null>(null);
+  const [bulkTarget, setBulkTarget] = useState<"selected" | null>(null);
   const [infoCount, setInfoCount] = useState(0);
+  const [bulkEditOpen, setBulkEditOpen] = useState(false);
+  const [bulkEditError, setBulkEditError] = useState<string | null>(null);
+  const [isBulkEditing, startBulkEdit] = useTransition();
 
   const isModalOpen = editCategory !== null || showCreateModal;
+  const allSelected =
+    list.length > 0 && list.every((category) => selectedIds.has(category.id));
+  const bulkRequiresPassword = list
+    .filter((category) => selectedIds.has(category.id))
+    .some((category) => category.isDefault);
 
   function toggleSelect(id: string) {
     setSelectedIds((prev) => {
@@ -42,9 +57,20 @@ export function CategoriesTab({ categories }: { categories: RoutineCategory[] })
     });
   }
 
+  function toggleSelectAll() {
+    setSelectedIds((prev) => {
+      if (list.length > 0 && list.every((category) => prev.has(category.id))) {
+        return new Set();
+      }
+      return new Set(list.map((category) => category.id));
+    });
+  }
+
   function cancelSelectMode() {
     setSelectMode(false);
     setSelectedIds(new Set());
+    setBulkEditOpen(false);
+    setBulkEditError(null);
   }
 
   async function runDeleteCats(ids: string[]) {
@@ -81,15 +107,36 @@ export function CategoriesTab({ categories }: { categories: RoutineCategory[] })
     setBulkTarget("selected");
   }
 
-  function deleteAll() {
-    if (list.length === 0) return;
-    setBulkTarget("all");
-  }
-
   function confirmBulkDelete() {
     if (!bulkTarget) return;
-    const ids = bulkTarget === "selected" ? Array.from(selectedIds) : list.map((c) => c.id);
-    void runDeleteCats(ids);
+    void runDeleteCats(Array.from(selectedIds));
+  }
+
+  function applyBulkEdit(values: BulkEditValues) {
+    const ids = Array.from(selectedIds);
+    if (ids.length === 0) return;
+    setBulkEditError(null);
+    startBulkEdit(async () => {
+      const result = await bulkUpdateCategoriesAction({
+        ids,
+        complexity: values.complexity,
+        energyLevel: values.energyLevel,
+        energyComplexity: values.complexity,
+      });
+      if (!result.success) {
+        setBulkEditError(result.error);
+        return;
+      }
+      setList((prev) =>
+        prev.map((category) =>
+          selectedIds.has(category.id)
+            ? { ...category, complexity: values.complexity }
+            : category,
+        ),
+      );
+      cancelSelectMode();
+      router.refresh();
+    });
   }
 
   function executeDelete() {
@@ -115,13 +162,6 @@ export function CategoriesTab({ categories }: { categories: RoutineCategory[] })
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-wrap items-center gap-2">
-        <Button size="md" onClick={() => setShowCreateModal(true)} className="gap-2">
-          <Plus className="size-4" />
-          Crear categoría
-        </Button>
-      </div>
-
       <p className="text-sm leading-relaxed text-muted-foreground">
         Crea categorías para enfocarte en lo que quieres mejorar, organizar tus actividades o dedicarte a tus nuevos hobbies. Personaliza cada una y hazla completamente tuya.
       </p>
@@ -133,36 +173,65 @@ export function CategoriesTab({ categories }: { categories: RoutineCategory[] })
               <Button
                 variant="secondary"
                 size="md"
-                onClick={deleteSelected}
-                disabled={selectedIds.size === 0}
-                className="gap-2 border-red-300 bg-red-50 text-red-600 dark:border-red-900 dark:bg-red-950 dark:text-red-400"
+                onClick={toggleSelectAll}
+                className="gap-2"
               >
-                <Trash2 className="size-4" />
-                Eliminar
+                <CheckSquare className="size-4" />
+                {allSelected ? "Quitar selección" : "Seleccionar todas"}
               </Button>
+              {selectedIds.size > 0 && (
+                <Button
+                  variant="secondary"
+                  size="md"
+                  onClick={() => {
+                    setBulkEditError(null);
+                    setBulkEditOpen(true);
+                  }}
+                  className="gap-2"
+                >
+                  <Pencil className="size-4" />
+                  Editar
+                </Button>
+              )}
+              {selectedIds.size > 0 && (
+                <Button
+                  variant="secondary"
+                  size="md"
+                  onClick={deleteSelected}
+                  className="gap-2 border-red-300 bg-red-50 text-red-600 dark:border-red-900 dark:bg-red-950 dark:text-red-400"
+                >
+                  <Trash2 className="size-4" />
+                  Eliminar
+                </Button>
+              )}
               <Button variant="ghost" size="md" onClick={cancelSelectMode} className="gap-2">
                 <X className="size-4" />
                 Cancelar
               </Button>
             </>
           ) : (
-            <>
-              <Button variant="secondary" size="md" onClick={deleteAll} className="gap-2">
-                <Trash2 className="size-4" />
-                Eliminar todo
-              </Button>
-              <Button
-                variant="secondary"
-                size="md"
-                onClick={() => setSelectMode(true)}
-                className="gap-2"
-              >
-                <CheckSquare className="size-4" />
-                Seleccionar
-              </Button>
-            </>
+            <Button
+              variant="secondary"
+              size="md"
+              onClick={() => setSelectMode(true)}
+              className="gap-2"
+            >
+              <CheckSquare className="size-4" />
+              Seleccionar
+            </Button>
           )}
         </div>
+      )}
+
+      {!selectMode && (
+        <Button
+          size="md"
+          onClick={() => setShowCreateModal(true)}
+          className="w-fit gap-2"
+        >
+          <Plus className="size-4" />
+          Crear categoría
+        </Button>
       )}
 
       {list.length === 0 ? (
@@ -240,6 +309,16 @@ export function CategoriesTab({ categories }: { categories: RoutineCategory[] })
         </div>
       )}
 
+      <BulkEditModal
+        open={bulkEditOpen}
+        count={selectedIds.size}
+        itemLabel="categorías"
+        isPending={isBulkEditing}
+        error={bulkEditError}
+        onClose={() => setBulkEditOpen(false)}
+        onApply={applyBulkEdit}
+      />
+
       <CategoryModal
         open={isModalOpen}
         initial={editCategory}
@@ -316,16 +395,20 @@ export function CategoriesTab({ categories }: { categories: RoutineCategory[] })
 
       <ConfirmModal
         open={bulkTarget !== null}
-        onClose={() => setBulkTarget(null)}
-        title={bulkTarget === "all" ? "Eliminar todas las categorías" : "Eliminar categorías seleccionadas"}
-        message={
-          bulkTarget === "all"
-            ? `¿Estás seguro de que deseas eliminar las ${list.length} categorías? Todas se moverán a la papelera.`
-            : `¿Estás seguro de que deseas eliminar las ${selectedIds.size} categorías seleccionadas? Se moverán a la papelera.`
-        }
+        onClose={() => {
+          setBulkTarget(null);
+          setDeletePassword("");
+          setDeleteError(null);
+        }}
+        title="Eliminar categorías seleccionadas"
+        message={`¿Estás seguro de que deseas eliminar las ${selectedIds.size} categorías seleccionadas? Se moverán a la papelera.`}
         variant="danger"
         confirmLabel="Sí, eliminar"
         isPending={isDeleting}
+        requirePassword={bulkRequiresPassword}
+        password={deletePassword}
+        onPasswordChange={setDeletePassword}
+        error={deleteError}
         onConfirm={confirmBulkDelete}
       />
 

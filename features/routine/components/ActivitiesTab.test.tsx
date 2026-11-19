@@ -30,7 +30,7 @@ const CATEGORIES = [
 describe("ActivitiesTab", () => {
   it("muestra el desplegable cerrado y las actividades al abrirlo", () => {
     render(<ActivitiesTab categories={CATEGORIES} itemsByCategory={{}} />);
-    const toggle = screen.getByRole("button", { name: "Ver todas las actividades" });
+    const toggle = screen.getByRole("button", { name: "Cambiar de categoría" });
     expect(toggle).toHaveAttribute("aria-expanded", "false");
     expect(screen.queryByRole("button", { name: /Aprender/ })).not.toBeInTheDocument();
     fireEvent.click(toggle);
@@ -49,10 +49,10 @@ describe("ActivitiesTab", () => {
 
   it("cambia de categoría sin volver al Home", () => {
     render(<ActivitiesTab categories={CATEGORIES} itemsByCategory={{}} />);
-    fireEvent.click(screen.getByRole("button", { name: "Ver todas las actividades" }));
+    fireEvent.click(screen.getByRole("button", { name: "Cambiar de categoría" }));
     const diversion = screen.getByRole("button", { name: /Diversión/ });
     fireEvent.click(diversion);
-    expect(screen.getByRole("button", { name: "Ver todas las actividades" })).toHaveAttribute(
+    expect(screen.getByRole("button", { name: "Cambiar de categoría" })).toHaveAttribute(
       "aria-expanded",
       "false",
     );

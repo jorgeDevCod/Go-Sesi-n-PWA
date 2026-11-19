@@ -14,6 +14,7 @@ import {
   skipPomodoroPhaseAction,
 } from "@/features/session/actions/session.actions";
 import { useSessionStore } from "@/features/session/store/session.store";
+import { useLiveSessionNotification } from "@/features/session/hooks/useLiveSessionNotification";
 import { playSessionSound } from "@/features/session/sound-manager";
 import type { SessionDTO } from "@/services/session/session.dto";
 
@@ -162,6 +163,20 @@ export function PomodoroTimer({
     );
   }, [config, session, nowMs, skewMs]);
 
+  const isPaused = session.pausedAtMs !== null;
+  const notificationBody =
+    view && config
+      ? `${phaseLabel(view.phase, view.cycleIndex, config.cycles, view.isLongBreak)}${
+          isPaused ? " · pausado" : ""
+        } · quedan ${formatRemaining(view.phaseRemainingMs)}`
+      : null;
+
+  useLiveSessionNotification({
+    session,
+    body: notificationBody,
+    paused: isPaused,
+  });
+
   function handleFinish() {
     if (
       typeof window !== "undefined" &&
@@ -186,7 +201,6 @@ export function PomodoroTimer({
 
   if (!config || !view) return null;
 
-  const isPaused = session.pausedAtMs !== null;
   const color = session.subcategoryColor;
   const ringColor = isPaused ? "#F59E0B" : color;
   const phaseTotalMs = view.phaseElapsedMs + view.phaseRemainingMs;

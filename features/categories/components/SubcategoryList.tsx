@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import {
@@ -17,8 +17,9 @@ import {
   sortableKeyboardCoordinates,
   rectSortingStrategy,
 } from "@dnd-kit/sortable";
-import { Plus, Search, Trash2, CheckSquare, X } from "lucide-react";
+import { Pencil, Plus, Search, Trash2, CheckSquare, X } from "lucide-react";
 import {
+  bulkUpdateSubcategoriesAction,
   deleteManySubcategoriesAction,
   reorderSubcategoriesAction,
 } from "@/features/categories/actions/subcategory.actions";
@@ -29,6 +30,10 @@ import {
 import { SubcategoryItem } from "@/features/categories/components/SubcategoryItem";
 import { ActivityModal, type ActivityModalInitial } from "@/features/categories/components/ActivityModal";
 import { ActivityFilters } from "@/features/categories/components/ActivityFilters";
+import {
+  BulkEditModal,
+  type BulkEditValues,
+} from "@/features/categories/components/BulkEditModal";
 import { useHomeQuickStore } from "@/features/home/store/home-quick.store";
 import { useRecommendationPrefs } from "@/features/recommendation/store/recommendation.store";
 import { defaultComplexityForEnergy } from "@/services/recommendation/energy-level";
@@ -40,7 +45,6 @@ import type { Complexity } from "@/lib/constants/default-subcategories";
 
 type DeleteTarget =
   | { type: "selected" }
-  | { type: "all" }
   | { type: "one"; id: string; name: string };
 
 export function SubcategoryList({
@@ -90,6 +94,9 @@ export function SubcategoryList({
   const [deleteTarget, setDeleteTarget] = useState<DeleteTarget | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [infoCount, setInfoCount] = useState(0);
+  const [bulkEditOpen, setBulkEditOpen] = useState(false);
+  const [bulkEditError, setBulkEditError] = useState<string | null>(null);
+  const [isBulkEditing, startBulkEdit] = useTransition();
   const previousOrderRef = useRef<SubcategoryItemType[] | null>(null);
 
   useEffect(() => {
@@ -105,9 +112,46 @@ export function SubcategoryList({
     });
   }
 
+  function toggleSelectAll() {
+    const visibleIds = filteredItems.map((item) => item.id);
+    const allSelected =
+      visibleIds.length > 0 && visibleIds.every((id) => selectedIds.has(id));
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (allSelected) {
+        for (const id of visibleIds) next.delete(id);
+      } else {
+        for (const id of visibleIds) next.add(id);
+      }
+      return next;
+    });
+  }
+
   function cancelSelectMode() {
     setSelectMode(false);
     setSelectedIds(new Set());
+    setBulkEditOpen(false);
+    setBulkEditError(null);
+  }
+
+  function applyBulkEdit(values: BulkEditValues) {
+    const ids = Array.from(selectedIds);
+    if (ids.length === 0) return;
+    setBulkEditError(null);
+    startBulkEdit(async () => {
+      const result = await bulkUpdateSubcategoriesAction({
+        ids,
+        complexity: values.complexity,
+        energyLevel: values.energyLevel,
+        energyComplexity: values.complexity,
+      });
+      if (!result.success) {
+        setBulkEditError(result.error);
+        return;
+      }
+      cancelSelectMode();
+      router.refresh();
+    });
   }
 
   async function runDelete(ids: string[]) {
@@ -132,9 +176,7 @@ export function SubcategoryList({
     }
     if (deleteTarget.type === "selected") {
       void runDelete(Array.from(selectedIds));
-      return;
     }
-    void runDelete(items.map((item) => item.id));
   }
 
   const deleteModalCopy = (() => {
@@ -143,12 +185,6 @@ export function SubcategoryList({
       return {
         title: `Eliminar "${deleteTarget.name}"`,
         message: "¿Estás seguro de que deseas eliminar esta actividad? Se moverá a la papelera.",
-      };
-    }
-    if (deleteTarget.type === "all") {
-      return {
-        title: "Eliminar todas las actividades",
-        message: `¿Estás seguro de que deseas eliminar las ${items.length} actividades de "${categoryName}"? Todas se moverán a la papelera.`,
       };
     }
     return {
@@ -165,6 +201,10 @@ export function SubcategoryList({
       item.name.toLowerCase().includes(search.trim().toLowerCase());
     return difficultyMatch && searchMatch;
   });
+
+  const allVisibleSelected =
+    filteredItems.length > 0 &&
+    filteredItems.every((item) => selectedIds.has(item.id));
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
@@ -193,13 +233,6 @@ export function SubcategoryList({
 
   return (
     <div className="flex flex-col gap-4">
-      <motion.div whileTap={{ scale: 0.97 }} transition={{ duration: 0.08 }}>
-        <Button variant="secondary" onClick={() => setCreateOpen(true)} className="gap-2">
-          <Plus className="size-4" />
-          Agregar Actividad
-        </Button>
-      </motion.div>
-
       {showFilters && (
         <ActivityFilters
           selectedDifficulties={selectedDifficulties}
@@ -228,13 +261,38 @@ export function SubcategoryList({
               <Button
                 variant="secondary"
                 size="md"
-                onClick={() => setDeleteTarget({ type: "selected" })}
-                disabled={selectedIds.size === 0}
-                className="gap-2 border-red-300 bg-red-50 text-red-600 dark:border-red-900 dark:bg-red-950 dark:text-red-400"
+                onClick={toggleSelectAll}
+                disabled={filteredItems.length === 0}
+                className="gap-2"
               >
-                <Trash2 className="size-4" />
-                Eliminar
+                <CheckSquare className="size-4" />
+                {allVisibleSelected ? "Quitar selección" : "Seleccionar todas"}
               </Button>
+              {selectedIds.size > 0 && (
+                <Button
+                  variant="secondary"
+                  size="md"
+                  onClick={() => {
+                    setBulkEditError(null);
+                    setBulkEditOpen(true);
+                  }}
+                  className="gap-2"
+                >
+                  <Pencil className="size-4" />
+                  Editar
+                </Button>
+              )}
+              {selectedIds.size > 0 && (
+                <Button
+                  variant="secondary"
+                  size="md"
+                  onClick={() => setDeleteTarget({ type: "selected" })}
+                  className="gap-2 border-red-300 bg-red-50 text-red-600 dark:border-red-900 dark:bg-red-950 dark:text-red-400"
+                >
+                  <Trash2 className="size-4" />
+                  Eliminar
+                </Button>
+              )}
               <Button
                 variant="ghost"
                 size="md"
@@ -246,28 +304,26 @@ export function SubcategoryList({
               </Button>
             </>
           ) : (
-            <>
-              <Button
-                variant="secondary"
-                size="md"
-                onClick={() => setDeleteTarget({ type: "all" })}
-                className="gap-2"
-              >
-                <Trash2 className="size-4" />
-                Eliminar todo
-              </Button>
-              <Button
-                variant="secondary"
-                size="md"
-                onClick={() => setSelectMode(true)}
-                className="gap-2"
-              >
-                <CheckSquare className="size-4" />
-                Seleccionar
-              </Button>
-            </>
+            <Button
+              variant="secondary"
+              size="md"
+              onClick={() => setSelectMode(true)}
+              className="gap-2"
+            >
+              <CheckSquare className="size-4" />
+              Seleccionar
+            </Button>
           )}
         </div>
+      )}
+
+      {!selectMode && (
+        <motion.div whileTap={{ scale: 0.97 }} transition={{ duration: 0.08 }}>
+          <Button variant="secondary" onClick={() => setCreateOpen(true)} className="gap-2">
+            <Plus className="size-4" />
+            Agregar Actividad
+          </Button>
+        </motion.div>
       )}
 
       <DndContext
@@ -344,6 +400,16 @@ export function SubcategoryList({
         onClose={() => setEditing(null)}
         onSaved={() => router.refresh()}
         showEnergy={showEnergyInModal}
+      />
+
+      <BulkEditModal
+        open={bulkEditOpen}
+        count={selectedIds.size}
+        itemLabel="actividades"
+        isPending={isBulkEditing}
+        error={bulkEditError}
+        onClose={() => setBulkEditOpen(false)}
+        onApply={applyBulkEdit}
       />
 
       <ConfirmModal

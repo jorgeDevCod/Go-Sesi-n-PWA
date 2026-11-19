@@ -3,12 +3,14 @@
 import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 import {
+  bulkUpdateCategoriesSchema,
   createCategorySchema,
   deleteCategorySchema,
   updateCategorySchema,
 } from "@/features/categories/schemas/category.schema";
 import { createCategoryForUser } from "@/services/categories/create-category.service";
 import { updateCategoryForUser } from "@/services/categories/update-category.service";
+import { bulkUpdateCategoriesForUser } from "@/services/categories/bulk-update-categories.service";
 import { deleteCategoryForUser } from "@/services/categories/delete-category.service";
 import { ROUTES } from "@/lib/routes";
 
@@ -80,6 +82,28 @@ export async function updateCategoryAction(input: unknown): Promise<ActionResult
   try {
     const userId = await requireUserId();
     await updateCategoryForUser({ userId, ...parsed.data });
+  } catch (error) {
+    return toErrorResult(error);
+  }
+
+  revalidatePath(ROUTES.customize);
+  revalidatePath(ROUTES.home);
+  return { success: true };
+}
+
+export async function bulkUpdateCategoriesAction(input: unknown): Promise<ActionResult> {
+  const parsed = bulkUpdateCategoriesSchema.safeParse(input);
+  if (!parsed.success) {
+    return { success: false, error: parsed.error.issues[0]?.message ?? "Datos inválidos." };
+  }
+
+  try {
+    const userId = await requireUserId();
+    await bulkUpdateCategoriesForUser(userId, parsed.data.ids, {
+      complexity: parsed.data.complexity,
+      energyLevel: parsed.data.energyLevel,
+      energyComplexity: parsed.data.energyComplexity ?? parsed.data.complexity,
+    });
   } catch (error) {
     return toErrorResult(error);
   }

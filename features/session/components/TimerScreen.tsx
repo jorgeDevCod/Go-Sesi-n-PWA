@@ -5,6 +5,7 @@ import { DynamicIcon } from "@/components/ui/DynamicIcon";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 import { Pause, Play } from "lucide-react";
+import { useLiveSessionNotification } from "@/features/session/hooks/useLiveSessionNotification";
 import type { TimerView } from "@/features/session/timer-view";
 import type { SessionDTO } from "@/services/session/session.dto";
 
@@ -37,6 +38,12 @@ export function TimerScreen({
   const ringColor = view.isPaused ? "#F59E0B" : color;
   const remainingMinutes = Math.max(0, Math.ceil(view.remainingMs / 60_000));
   const isFinalCountdown = view.remainingMs > 0 && view.remainingMs <= 15_000;
+
+  useLiveSessionNotification({
+    session,
+    body: `${view.isPaused ? "Pausada" : "En curso"} · quedan ${view.formattedTime}`,
+    paused: view.isPaused,
+  });
 
   return (
     <div className="relative flex flex-col items-center justify-center gap-6 overflow-hidden bg-background px-4 py-12 text-center">
