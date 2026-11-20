@@ -24,6 +24,7 @@ import { AppBackProvider } from "@/components/layout/AppBackContext";
 import { Logo } from "@/components/ui/Logo";
 import { logoutAction } from "@/features/auth/actions/logout.action";
 import { usePlanningStore } from "@/features/planning/store/planning.store";
+import { PlanReminderWatcher } from "@/features/planning/components/PlanReminderWatcher";
 import { PlanningManager } from "@/features/planning/components/PlanningManager";
 import { MoodModal } from "@/features/recommendation/components/MoodModal";
 import { useDailyMoodPrompt } from "@/features/recommendation/hooks/useDailyMoodPrompt";
@@ -239,6 +240,7 @@ export function AppShell({ userName, children }: { userName: string; children: R
       </div>
 
       <PlanningManager />
+      <PlanReminderWatcher />
       <MobileMenu
         open={menuOpen}
         onClose={() => setMenuOpen(false)}

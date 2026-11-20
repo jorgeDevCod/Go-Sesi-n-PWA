@@ -8,7 +8,7 @@ import { ROUTES } from "@/lib/routes";
 
 type PlanningSummary = { sent: number; skipped: number; failures: number };
 
-function localDateKey(date: Date, timeZone: string): string {
+function dateKeyInTimeZone(date: Date, timeZone: string): string {
   const parts = new Intl.DateTimeFormat("en-CA", {
     timeZone,
     year: "numeric",
@@ -52,7 +52,13 @@ export async function processPlanningNotifications(
       continue;
     }
     const timeZone = item.plan.timeZone ?? PLAN_TIME_ZONE;
-    if (localDateKey(item.plan.date, timeZone) !== localDateKey(now, timeZone)) {
+    // `plan.date` se guarda como medianoche UTC de la fecha local, no como
+    // medianoche de la zona horaria. Comparar contra UTC evita que un plan de
+    // Lima (UTC-5) se interprete como el día anterior.
+    if (
+      dateKeyInTimeZone(item.plan.date, "UTC") !==
+      dateKeyInTimeZone(now, timeZone)
+    ) {
       summary.skipped += 1;
       continue;
     }

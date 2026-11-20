@@ -14,9 +14,6 @@ import {
 } from "@/features/categories/components/CreateCategoryCard";
 import { DismissibleHint } from "@/components/ui/DismissibleHint";
 import { DynamicIcon } from "@/components/ui/DynamicIcon";
-import { InfoModal } from "@/components/ui/InfoModal";
-import { playSessionSound } from "@/features/session/sound-manager";
-import { todayKey } from "@/lib/day";
 import { AddTaskFlow } from "@/features/home/components/AddTaskFlow";
 import {
   PlannedCategories,
@@ -71,7 +68,6 @@ export function CategoryHomeGrid({
   // Planning state
   const [planItems, setPlanItems] = useState<PlannedItem[]>([]);
   const [activeSession, setActiveSession] = useState<ActiveSessionInfo>(null);
-  const [planReminder, setPlanReminder] = useState<PlannedItem | null>(null);
   const [showAllCategories, setShowAllCategories] = useState(true);
   const quickItems = useHomeQuickStore((state) => state.items);
   const homeSections = useMemo<HomeSection[]>(() => {
@@ -152,36 +148,6 @@ export function CategoryHomeGrid({
       cancelled = true;
     };
   }, [planVersion]);
-
-  // Alertas de planificación para la web/PWA abierta.
-  useEffect(() => {
-    function checkReminders() {
-      const now = new Date();
-      const minutesNow = now.getHours() * 60 + now.getMinutes();
-      for (const item of planItems) {
-        if (!item.remindAt || item.practiced) continue;
-        const [hour, minute] = item.remindAt.split(":").map(Number);
-        if (!Number.isFinite(hour) || !Number.isFinite(minute)) continue;
-        if (minutesNow < hour * 60 + minute) continue;
-        const key = `gosession-plan-reminded-${todayKey(now)}-${item.id}`;
-        try {
-          if (window.localStorage.getItem(key) === "1") continue;
-          window.localStorage.setItem(key, "1");
-        } catch {
-          // Storage unavailable.
-        }
-        playSessionSound("planning-reminder");
-        setPlanReminder(item);
-        break;
-      }
-    }
-    const initial = setTimeout(checkReminders, 1200);
-    const interval = setInterval(checkReminders, 30_000);
-    return () => {
-      clearTimeout(initial);
-      clearInterval(interval);
-    };
-  }, [planItems]);
 
   // Refresca estados de sesión (En curso/En espera/Realizada) al volver a la pestaña.
   useEffect(() => {
@@ -368,17 +334,6 @@ export function CategoryHomeGrid({
 
       <HomeSectionNav sections={homeSections} />
 
-      <InfoModal
-        open={planReminder !== null}
-        onClose={() => setPlanReminder(null)}
-        title="Es hora de tu actividad"
-        message={
-          planReminder
-            ? `Tu plan de hoy incluye “${planReminder.title}”. Cuando quieras, empieza tu sesión.`
-            : ""
-        }
-        confirmLabel="Entendido"
-      />
     </div>
   );
 }
