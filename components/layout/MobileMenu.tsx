@@ -67,9 +67,9 @@ export function MobileMenu({
         usePlanningStore.getState().open();
       },
     },
+    { label: "Personalizar", icon: SlidersHorizontal, href: ROUTES.customize },
     { label: "Historial", icon: History, href: ROUTES.history },
     { label: "Papelera", icon: Trash2, href: ROUTES.trash },
-    { label: "Personalizar", icon: SlidersHorizontal, href: ROUTES.customize },
     { label: "Cuenta", icon: UserRound, href: ROUTES.account },
     { label: "Ayuda", icon: HelpCircle, action: onOpenHelp },
   ];
