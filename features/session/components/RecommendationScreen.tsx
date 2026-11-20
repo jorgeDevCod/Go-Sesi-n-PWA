@@ -350,48 +350,72 @@ export function RecommendationScreen({
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-8">
       {energy && (
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-surface p-4 shadow-sm">
-          <div className="flex items-center gap-3">
-            <span
-              className="flex size-10 shrink-0 items-center justify-center rounded-full"
-              style={{ backgroundColor: `${ENERGY_COLORS[energy]}33` }}
-            >
-              {(() => {
-                const Icon = ENERGY_ICONS[energy];
-                return <Icon className="size-5" style={{ color: ENERGY_COLORS[energy] }} />;
-              })()}
-            </span>
-            <div>
-              <p className="text-sm font-semibold text-foreground">
-                Energía {ENERGY_LABEL[energy]}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                {energyDurationHint(energy, overrides)} · sugerido{" "}
-                {effectiveRecommendedDuration(energy, overrides)} min
-              </p>
+        <div className="relative overflow-hidden rounded-3xl border border-accent-aprender/20 bg-gradient-to-br from-accent-aprender/10 via-surface to-sky-400/10 p-5 shadow-sm sm:p-6">
+          <div
+            className="pointer-events-none absolute -right-14 -top-16 size-44 rounded-full bg-accent-aprender/10 blur-3xl"
+            aria-hidden="true"
+          />
+          <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex min-w-0 items-start gap-3">
+              <span
+                className="flex size-12 shrink-0 items-center justify-center rounded-2xl border border-white/50 shadow-sm dark:border-white/10"
+                style={{ backgroundColor: `${ENERGY_COLORS[energy]}26` }}
+              >
+                {(() => {
+                  const Icon = ENERGY_ICONS[energy];
+                  return <Icon className="size-6" style={{ color: ENERGY_COLORS[energy] }} />;
+                })()}
+              </span>
+              <div className="min-w-0">
+                <span className="inline-flex items-center gap-1 rounded-full border border-accent-aprender/20 bg-surface/80 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-accent-aprender">
+                  <Sparkles className="size-3" />
+                  Recomendaciones personalizadas
+                </span>
+                <h1 className="mt-2 font-display text-xl font-bold tracking-tight text-foreground sm:text-2xl">
+                  Encuentra tu próximo paso
+                </h1>
+                <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+                  Energía {ENERGY_LABEL[energy]} · {energyDurationHint(energy, overrides)} ·{" "}
+                  {effectiveRecommendedDuration(energy, overrides)} min sugeridos
+                </p>
+              </div>
             </div>
+            <Button
+              variant="secondary"
+              size="md"
+              onClick={() => setForceSurvey(true)}
+              className="shrink-0 self-start bg-surface/80 shadow-sm sm:self-center"
+            >
+              Cambiar energía
+            </Button>
           </div>
-          <Button variant="secondary" size="md" onClick={() => setForceSurvey(true)}>
-            Cambiar energía
-          </Button>
         </div>
       )}
 
       {recommendations.length > 0 && (
-        <section className="flex flex-col gap-3">
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2">
-              <Sparkles className="size-4 text-accent-aprender" />
-              <h2 className="text-base font-semibold text-foreground">
-                Recomendaciones para tu energía
+        <section className="flex flex-col gap-4">
+          <div className="flex items-end justify-between gap-3">
+            <div>
+              <span className="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-accent-aprender">
+                <Sparkles className="size-3.5" />
+                Elegidas para ti
+              </span>
+              <h2 className="mt-1 font-display text-lg font-bold tracking-tight text-foreground sm:text-xl">
+                Opciones que encajan con tu día
               </h2>
+              <p className="mt-1 text-xs leading-relaxed text-muted-foreground sm:text-sm">
+                Ordenadas según tu energía, tus preferencias y lo que has practicado.
+              </p>
             </div>
             <ScrollArrows
               containerRef={carouselRef}
               className="hidden min-[600px]:flex"
             />
           </div>
-          <div ref={carouselRef} className="flex snap-x snap-mandatory gap-4 overflow-x-auto py-4">
+          <div
+            ref={carouselRef}
+            className="flex snap-x snap-mandatory gap-4 overflow-x-auto px-1 pb-4 pt-1"
+          >
             {recommendations.map((rec, index) => (
               <RecommendedActivityCard
                 key={rec.subcategoryId}
@@ -454,15 +478,22 @@ export function RecommendationScreen({
         </motion.p>
       )}
 
-      <div className="flex flex-col gap-3">
-        <label htmlFor="quick-search" className="text-sm text-muted-foreground">
-          ¿Tienes algo más en mente? Escríbelo aquí.
+      <div className="rounded-2xl border border-border bg-surface p-4 shadow-sm sm:p-5">
+        <label
+          htmlFor="quick-search"
+          className="text-sm font-semibold text-foreground"
+        >
+          ¿Tienes algo más en mente?
         </label>
+        <p className="mt-1 text-xs text-muted-foreground">
+          Busca entre todas tus actividades o escríbela para empezar.
+        </p>
         <Input
           id="quick-search"
           value={query}
           onChange={(event) => setQuery(event.target.value)}
           placeholder="ej: leer, estirar, revisar el presupuesto..."
+          className="mt-3"
         />
       </div>
 

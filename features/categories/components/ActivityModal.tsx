@@ -231,14 +231,14 @@ export function ActivityModal({
             exit={{ opacity: 0, scale: 0.92, y: 16 }}
             transition={{ duration: 0.2, ease: "easeOut" }}
             onClick={(event) => event.stopPropagation()}
-            className="flex max-h-[90vh] w-full max-w-md flex-col gap-5 overflow-y-auto rounded-3xl border border-border bg-surface p-6 shadow-xl"
+            className="relative flex max-h-[90vh] w-full max-w-md flex-col gap-5 overflow-y-auto rounded-3xl border border-border bg-surface p-6 shadow-xl"
           >
             <button
               type="button"
               onClick={onClose}
               aria-label="Cerrar"
               title="Cerrar sin guardar"
-              className="absolute top-4 right-4 flex size-8 cursor-pointer items-center justify-center rounded-full text-muted-foreground transition-colors duration-200 hover:bg-surface-hover hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender"
+              className="absolute top-4 right-4 z-10 flex size-8 cursor-pointer items-center justify-center rounded-full text-muted-foreground transition-colors duration-200 hover:bg-surface-hover hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender"
             >
               <X className="size-4" />
             </button>
