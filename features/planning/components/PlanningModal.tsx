@@ -140,7 +140,6 @@ export function PlanningModal({
       return;
     }
     setActiveCategoryId(categoryId);
-    setCategoriesOpen(false);
     setActivitiesOpen(true);
   }
 
@@ -270,7 +269,6 @@ export function PlanningModal({
         };
         setLocalCategories((prev) => [...prev, newCat]);
         setActiveCategoryId(newCat.id);
-        setCategoriesOpen(false);
         setActivitiesOpen(true);
         setNewCatName("");
         setNewCatComplexity("MEDIUM");
@@ -455,7 +453,7 @@ export function PlanningModal({
 
               {/* Actividades de la categoría activa */}
               {activeCategory && (
-                <div className="overflow-hidden rounded-2xl border border-border bg-surface">
+                <div className="shrink-0 overflow-hidden rounded-2xl border border-border bg-surface">
                   <button
                     type="button"
                     onClick={() => setActivitiesOpen((value) => !value)}

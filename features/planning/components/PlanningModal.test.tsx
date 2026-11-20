@@ -72,9 +72,21 @@ describe("PlanningModal unificado", () => {
     expect(screen.queryByText(/Mostrar actividades de/)).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: /Diversión/ }));
+    expect(
+      screen.getByRole("button", { name: "Ver categorías" }),
+    ).toHaveAttribute("aria-expanded", "true");
     expect(screen.getByText("Mostrar actividades de Diversión")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Jugar/ })).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /Leer/ })).not.toBeInTheDocument();
+  });
+
+  it("mantiene abierto el desplegable de categorías hasta cerrarlo manualmente", () => {
+    renderModal();
+    fireEvent.click(screen.getByRole("button", { name: /Aprender/ }));
+    const categoriesToggle = screen.getByRole("button", { name: "Ver categorías" });
+    expect(categoriesToggle).toHaveAttribute("aria-expanded", "true");
+    fireEvent.click(categoriesToggle);
+    expect(categoriesToggle).toHaveAttribute("aria-expanded", "false");
   });
 
   it("permite cerrar el desplegable de actividades", () => {
@@ -91,7 +103,6 @@ describe("PlanningModal unificado", () => {
     renderModal();
     fireEvent.click(screen.getByRole("button", { name: /Aprender/ }));
     fireEvent.click(screen.getByRole("button", { name: /Leer/ }));
-    fireEvent.click(screen.getByRole("button", { name: "Ver categorías" }));
     fireEvent.click(screen.getByRole("button", { name: /Diversión/ }));
     fireEvent.click(screen.getByRole("button", { name: /Jugar/ }));
 
