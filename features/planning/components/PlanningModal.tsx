@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
+  ArrowRight,
   CalendarCheck2,
   Check,
   ChevronDown,
@@ -302,7 +303,7 @@ export function PlanningModal({
             exit={{ opacity: 0, scale: 0.92, y: 16 }}
             transition={{ duration: 0.2, ease: "easeOut" }}
             onClick={(event) => event.stopPropagation()}
-            className="relative flex max-h-[90vh] w-full max-w-lg flex-col overflow-hidden rounded-3xl border border-border bg-surface shadow-xl"
+            className="relative flex max-h-[90vh] w-full max-w-xl flex-col overflow-hidden rounded-3xl border border-border bg-surface shadow-xl"
           >
             {/* Header sticky: título + X siempre visible al hacer scroll. */}
             <div className="sticky top-0 z-20 flex items-start gap-3 border-b border-border bg-surface/95 p-5 backdrop-blur">
@@ -327,16 +328,25 @@ export function PlanningModal({
 
             <div className="flex flex-1 flex-col gap-5 overflow-y-auto p-5">
               {/* Recomendación */}
-              <Button
-                variant="secondary"
-                size="lg"
+              <button
+                type="button"
                 onClick={onSkip}
                 disabled={isPending}
-                className="w-full gap-2 border-accent-aprender/35 bg-gradient-to-r from-accent-aprender/10 via-fuchsia-500/10 to-sky-400/15 text-accent-aprender shadow-sm hover:from-accent-aprender/15 hover:via-fuchsia-500/15 hover:to-sky-400/20 dark:border-accent-aprender/40 dark:from-accent-aprender/15 dark:via-fuchsia-500/10 dark:to-sky-400/10"
+                className="group flex w-full cursor-pointer items-center gap-3 rounded-2xl border border-accent-aprender/25 bg-gradient-to-r from-accent-aprender/10 via-fuchsia-500/5 to-sky-400/10 px-4 py-3.5 text-left shadow-sm transition-all duration-200 hover:border-accent-aprender/40 hover:from-accent-aprender/15 hover:via-fuchsia-500/10 hover:to-sky-400/15 disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender"
               >
-                <Sparkles className="size-4" />
-                Prefiero que me recomiendes algo
-              </Button>
+                <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-accent-aprender text-white shadow-sm">
+                  <Sparkles className="size-5" />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block text-sm font-semibold text-foreground">
+                    Prefiero que me recomiendes algo
+                  </span>
+                  <span className="mt-0.5 block text-xs text-muted-foreground">
+                    Deja que Go Sesión elija una actividad por ti.
+                  </span>
+                </span>
+                <ArrowRight className="size-4 shrink-0 text-accent-aprender transition-transform duration-200 group-hover:translate-x-0.5" />
+              </button>
 
               {/* Categorías */}
               <div className="flex flex-col gap-2">
@@ -367,17 +377,17 @@ export function PlanningModal({
                           onClick={() => selectCategory(cat.id)}
                           aria-pressed={active}
                           className={cn(
-                            "flex cursor-pointer items-center gap-2 rounded-xl border px-3 py-2 text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender",
+                            "flex cursor-pointer items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender",
                             active
                               ? "border-accent-aprender bg-accent-aprender/10 text-accent-aprender"
                               : "border-border bg-surface-muted text-foreground hover:bg-surface-hover",
                           )}
                         >
                           <span
-                            className="flex size-6 items-center justify-center rounded-lg"
+                            className="flex size-5 items-center justify-center rounded-md"
                             style={{ backgroundColor: `${cat.color}33` }}
                           >
-                            <DynamicIcon name={cat.icon} className="size-3.5" style={{ color: cat.color }} />
+                            <DynamicIcon name={cat.icon} className="size-3" style={{ color: cat.color }} />
                           </span>
                           {cat.name}
                         </button>
@@ -453,16 +463,8 @@ export function PlanningModal({
                     aria-controls="planning-activities"
                     className="flex w-full cursor-pointer items-center gap-3 px-4 py-3 text-left transition-colors duration-200 hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent-aprender"
                   >
-                    <span className="min-w-0 flex-1">
-                      <span className="block text-sm font-semibold text-foreground">
-                        Mostrar actividades de {activeCategory.name}
-                      </span>
-                      <span className="block text-xs text-muted-foreground">
-                        {activeCategory.subcategories.length}{" "}
-                        {activeCategory.subcategories.length === 1
-                          ? "actividad disponible"
-                          : "actividades disponibles"}
-                      </span>
+                    <span className="min-w-0 flex-1 text-sm font-semibold text-foreground">
+                      Mostrar actividades de {activeCategory.name}
                     </span>
                     <ChevronDown
                       className={cn(
