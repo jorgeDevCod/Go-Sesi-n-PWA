@@ -69,7 +69,7 @@ export function MobileMenu({
     },
     { label: "Historial", icon: History, href: ROUTES.history },
     { label: "Papelera", icon: Trash2, href: ROUTES.trash },
-    { label: "Personalizar mi Experiencia", icon: SlidersHorizontal, href: ROUTES.customize },
+    { label: "Personalizar", icon: SlidersHorizontal, href: ROUTES.customize },
     { label: "Cuenta", icon: UserRound, href: ROUTES.account },
     { label: "Ayuda", icon: HelpCircle, action: onOpenHelp },
   ];
@@ -100,7 +100,7 @@ export function MobileMenu({
             exit={{ x: "100%" }}
             transition={{ type: "spring", stiffness: 300, damping: 32 }}
             onClick={(event) => event.stopPropagation()}
-            className="absolute top-0 right-0 flex h-full w-[82%] max-w-xs flex-col gap-3 border-l border-border bg-surface p-4 shadow-xl"
+            className="absolute top-0 right-0 flex h-full w-[72%] max-w-[280px] flex-col gap-3 border-l border-border bg-surface p-4 shadow-xl"
           >
             <div className="flex items-center justify-between">
               <Logo />

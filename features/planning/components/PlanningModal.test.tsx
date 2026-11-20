@@ -62,18 +62,36 @@ describe("PlanningModal unificado", () => {
     vi.spyOn(window, "confirm").mockReturnValue(true);
   });
 
-  it("muestra categorías y las actividades de la categoría activa", () => {
+  it("abre categorías sin selección y muestra actividades al elegir una", () => {
     renderModal();
     expect(screen.getByText("¡Hola Jorge! ¿Qué haremos hoy?")).toBeInTheDocument();
     expect(screen.getByText("Esta es tu Planificación")).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Ver categorías" }),
+    ).toHaveAttribute("aria-expanded", "true");
+    expect(screen.queryByText(/Mostrar actividades de/)).not.toBeInTheDocument();
+
     fireEvent.click(screen.getByRole("button", { name: /Diversión/ }));
+    expect(screen.getByText("Mostrar actividades de Diversión")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Jugar/ })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Leer/ })).not.toBeInTheDocument();
+  });
+
+  it("permite cerrar el desplegable de actividades", () => {
+    renderModal();
+    fireEvent.click(screen.getByRole("button", { name: /Aprender/ }));
+    expect(screen.getByRole("button", { name: /Leer/ })).toBeInTheDocument();
+    fireEvent.click(
+      screen.getByRole("button", { name: /Mostrar actividades de Aprender/ }),
+    );
     expect(screen.queryByRole("button", { name: /Leer/ })).not.toBeInTheDocument();
   });
 
   it("agrega actividades de distintas categorías a una sola planificación", () => {
     renderModal();
+    fireEvent.click(screen.getByRole("button", { name: /Aprender/ }));
     fireEvent.click(screen.getByRole("button", { name: /Leer/ }));
+    fireEvent.click(screen.getByRole("button", { name: "Ver categorías" }));
     fireEvent.click(screen.getByRole("button", { name: /Diversión/ }));
     fireEvent.click(screen.getByRole("button", { name: /Jugar/ }));
 
@@ -85,6 +103,7 @@ describe("PlanningModal unificado", () => {
 
   it("quita todo y guarda solo las actividades seleccionadas", () => {
     const { onSave } = renderModal();
+    fireEvent.click(screen.getByRole("button", { name: /Aprender/ }));
     fireEvent.click(screen.getByRole("button", { name: /Leer/ }));
     fireEvent.click(screen.getByRole("button", { name: "Guardar planificación" }));
 

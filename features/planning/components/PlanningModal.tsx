@@ -7,10 +7,11 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   CalendarCheck2,
   Check,
+  ChevronDown,
   Clock,
-  HelpCircle,
   Pencil,
   Plus,
+  Sparkles,
   Trash2,
   X,
 } from "lucide-react";
@@ -78,9 +79,9 @@ export function PlanningModal({
     existingItems.filter(isActivity),
   );
   const [localCategories, setLocalCategories] = useState<PlanningCategory[]>(categories);
-  const [activeCategoryId, setActiveCategoryId] = useState<string>(
-    categories[0]?.id ?? "",
-  );
+  const [activeCategoryId, setActiveCategoryId] = useState("");
+  const [categoriesOpen, setCategoriesOpen] = useState(true);
+  const [activitiesOpen, setActivitiesOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editTitle, setEditTitle] = useState("");
   const [creatingActivity, setCreatingActivity] = useState(false);
@@ -96,12 +97,10 @@ export function PlanningModal({
   const [wasOpen, setWasOpen] = useState(open);
   if (open && !wasOpen) {
     setWasOpen(true);
-    const activities = existingItems.filter(isActivity);
-    setSelectedItems(activities);
-    const firstWithItems = categories.find((cat) =>
-      activities.some((item) => item.categoryId === cat.id),
-    );
-    setActiveCategoryId(firstWithItems?.id ?? categories[0]?.id ?? "");
+    setSelectedItems(existingItems.filter(isActivity));
+    setActiveCategoryId("");
+    setCategoriesOpen(true);
+    setActivitiesOpen(false);
     setEditingId(null);
   } else if (!open && wasOpen) {
     setWasOpen(false);
@@ -129,12 +128,19 @@ export function PlanningModal({
     () => new Set(selectedItems.map((item) => item.subcategoryId).filter(Boolean)),
     [selectedItems],
   );
-  const activeCategory = categoryById.get(activeCategoryId) ?? localCategories[0];
+  const activeCategory = categoryById.get(activeCategoryId);
 
   if (typeof document === "undefined") return null;
 
   function selectCategory(categoryId: string) {
+    if (activeCategoryId === categoryId) {
+      setActiveCategoryId("");
+      setActivitiesOpen(false);
+      return;
+    }
     setActiveCategoryId(categoryId);
+    setCategoriesOpen(false);
+    setActivitiesOpen(true);
   }
 
   function toggleActivity(category: PlanningCategory, sub: PlanningSubcategory) {
@@ -224,6 +230,7 @@ export function PlanningModal({
       ),
     );
     setActiveCategoryId(created.categoryId);
+    setActivitiesOpen(true);
     setSelectedItems((prev) => {
       if (prev.some((item) => item.subcategoryId === created.id)) return prev;
       return [
@@ -262,6 +269,8 @@ export function PlanningModal({
         };
         setLocalCategories((prev) => [...prev, newCat]);
         setActiveCategoryId(newCat.id);
+        setCategoriesOpen(false);
+        setActivitiesOpen(true);
         setNewCatName("");
         setNewCatComplexity("MEDIUM");
         setShowNewCategory(false);
@@ -317,36 +326,65 @@ export function PlanningModal({
             </div>
 
             <div className="flex flex-1 flex-col gap-5 overflow-y-auto p-5">
+              {/* Recomendación */}
+              <Button
+                variant="secondary"
+                size="lg"
+                onClick={onSkip}
+                disabled={isPending}
+                className="w-full gap-2 border-accent-aprender/35 bg-gradient-to-r from-accent-aprender/10 via-fuchsia-500/10 to-sky-400/15 text-accent-aprender shadow-sm hover:from-accent-aprender/15 hover:via-fuchsia-500/15 hover:to-sky-400/20 dark:border-accent-aprender/40 dark:from-accent-aprender/15 dark:via-fuchsia-500/10 dark:to-sky-400/10"
+              >
+                <Sparkles className="size-4" />
+                Prefiero que me recomiendes algo
+              </Button>
+
               {/* Categorías */}
-              <div>
-                <p className="mb-2 text-sm font-medium text-foreground">Tus categorías</p>
-                <div className="flex flex-wrap gap-2">
-                  {localCategories.map((cat) => {
-                    const active = activeCategoryId === cat.id;
-                    return (
-                      <button
-                        key={cat.id}
-                        type="button"
-                        onClick={() => selectCategory(cat.id)}
-                        aria-pressed={active}
-                        className={cn(
-                          "flex cursor-pointer items-center gap-2 rounded-xl border px-3 py-2 text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender",
-                          active
-                            ? "border-accent-aprender bg-accent-aprender/10 text-accent-aprender"
-                            : "border-border bg-surface-muted text-foreground hover:bg-surface-hover",
-                        )}
-                      >
-                        <span
-                          className="flex size-6 items-center justify-center rounded-lg"
-                          style={{ backgroundColor: `${cat.color}33` }}
+              <div className="flex flex-col gap-2">
+                <button
+                  type="button"
+                  onClick={() => setCategoriesOpen((value) => !value)}
+                  aria-expanded={categoriesOpen}
+                  aria-controls="planning-categories"
+                  className="flex w-full cursor-pointer items-center justify-between gap-2 rounded-2xl border border-border bg-surface px-4 py-3 text-sm font-medium text-foreground shadow-sm transition-colors duration-200 hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender"
+                >
+                  <span>Ver categorías</span>
+                  <ChevronDown
+                    className={cn(
+                      "size-4 shrink-0 text-muted-foreground transition-transform duration-200",
+                      categoriesOpen && "rotate-180",
+                    )}
+                  />
+                </button>
+
+                {categoriesOpen && (
+                  <div id="planning-categories" className="flex flex-wrap gap-2">
+                    {localCategories.map((cat) => {
+                      const active = activeCategoryId === cat.id;
+                      return (
+                        <button
+                          key={cat.id}
+                          type="button"
+                          onClick={() => selectCategory(cat.id)}
+                          aria-pressed={active}
+                          className={cn(
+                            "flex cursor-pointer items-center gap-2 rounded-xl border px-3 py-2 text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender",
+                            active
+                              ? "border-accent-aprender bg-accent-aprender/10 text-accent-aprender"
+                              : "border-border bg-surface-muted text-foreground hover:bg-surface-hover",
+                          )}
                         >
-                          <DynamicIcon name={cat.icon} className="size-3.5" style={{ color: cat.color }} />
-                        </span>
-                        {cat.name}
-                      </button>
-                    );
-                  })}
-                </div>
+                          <span
+                            className="flex size-6 items-center justify-center rounded-lg"
+                            style={{ backgroundColor: `${cat.color}33` }}
+                          >
+                            <DynamicIcon name={cat.icon} className="size-3.5" style={{ color: cat.color }} />
+                          </span>
+                          {cat.name}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
 
               {/* Crear nueva categoría */}
@@ -407,57 +445,82 @@ export function PlanningModal({
 
               {/* Actividades de la categoría activa */}
               {activeCategory && (
-                <div className="flex flex-col gap-2 rounded-2xl border border-border bg-surface-muted p-3">
-                  <div className="flex items-center justify-between gap-2">
-                    <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                      Actividades de {activeCategory.name}
-                    </p>
-                    <span className="rounded-full bg-surface px-2 py-0.5 text-[10px] text-muted-foreground">
-                      {activeCategory.subcategories.length}
-                    </span>
-                  </div>
-                  <div className="flex flex-wrap gap-1.5">
-                    {activeCategory.subcategories.length === 0 ? (
-                      <p className="text-xs text-muted-foreground">
-                        Esta categoría no tiene actividades todavía.
-                      </p>
-                    ) : (
-                      activeCategory.subcategories.map((sub) => {
-                        const selected = selectedSubIds.has(sub.id);
-                        return (
-                          <button
-                            key={sub.id}
-                            type="button"
-                            onClick={() => toggleActivity(activeCategory, sub)}
-                            aria-pressed={selected}
-                            className={cn(
-                              "flex cursor-pointer items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender",
-                              selected
-                                ? "border-accent-aprender bg-accent-aprender/10 text-accent-aprender"
-                                : "border-border bg-surface text-foreground hover:bg-surface-hover",
-                            )}
-                          >
-                            <span
-                              className="flex size-5 items-center justify-center rounded"
-                              style={{ backgroundColor: `${sub.color}33` }}
-                            >
-                              <DynamicIcon name={sub.icon} className="size-3" style={{ color: sub.color }} />
-                            </span>
-                            {sub.name}
-                            {selected && <Check className="size-3" />}
-                          </button>
-                        );
-                      })
-                    )}
-                  </div>
+                <div className="overflow-hidden rounded-2xl border border-border bg-surface">
                   <button
                     type="button"
-                    onClick={() => setCreatingActivity(true)}
-                    className="flex cursor-pointer items-center gap-1.5 self-start rounded-full border border-dashed border-border px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:border-accent-aprender/40 hover:text-accent-aprender focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender"
+                    onClick={() => setActivitiesOpen((value) => !value)}
+                    aria-expanded={activitiesOpen}
+                    aria-controls="planning-activities"
+                    className="flex w-full cursor-pointer items-center gap-3 px-4 py-3 text-left transition-colors duration-200 hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent-aprender"
                   >
-                    <Plus className="size-3.5" />
-                    Crear actividad personalizada
+                    <span className="min-w-0 flex-1">
+                      <span className="block text-sm font-semibold text-foreground">
+                        Mostrar actividades de {activeCategory.name}
+                      </span>
+                      <span className="block text-xs text-muted-foreground">
+                        {activeCategory.subcategories.length}{" "}
+                        {activeCategory.subcategories.length === 1
+                          ? "actividad disponible"
+                          : "actividades disponibles"}
+                      </span>
+                    </span>
+                    <ChevronDown
+                      className={cn(
+                        "size-4 shrink-0 text-muted-foreground transition-transform duration-200",
+                        activitiesOpen && "rotate-180",
+                      )}
+                    />
                   </button>
+
+                  {activitiesOpen && (
+                    <div
+                      id="planning-activities"
+                      className="flex flex-col gap-2 border-t border-border bg-surface-muted p-3"
+                    >
+                      <div className="flex flex-wrap gap-1.5">
+                        {activeCategory.subcategories.length === 0 ? (
+                          <p className="text-xs text-muted-foreground">
+                            Esta categoría no tiene actividades todavía.
+                          </p>
+                        ) : (
+                          activeCategory.subcategories.map((sub) => {
+                            const selected = selectedSubIds.has(sub.id);
+                            return (
+                              <button
+                                key={sub.id}
+                                type="button"
+                                onClick={() => toggleActivity(activeCategory, sub)}
+                                aria-pressed={selected}
+                                className={cn(
+                                  "flex cursor-pointer items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender",
+                                  selected
+                                    ? "border-accent-aprender bg-accent-aprender/10 text-accent-aprender"
+                                    : "border-border bg-surface text-foreground hover:bg-surface-hover",
+                                )}
+                              >
+                                <span
+                                  className="flex size-5 items-center justify-center rounded"
+                                  style={{ backgroundColor: `${sub.color}33` }}
+                                >
+                                  <DynamicIcon name={sub.icon} className="size-3" style={{ color: sub.color }} />
+                                </span>
+                                {sub.name}
+                                {selected && <Check className="size-3" />}
+                              </button>
+                            );
+                          })
+                        )}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setCreatingActivity(true)}
+                        className="flex cursor-pointer items-center gap-1.5 self-start rounded-full border border-dashed border-border px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:border-accent-aprender/40 hover:text-accent-aprender focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender"
+                      >
+                        <Plus className="size-3.5" />
+                        Crear actividad personalizada
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -548,14 +611,14 @@ export function PlanningModal({
                                 )}
                                 <label className="mt-1 flex items-center gap-1.5 text-[10px] text-muted-foreground">
                                   <Clock className="size-3" />
-                                  <span>Recordatorio</span>
+                                  <span>Recuérdamelo</span>
                                   <input
                                     type="time"
                                     value={item.remindAt ?? ""}
                                     onChange={(event) =>
                                       updateReminder(item.id, event.target.value)
                                     }
-                                    aria-label={`Hora de recordatorio para ${item.title}`}
+                                    aria-label={`Hora para recordarte ${item.title}`}
                                     className="h-7 rounded-lg border border-border bg-surface px-1.5 text-[11px] text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender"
                                   />
                                 </label>
@@ -589,7 +652,7 @@ export function PlanningModal({
               </div>
 
               {/* Acciones */}
-              <div className="flex flex-col gap-3 border-t border-border pt-4">
+              <div className="border-t border-border pt-4">
                 <Button
                   onClick={() => onSave(selectedItems)}
                   disabled={isPending || selectedItems.length === 0}
@@ -597,16 +660,6 @@ export function PlanningModal({
                   className="w-full"
                 >
                   {isPending ? "Guardando..." : "Guardar planificación"}
-                </Button>
-                <Button
-                  variant="secondary"
-                  size="md"
-                  onClick={onSkip}
-                  disabled={isPending}
-                  className="gap-2"
-                >
-                  <HelpCircle className="size-4" />
-                  Prefiero que me recomiendes algo
                 </Button>
               </div>
             </div>
