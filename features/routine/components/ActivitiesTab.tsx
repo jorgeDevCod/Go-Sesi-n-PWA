@@ -91,12 +91,10 @@ export function ActivitiesTab({
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="max-w-3xl text-sm leading-relaxed text-pretty text-muted-foreground text-start">
-        <p>Selecciona una categoría para desplegar sus actividades.</p>
-        <span>
-          Podrás cambiar de categoría sin volver al inicio y ajustar el tiempo justo antes de empezar.
-        </span>
-      </div>
+      <p className="max-w-3xl text-sm leading-relaxed text-pretty text-muted-foreground text-start">
+        Selecciona una categoría para ver sus actividades y podrás: Agregar, editar y eliminar
+        según tus preferencias.
+      </p>
 
       <div className="relative" role="search">
         <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />

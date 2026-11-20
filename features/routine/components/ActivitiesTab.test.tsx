@@ -54,6 +54,15 @@ const ITEMS = {
 } satisfies Record<string, SubcategoryItem[]>;
 
 describe("ActivitiesTab", () => {
+  it("muestra la descripción en un solo párrafo", () => {
+    render(<ActivitiesTab categories={CATEGORIES} itemsByCategory={{}} />);
+    expect(
+      screen.getByText(
+        "Selecciona una categoría para ver sus actividades y podrás: Agregar, editar y eliminar según tus preferencias.",
+      ),
+    ).toBeInTheDocument();
+  });
+
   it("muestra el desplegable cerrado y las actividades al abrirlo", () => {
     render(<ActivitiesTab categories={CATEGORIES} itemsByCategory={{}} />);
     const toggle = screen.getByRole("button", { name: "Cambiar de categoría" });
