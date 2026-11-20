@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
 import {
   DndContext,
   KeyboardSensor,
@@ -17,7 +16,7 @@ import {
   sortableKeyboardCoordinates,
   rectSortingStrategy,
 } from "@dnd-kit/sortable";
-import { Pencil, Plus, Search, Trash2, CheckSquare, X } from "lucide-react";
+import { Pencil, Plus, Trash2, CheckSquare, X } from "lucide-react";
 import {
   bulkUpdateSubcategoriesAction,
   deleteManySubcategoriesAction,
@@ -58,6 +57,7 @@ export function SubcategoryList({
   showEnergyInModal = true,
   enableBulkDelete = false,
   allowEdit = true,
+  highlightId = null,
 }: {
   categoryId: string;
   categoryName: string;
@@ -69,6 +69,7 @@ export function SubcategoryList({
   showEnergyInModal?: boolean;
   enableBulkDelete?: boolean;
   allowEdit?: boolean;
+  highlightId?: string | null;
 }) {
   const router = useRouter();
   const energy = useRecommendationPrefs((s) => s.energy);
@@ -88,7 +89,6 @@ export function SubcategoryList({
       ? [preferred]
       : [];
   });
-  const [search, setSearch] = useState("");
   const [selectMode, setSelectMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [deleteTarget, setDeleteTarget] = useState<DeleteTarget | null>(null);
@@ -102,6 +102,16 @@ export function SubcategoryList({
   useEffect(() => {
     setItems(categoryId, initialItems);
   }, [categoryId, initialItems, setItems]);
+
+  useEffect(() => {
+    if (!highlightId) return;
+    const timer = window.setTimeout(() => {
+      document
+        .getElementById(`activity-${highlightId}`)
+        ?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 80);
+    return () => window.clearTimeout(timer);
+  }, [categoryId, highlightId]);
 
   function toggleSelect(id: string) {
     setSelectedIds((prev) => {
@@ -193,14 +203,11 @@ export function SubcategoryList({
     };
   })();
 
-  const filteredItems = items.filter((item) => {
-    const difficultyMatch =
-      selectedDifficulties.length === 0 || selectedDifficulties.includes(item.complexity);
-    const searchMatch =
-      search.trim().length === 0 ||
-      item.name.toLowerCase().includes(search.trim().toLowerCase());
-    return difficultyMatch && searchMatch;
-  });
+  const filteredItems = items.filter(
+    (item) =>
+      selectedDifficulties.length === 0 ||
+      selectedDifficulties.includes(item.complexity),
+  );
 
   const allVisibleSelected =
     filteredItems.length > 0 &&
@@ -242,89 +249,79 @@ export function SubcategoryList({
         />
       )}
 
-      <div className="relative">
-        <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-        <input
-          type="text"
-          value={search}
-          onChange={(event) => setSearch(event.target.value)}
-          placeholder="Buscar actividad..."
-          aria-label="Buscar actividad"
-          className="h-11 w-full rounded-2xl border border-border bg-surface pl-9 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender"
-        />
-      </div>
-
-      {enableBulkDelete && items.length > 0 && (
-        <div className="flex flex-wrap items-center gap-2">
-          {selectMode ? (
-            <>
-              <Button
-                variant="secondary"
-                size="md"
-                onClick={toggleSelectAll}
-                disabled={filteredItems.length === 0}
-                className="gap-2"
-              >
-                <CheckSquare className="size-4" />
-                {allVisibleSelected ? "Quitar selección" : "Seleccionar todas"}
-              </Button>
-              {selectedIds.size > 0 && (
-                <Button
-                  variant="secondary"
-                  size="md"
-                  onClick={() => {
-                    setBulkEditError(null);
-                    setBulkEditOpen(true);
-                  }}
-                  className="gap-2"
-                >
-                  <Pencil className="size-4" />
-                  Editar
-                </Button>
-              )}
-              {selectedIds.size > 0 && (
-                <Button
-                  variant="secondary"
-                  size="md"
-                  onClick={() => setDeleteTarget({ type: "selected" })}
-                  className="gap-2 border-red-300 bg-red-50 text-red-600 dark:border-red-900 dark:bg-red-950 dark:text-red-400"
-                >
-                  <Trash2 className="size-4" />
-                  Eliminar
-                </Button>
-              )}
-              <Button
-                variant="ghost"
-                size="md"
-                onClick={cancelSelectMode}
-                className="gap-2"
-              >
-                <X className="size-4" />
-                Cancelar
-              </Button>
-            </>
-          ) : (
+      <div className="flex flex-wrap items-center gap-2">
+        {selectMode ? (
+          <>
             <Button
               variant="secondary"
               size="md"
-              onClick={() => setSelectMode(true)}
+              onClick={toggleSelectAll}
+              disabled={filteredItems.length === 0}
               className="gap-2"
             >
               <CheckSquare className="size-4" />
-              Seleccionar
+              {allVisibleSelected ? "Quitar selección" : "Seleccionar todas"}
             </Button>
-          )}
-        </div>
-      )}
-
-      {!selectMode && (
-        <motion.div whileTap={{ scale: 0.97 }} transition={{ duration: 0.08 }}>
-          <Button variant="secondary" onClick={() => setCreateOpen(true)} className="gap-2">
-            <Plus className="size-4" />
-            Agregar Actividad
-          </Button>
-        </motion.div>
-      )}
+            {selectedIds.size > 0 && (
+              <Button
+                variant="secondary"
+                size="md"
+                onClick={() => {
+                  setBulkEditError(null);
+                  setBulkEditOpen(true);
+                }}
+                className="gap-2"
+              >
+                <Pencil className="size-4" />
+                Editar
+              </Button>
+            )}
+            {selectedIds.size > 0 && (
+              <Button
+                variant="secondary"
+                size="md"
+                onClick={() => setDeleteTarget({ type: "selected" })}
+                className="gap-2 border-red-300 bg-red-50 text-red-600 dark:border-red-900 dark:bg-red-950 dark:text-red-400"
+              >
+                <Trash2 className="size-4" />
+                Eliminar
+              </Button>
+            )}
+            <Button
+              variant="ghost"
+              size="md"
+              onClick={cancelSelectMode}
+              className="gap-2"
+            >
+              <X className="size-4" />
+              Cancelar
+            </Button>
+          </>
+        ) : (
+          <>
+            {enableBulkDelete && items.length > 0 && (
+              <Button
+                variant="secondary"
+                size="md"
+                onClick={() => setSelectMode(true)}
+                className="gap-2"
+              >
+                <CheckSquare className="size-4" />
+                Seleccionar
+              </Button>
+            )}
+            <Button
+              variant="secondary"
+              size="md"
+              onClick={() => setCreateOpen(true)}
+              className="gap-2"
+            >
+              <Plus className="size-4" />
+              Agregar actividad
+            </Button>
+          </>
+        )}
+      </div>
 
       <DndContext
         sensors={sensors}
@@ -348,6 +345,7 @@ export function SubcategoryList({
                 }}
                 selectMode={selectMode}
                 selected={selectedIds.has(item.id)}
+                highlighted={highlightId === item.id}
                 showEdit={allowEdit}
                 onToggleSelect={toggleSelect}
                 onEdit={() =>

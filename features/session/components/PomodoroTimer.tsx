@@ -8,13 +8,14 @@ import { Button } from "@/components/ui/Button";
 import { InfoModal } from "@/components/ui/InfoModal";
 import { Pause, Play, SkipForward } from "lucide-react";
 import { formatRemaining } from "@/features/session/timer-view";
-import { derivePomodoroView, pomodoroSkippedMs } from "@/services/session/pomodoro";
+import { derivePomodoroView, pomodoroAdjustedMs } from "@/services/session/pomodoro";
 import {
   completeSessionAction,
   skipPomodoroPhaseAction,
 } from "@/features/session/actions/session.actions";
 import { useSessionStore } from "@/features/session/store/session.store";
 import { useLiveSessionNotification } from "@/features/session/hooks/useLiveSessionNotification";
+import { sessionNotificationActions } from "@/lib/session-notification-actions";
 import { playSessionSound } from "@/features/session/sound-manager";
 import type { SessionDTO } from "@/services/session/session.dto";
 
@@ -75,7 +76,7 @@ export function PomodoroTimer({
       referenceNow - session.startedAtMs - session.pausedMs,
     );
     return derivePomodoroView(
-      elapsedMs + pomodoroSkippedMs(session),
+      elapsedMs + pomodoroAdjustedMs(session),
       config,
       session.extendedMinutes * 60_000,
     );
@@ -157,11 +158,20 @@ export function PomodoroTimer({
     const referenceNow = session.pausedAtMs ?? nowMs + skewMs;
     const elapsedMs = Math.max(0, referenceNow - session.startedAtMs - session.pausedMs);
     return derivePomodoroView(
-      elapsedMs + pomodoroSkippedMs(session),
+      elapsedMs + pomodoroAdjustedMs(session),
       config,
       session.extendedMinutes * 60_000,
     );
   }, [config, session, nowMs, skewMs]);
+
+  const notificationActions = useMemo(
+    () =>
+      sessionNotificationActions({
+        mode: "POMODORO",
+        phase: view?.phase,
+      }),
+    [view?.phase],
+  );
 
   const isPaused = session.pausedAtMs !== null;
   const notificationBody =
@@ -174,7 +184,7 @@ export function PomodoroTimer({
   useLiveSessionNotification({
     session,
     body: notificationBody,
-    paused: isPaused,
+    actions: notificationActions,
   });
 
   function handleFinish() {

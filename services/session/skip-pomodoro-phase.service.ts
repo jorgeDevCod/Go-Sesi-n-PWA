@@ -1,5 +1,5 @@
 import { findById, updateSession } from "@/repositories/focus-session.repository";
-import { derivePomodoroView, pomodoroSkippedMs } from "./pomodoro";
+import { derivePomodoroView, pomodoroAdjustedMs } from "./pomodoro";
 import { parsePomodoroConfig, toSessionDTO } from "./session.dto";
 import { endSession } from "./end-session.util";
 import {
@@ -30,7 +30,7 @@ export async function skipPomodoroPhaseForUser(id: string, userId: string) {
     referenceNow - session.startedAt.getTime() - session.pausedMs,
   );
   const view = derivePomodoroView(
-    elapsedMs + pomodoroSkippedMs(session),
+    elapsedMs + pomodoroAdjustedMs(session),
     config,
     session.extendedMinutes * 60_000,
   );
@@ -51,7 +51,7 @@ export async function skipPomodoroPhaseForUser(id: string, userId: string) {
   });
 
   const nextView = derivePomodoroView(
-    elapsedMs + skippedFocusMs + skippedBreakMs,
+    elapsedMs + pomodoroAdjustedMs(updated),
     config,
     session.extendedMinutes * 60_000,
   );

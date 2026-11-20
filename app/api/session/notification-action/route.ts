@@ -1,13 +1,13 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { getActiveSessionForUser } from "@/services/session/get-active-session.service";
-import { pauseSessionForUser } from "@/services/session/pause-session.service";
-import { resumeSessionForUser } from "@/services/session/resume-session.service";
 import { interruptSessionForUser } from "@/services/session/interrupt-session.service";
+import { rewindPomodoroPhaseForUser } from "@/services/session/rewind-pomodoro-phase.service";
+import { skipPomodoroPhaseForUser } from "@/services/session/skip-pomodoro-phase.service";
 
 export const dynamic = "force-dynamic";
 
-type NotificationAction = "toggle" | "pause" | "resume" | "finish";
+type NotificationAction = "finish" | "skip" | "previous";
 
 export async function POST(request: Request) {
   const session = await auth();
@@ -16,7 +16,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "No autorizado." }, { status: 401 });
   }
 
-  let body: { id?: unknown; action?: unknown; pausedAtMs?: unknown };
+  let body: { id?: unknown; action?: unknown };
   try {
     body = await request.json();
   } catch {
@@ -24,10 +24,8 @@ export async function POST(request: Request) {
   }
 
   const id = typeof body.id === "string" ? body.id : null;
-  const pausedAtMs =
-    typeof body.pausedAtMs === "number" ? body.pausedAtMs : undefined;
   const action = body.action as NotificationAction | undefined;
-  if (!id || !action || !["toggle", "pause", "resume", "finish"].includes(action)) {
+  if (!id || !action || !["finish", "skip", "previous"].includes(action)) {
     return NextResponse.json({ error: "Datos inválidos." }, { status: 400 });
   }
 
@@ -42,15 +40,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: true, status: finished.status });
     }
 
-    const shouldResume =
-      action === "resume" || (action === "toggle" && active.pausedAtMs !== null);
-    const updated = shouldResume
-      ? await resumeSessionForUser(id, userId)
-      : await pauseSessionForUser(id, userId, pausedAtMs);
-    return NextResponse.json({
-      ok: true,
-      paused: updated.pausedAtMs !== null,
-    });
+    const updated =
+      action === "skip"
+        ? await skipPomodoroPhaseForUser(id, userId)
+        : await rewindPomodoroPhaseForUser(id, userId);
+
+    return NextResponse.json({ ok: true, status: updated.status });
   } catch {
     return NextResponse.json({ error: "No se pudo actualizar la sesión." }, { status: 500 });
   }

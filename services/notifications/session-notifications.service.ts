@@ -6,10 +6,14 @@ import {
 import { completeSessionForUser } from "@/services/session/complete-session.service";
 import { parsePomodoroConfig, toSessionDTO } from "@/services/session/session.dto";
 import { isSessionExpired } from "@/services/session/session-expiry";
-import { derivePomodoroView, pomodoroSkippedMs } from "@/services/session/pomodoro";
+import { derivePomodoroView, pomodoroAdjustedMs } from "@/services/session/pomodoro";
 import { computeElapsedRunningMs, computeRemainingMs } from "@/lib/session-time";
 import { formatRemaining } from "@/features/session/timer-view";
 import { sendPushToUser, PushNotConfiguredError } from "@/services/push/push.service";
+import {
+  sessionNotificationActions,
+  type SessionNotificationAction,
+} from "@/lib/session-notification-actions";
 import { ROUTES } from "@/lib/routes";
 
 type CronSummary = {
@@ -25,7 +29,7 @@ async function sendLive(
   sessionId: string,
   title: string,
   body: string,
-  paused = false,
+  actions: SessionNotificationAction[],
 ): Promise<boolean> {
   try {
     await sendPushToUser(userId, {
@@ -35,10 +39,7 @@ async function sendLive(
       silent: true,
       renotify: false,
       requireInteraction: true,
-      actions: [
-        { action: "toggle", title: paused ? "Reanudar" : "Pausar" },
-        { action: "finish", title: "Finalizar sesión" },
-      ],
+      actions,
       data: { url: ROUTES.session, type: "live", sessionId },
     });
     return true;
@@ -53,6 +54,7 @@ async function sendPhase(
   sessionId: string,
   title: string,
   body: string,
+  actions: SessionNotificationAction[],
 ): Promise<boolean> {
   try {
     await sendPushToUser(userId, {
@@ -61,6 +63,7 @@ async function sendPhase(
       tag: `gosession-live-${sessionId}`,
       requireInteraction: true,
       renotify: true,
+      actions,
       data: { url: ROUTES.session, type: "phase", sessionId },
     });
     return true;
@@ -170,11 +173,15 @@ export async function processSessionNotifications(nowMs = Date.now()): Promise<C
           nowMs,
         );
         const view = derivePomodoroView(
-          elapsed + pomodoroSkippedMs(session),
+          elapsed + pomodoroAdjustedMs(session),
           config,
           session.extendedMinutes * 60_000,
         );
         const phaseKey = `${view.phase}:${view.cycleIndex}:${view.isLongBreak}`;
+        const phaseActions = sessionNotificationActions({
+          mode: "POMODORO",
+          phase: view.phase,
+        });
 
         if (view.phase === "done") {
           try {
@@ -224,6 +231,7 @@ export async function processSessionNotifications(nowMs = Date.now()): Promise<C
             session.id,
             copy.title,
             copy.body,
+            phaseActions,
           );
           if (sent) summary.phaseNotified += 1;
           else summary.pushFailures += 1;
@@ -243,7 +251,7 @@ export async function processSessionNotifications(nowMs = Date.now()): Promise<C
           session.id,
           session.subcategory.name,
           `${phaseLabel} · quedan ${formatRemaining(view.phaseRemainingMs)}`,
-          session.pausedAt !== null,
+          phaseActions,
         );
         if (live) summary.liveNotified += 1;
       }
@@ -264,7 +272,7 @@ export async function processSessionNotifications(nowMs = Date.now()): Promise<C
       session.id,
       session.subcategory.name,
       `${session.pausedAt ? "Pausada" : "En curso"} · quedan ${formatRemaining(remaining)}`,
-      session.pausedAt !== null,
+      sessionNotificationActions({ mode: "CLASSIC" }),
     );
     if (live) summary.liveNotified += 1;
   }

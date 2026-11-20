@@ -27,6 +27,7 @@ export function SubcategoryItem({
   category,
   selectMode = false,
   selected = false,
+  highlighted = false,
   showEdit = true,
   onToggleSelect,
 }: {
@@ -36,6 +37,7 @@ export function SubcategoryItem({
   category?: { id: string; name: string; icon: string; color: string };
   selectMode?: boolean;
   selected?: boolean;
+  highlighted?: boolean;
   showEdit?: boolean;
   onToggleSelect?: (id: string) => void;
 }) {
@@ -79,6 +81,7 @@ export function SubcategoryItem({
   return (
     <li
       ref={setNodeRef}
+      id={`activity-${item.id}`}
       style={style}
       onClick={selectMode ? () => onToggleSelect?.(item.id) : undefined}
       className={cn(
@@ -86,6 +89,7 @@ export function SubcategoryItem({
         selectMode ? "cursor-pointer" : "border-border shadow-sm",
         selectMode && selected && "border-red-400 bg-red-50 ring-2 ring-red-300 dark:bg-red-950/40 dark:ring-red-700",
         selectMode && !selected && "border-dashed border-border",
+        highlighted && "ring-2 ring-accent-aprender ring-offset-2 ring-offset-background",
         isDragging && "shadow-lg",
       )}
     >

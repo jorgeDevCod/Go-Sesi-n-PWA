@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { isStandalonePwa } from "@/lib/pwa";
 import { ROUTES } from "@/lib/routes";
+import type { SessionNotificationAction } from "@/lib/session-notification-actions";
 import type { SessionDTO } from "@/services/session/session.dto";
 
 function liveTag(sessionId: string): string {
@@ -26,11 +27,11 @@ function canNotify(): boolean {
 export function useLiveSessionNotification({
   session,
   body,
-  paused,
+  actions,
 }: {
   session: SessionDTO | null;
   body: string | null;
-  paused: boolean;
+  actions: SessionNotificationAction[];
 }) {
   const registrationRef = useRef<ServiceWorkerRegistration | null>(null);
   const sessionId = session?.id ?? null;
@@ -84,10 +85,7 @@ export function useLiveSessionNotification({
           silent: true,
           renotify: false,
           requireInteraction: true,
-          actions: [
-            { action: "toggle", title: paused ? "Reanudar" : "Pausar" },
-            { action: "finish", title: "Finalizar sesión" },
-          ],
+          actions,
           data: { url: ROUTES.session, type: "live", sessionId },
         } as NotificationOptions & {
           renotify: boolean;
@@ -102,5 +100,5 @@ export function useLiveSessionNotification({
     return () => {
       cancelled = true;
     };
-  }, [body, paused, sessionId, status, title]);
+  }, [actions, body, sessionId, status, title]);
 }

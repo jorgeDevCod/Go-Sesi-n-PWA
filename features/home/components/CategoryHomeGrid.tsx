@@ -24,6 +24,10 @@ import {
   type ActiveSessionInfo,
 } from "@/features/home/components/PlannedCategories";
 import { HomeQuickSection } from "@/features/home/components/HomeQuickSection";
+import {
+  HomeSectionNav,
+  type HomeSection,
+} from "@/features/home/components/HomeSectionNav";
 import { homeGreetingForToday } from "@/features/home/daily-greetings";
 import { useHomeQuickStore } from "@/features/home/store/home-quick.store";
 import { getTodayPlanAction } from "@/features/planning/actions/planning.actions";
@@ -69,6 +73,19 @@ export function CategoryHomeGrid({
   const [activeSession, setActiveSession] = useState<ActiveSessionInfo>(null);
   const [planReminder, setPlanReminder] = useState<PlannedItem | null>(null);
   const [showAllCategories, setShowAllCategories] = useState(true);
+  const quickItems = useHomeQuickStore((state) => state.items);
+  const homeSections = useMemo<HomeSection[]>(() => {
+    const sections: HomeSection[] = [
+      { id: "home-categories", label: "Ir a categorías" },
+    ];
+    if (planItems.length > 0) {
+      sections.push({ id: "home-plan", label: "Ir a planificación" });
+    }
+    if (quickItems.length > 0) {
+      sections.push({ id: "home-quick", label: "Ir a accesos directos" });
+    }
+    return sections;
+  }, [planItems.length, quickItems.length]);
 
   const planVersion = usePlanningStore((state) => state.planVersion);
   const prefs = useRecommendationPrefs();
@@ -196,7 +213,7 @@ export function CategoryHomeGrid({
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-[700px] flex-col gap-4">
+    <div className="mx-auto flex w-full max-w-[700px] flex-col gap-4 pb-24">
       {/* Title */}
       <div className="mx-auto flex max-w-[700px] flex-col items-center gap-3 px-1 py-2 text-center">
         <h1 className="font-display text-xl font-bold leading-tight tracking-tight text-balance text-foreground sm:text-2xl">
@@ -297,7 +314,7 @@ export function CategoryHomeGrid({
         </span>
       </motion.button>
 
-      <div>
+      <div id="home-categories" className="scroll-mt-24">
       <AnimatePresence initial={false}>
         {showAllCategories && (
           <motion.div
@@ -333,15 +350,23 @@ export function CategoryHomeGrid({
 
       {/* Todays plan */}
       {planItems.length > 0 && (
-        <PlannedCategories
-          items={planItems}
-          activeSession={activeSession}
-          onItemsChange={setPlanItems}
-        />
+        <div id="home-plan" className="scroll-mt-24">
+          <PlannedCategories
+            items={planItems}
+            activeSession={activeSession}
+            onItemsChange={setPlanItems}
+          />
+        </div>
       )}
 
       {/* Accessos rápidos (actividades marcadas para el home) */}
-      <HomeQuickSection />
+      {quickItems.length > 0 && (
+        <div id="home-quick" className="scroll-mt-24">
+          <HomeQuickSection />
+        </div>
+      )}
+
+      <HomeSectionNav sections={homeSections} />
 
       <InfoModal
         open={planReminder !== null}

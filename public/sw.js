@@ -1,4 +1,4 @@
-const CACHE_NAME = "gosession-shell-v4";
+const CACHE_NAME = "gosession-shell-v5";
 const OFFLINE_URL = "/offline.html";
 
 self.addEventListener("install", (event) => {
@@ -57,7 +57,7 @@ self.addEventListener("notificationclick", (event) => {
   const data = event.notification.data ?? {};
   const action = event.action ?? data.action ?? "open";
 
-  if (action === "toggle" || action === "finish") {
+  if (action === "finish" || action === "skip" || action === "previous") {
     event.waitUntil(
       (async () => {
         try {
@@ -65,11 +65,7 @@ self.addEventListener("notificationclick", (event) => {
             method: "POST",
             credentials: "include",
             headers: { "content-type": "application/json" },
-            body: JSON.stringify({
-              id: data.sessionId,
-              action,
-              pausedAtMs: action === "toggle" ? Date.now() : undefined,
-            }),
+            body: JSON.stringify({ id: data.sessionId, action }),
           });
         } catch {
           // Si falla, la app puede resolverlo al abrirse.

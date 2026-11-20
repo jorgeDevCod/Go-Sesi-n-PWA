@@ -3,7 +3,9 @@ import {
   derivePomodoroView,
   describePomodoroPlan,
   pomodoroConfigFor,
+  pomodoroAdjustedMs,
   pomodoroKey,
+  pomodoroPhaseWindows,
   pomodoroPlannedMinutes,
   POMODORO_PRESETS,
 } from "./pomodoro-view";
@@ -74,6 +76,16 @@ describe("pomodoro core", () => {
     expect(view.phase).toBe("break");
     expect(view.isLongBreak).toBe(false);
     expect(pomodoroPlannedMinutes(legacy)).toBe(55);
+  });
+
+  it("calcula la fase anterior y descuenta el tiempo retrocedido", () => {
+    expect(pomodoroAdjustedMs({ skippedFocusMs: 10, skippedBreakMs: 2, rewoundMs: 5 })).toBe(7);
+    const windows = pomodoroPhaseWindows(config);
+    expect(windows.map((window) => [window.phase, window.startMs, window.endMs])).toEqual([
+      ["focus", 0, 25 * MIN],
+      ["break", 25 * MIN, 30 * MIN],
+      ["focus", 30 * MIN, 55 * MIN],
+    ]);
   });
 
   it("rechaza configuraciones inválidas", () => {

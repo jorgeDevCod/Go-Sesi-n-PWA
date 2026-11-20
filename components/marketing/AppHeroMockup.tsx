@@ -48,12 +48,15 @@ const MENU_ITEMS = [
 ];
 
 const THEMES = [
-  { label: "Oscuro", color: "#1c1c1f" },
-  { label: "Blanco", color: "#d5d8e0" },
-  { label: "Humo", color: "#F1F5F9" },
-  { label: "Rosa", color: "#FCE7F3" },
-  { label: "Celeste", color: "#E0F2FE" },
+  { label: "Oscuro", color: "#111827" },
+  { label: "Blanco", color: "#FFFFFF" },
+  { label: "Humo", color: "#CBD5E1" },
+  { label: "Rosa", color: "#F9A8D4" },
+  { label: "Celeste", color: "#7DD3FC" },
 ];
+
+const THEME_WHEEL =
+  "conic-gradient(from -90deg, #111827 0deg 72deg, #7DD3FC 72deg 144deg, #F9A8D4 144deg 216deg, #CBD5E1 216deg 288deg, #FFFFFF 288deg 360deg)";
 
 const CATEGORY_TABS = [
   { name: "Aprender", icon: "BookOpen", color: "#6366F1" },
@@ -137,11 +140,11 @@ export function AppHeroMockup() {
                   aria-label="Cambiar tema"
                   className="flex size-6 cursor-pointer items-center justify-center rounded-full border border-border transition-colors hover:bg-surface-hover"
                 >
-                  <span className="grid size-4 grid-cols-2 overflow-hidden rounded-full border border-border/60">
-                    <span style={{ backgroundColor: "#29292E" }} />
-                    <span style={{ backgroundColor: "#F1F5F9" }} />
-                    <span style={{ backgroundColor: "#E0F2FE" }} />
-                    <span style={{ backgroundColor: "#FCE7F3" }} />
+                  <span className="size-4 rounded-full border border-border/70 p-0.5">
+                    <span
+                      className="block size-full rounded-full"
+                      style={{ background: THEME_WHEEL }}
+                    />
                   </span>
                 </button>
                 <AnimatePresence>

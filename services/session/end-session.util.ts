@@ -1,7 +1,7 @@
 import { computeActualMinutes } from "@/lib/session-time";
 import type { SessionWithRelations } from "./session.dto";
 import { parsePomodoroConfig } from "./session.dto";
-import { derivePomodoroView } from "./pomodoro";
+import { derivePomodoroView, pomodoroAdjustedMs } from "./pomodoro";
 import { updateSession } from "@/repositories/focus-session.repository";
 
 /**
@@ -18,6 +18,7 @@ export function computePomodoroFocusMinutes(
     | "extendedMinutes"
     | "skippedFocusMs"
     | "skippedBreakMs"
+    | "rewoundMs"
   >,
   nowMs: number,
 ): number {
@@ -28,9 +29,8 @@ export function computePomodoroFocusMinutes(
     return Math.floor(elapsedMs / 60_000);
   }
   const skippedFocusMs = session.skippedFocusMs ?? 0;
-  const skippedBreakMs = session.skippedBreakMs ?? 0;
   const view = derivePomodoroView(
-    elapsedMs + skippedFocusMs + skippedBreakMs,
+    elapsedMs + pomodoroAdjustedMs(session),
     config,
     session.extendedMinutes * 60_000,
   );

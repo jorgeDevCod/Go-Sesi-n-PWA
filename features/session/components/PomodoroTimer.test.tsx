@@ -50,6 +50,7 @@ function makeSession(autoStart: boolean): SessionDTO {
     extendedMinutes: 0,
     skippedFocusMs: 0,
     skippedBreakMs: 0,
+    rewoundMs: 0,
     mode: "POMODORO",
     pomodoroConfig: {
       focusMin: 25,

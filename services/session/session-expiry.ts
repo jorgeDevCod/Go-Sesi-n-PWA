@@ -1,5 +1,5 @@
 import { computeElapsedRunningMs, computeRemainingMs } from "@/lib/session-time";
-import { derivePomodoroView, pomodoroSkippedMs } from "./pomodoro";
+import { derivePomodoroView, pomodoroAdjustedMs } from "./pomodoro";
 import type { SessionDTO } from "./session.dto";
 
 /**
@@ -21,7 +21,7 @@ export function isSessionExpired(session: SessionDTO, nowMs: number = Date.now()
       nowMs,
     );
     const view = derivePomodoroView(
-      elapsed + pomodoroSkippedMs(session),
+      elapsed + pomodoroAdjustedMs(session),
       session.pomodoroConfig,
       session.extendedMinutes * 60_000,
     );

@@ -6,8 +6,11 @@ import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 import { Pause, Play } from "lucide-react";
 import { useLiveSessionNotification } from "@/features/session/hooks/useLiveSessionNotification";
+import { sessionNotificationActions } from "@/lib/session-notification-actions";
 import type { TimerView } from "@/features/session/timer-view";
 import type { SessionDTO } from "@/services/session/session.dto";
+
+const CLASSIC_NOTIFICATION_ACTIONS = sessionNotificationActions({ mode: "CLASSIC" });
 
 export function TimerScreen({
   session,
@@ -42,7 +45,7 @@ export function TimerScreen({
   useLiveSessionNotification({
     session,
     body: `${view.isPaused ? "Pausada" : "En curso"} · quedan ${view.formattedTime}`,
-    paused: view.isPaused,
+    actions: CLASSIC_NOTIFICATION_ACTIONS,
   });
 
   return (

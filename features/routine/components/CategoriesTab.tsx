@@ -163,76 +163,75 @@ export function CategoriesTab({ categories }: { categories: RoutineCategory[] })
   return (
     <div className="flex flex-col gap-4">
       <p className="text-sm leading-relaxed text-muted-foreground">
-        Crea categorías para enfocarte en lo que quieres mejorar, organizar tus actividades o dedicarte a tus nuevos hobbies. Personaliza cada una y hazla completamente tuya.
+        Crea y personaliza categorías para organizar tus actividades según tus metas e intereses.
       </p>
 
-      {list.length > 0 && (
-        <div className="flex flex-wrap items-center gap-2">
-          {selectMode ? (
-            <>
-              <Button
-                variant="secondary"
-                size="md"
-                onClick={toggleSelectAll}
-                className="gap-2"
-              >
-                <CheckSquare className="size-4" />
-                {allSelected ? "Quitar selección" : "Seleccionar todas"}
-              </Button>
-              {selectedIds.size > 0 && (
-                <Button
-                  variant="secondary"
-                  size="md"
-                  onClick={() => {
-                    setBulkEditError(null);
-                    setBulkEditOpen(true);
-                  }}
-                  className="gap-2"
-                >
-                  <Pencil className="size-4" />
-                  Editar
-                </Button>
-              )}
-              {selectedIds.size > 0 && (
-                <Button
-                  variant="secondary"
-                  size="md"
-                  onClick={deleteSelected}
-                  className="gap-2 border-red-300 bg-red-50 text-red-600 dark:border-red-900 dark:bg-red-950 dark:text-red-400"
-                >
-                  <Trash2 className="size-4" />
-                  Eliminar
-                </Button>
-              )}
-              <Button variant="ghost" size="md" onClick={cancelSelectMode} className="gap-2">
-                <X className="size-4" />
-                Cancelar
-              </Button>
-            </>
-          ) : (
+      <div className="flex flex-wrap items-center gap-2">
+        {selectMode ? (
+          <>
             <Button
               variant="secondary"
               size="md"
-              onClick={() => setSelectMode(true)}
+              onClick={toggleSelectAll}
               className="gap-2"
             >
               <CheckSquare className="size-4" />
-              Seleccionar
+              {allSelected ? "Quitar selección" : "Seleccionar todas"}
             </Button>
-          )}
-        </div>
-      )}
-
-      {!selectMode && (
-        <Button
-          size="md"
-          onClick={() => setShowCreateModal(true)}
-          className="w-fit gap-2"
-        >
-          <Plus className="size-4" />
-          Crear categoría
-        </Button>
-      )}
+            {selectedIds.size > 0 && (
+              <Button
+                variant="secondary"
+                size="md"
+                onClick={() => {
+                  setBulkEditError(null);
+                  setBulkEditOpen(true);
+                }}
+                className="gap-2"
+              >
+                <Pencil className="size-4" />
+                Editar
+              </Button>
+            )}
+            {selectedIds.size > 0 && (
+              <Button
+                variant="secondary"
+                size="md"
+                onClick={deleteSelected}
+                className="gap-2 border-red-300 bg-red-50 text-red-600 dark:border-red-900 dark:bg-red-950 dark:text-red-400"
+              >
+                <Trash2 className="size-4" />
+                Eliminar
+              </Button>
+            )}
+            <Button variant="ghost" size="md" onClick={cancelSelectMode} className="gap-2">
+              <X className="size-4" />
+              Cancelar
+            </Button>
+          </>
+        ) : (
+          <>
+            {list.length > 0 && (
+              <Button
+                variant="secondary"
+                size="md"
+                onClick={() => setSelectMode(true)}
+                className="gap-2"
+              >
+                <CheckSquare className="size-4" />
+                Seleccionar
+              </Button>
+            )}
+            <Button
+              size="md"
+              onClick={() => setShowCreateModal(true)}
+              className="w-fit gap-2"
+            >
+              <Plus className="size-4" />
+              Crear categoría
+            </Button>
+          </>
+        )}
+      </div>
 
       {list.length === 0 ? (
         <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-border bg-surface-muted p-6 text-center">

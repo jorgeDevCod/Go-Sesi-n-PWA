@@ -162,12 +162,77 @@ export function resolvePomodoroConfigForStart(args: {
 }
 
 /** Minutos planificados (reloj total) incluyendo descansos y descanso largo. */
-/** Avance adicional acumulado por fases saltadas. */
-export function pomodoroSkippedMs(session: {
+/** Ajuste acumulado del reloj por fases saltadas y fases retrocedidas. */
+export function pomodoroAdjustedMs(session: {
   skippedFocusMs?: number;
   skippedBreakMs?: number;
+  rewoundMs?: number;
 }): number {
-  return (session.skippedFocusMs ?? 0) + (session.skippedBreakMs ?? 0);
+  return (
+    (session.skippedFocusMs ?? 0) +
+    (session.skippedBreakMs ?? 0) -
+    (session.rewoundMs ?? 0)
+  );
+}
+
+export type PomodoroPhaseWindow = {
+  phase: "focus" | "break";
+  cycleIndex: number;
+  isLongBreak: boolean;
+  startMs: number;
+  endMs: number;
+};
+
+/**
+ * Línea de tiempo de fases de un Pomodoro. Se usa para retroceder a la fase
+ * anterior sin duplicar la lógica de `derivePomodoroView`.
+ */
+export function pomodoroPhaseWindows(
+  config: PomodoroConfig,
+  extraFocusMs = 0,
+): PomodoroPhaseWindow[] {
+  const focusMs = config.focusMin * 60_000;
+  const breakMs = config.breakMin * 60_000;
+  const longBreakMs = config.skipLastBreak ? 0 : (config.longBreakMin ?? 0) * 60_000;
+  const skipBreaks = config.skipBreaks ?? false;
+  const windows: PomodoroPhaseWindow[] = [];
+  let cursor = 0;
+
+  for (let i = 0; i < config.cycles; i += 1) {
+    const thisFocus = focusMs + (i === config.cycles - 1 ? extraFocusMs : 0);
+    windows.push({
+      phase: "focus",
+      cycleIndex: i,
+      isLongBreak: false,
+      startMs: cursor,
+      endMs: cursor + thisFocus,
+    });
+    cursor += thisFocus;
+
+    const isLastCycle = i === config.cycles - 1;
+    if (!isLastCycle && !skipBreaks && breakMs > 0) {
+      windows.push({
+        phase: "break",
+        cycleIndex: i,
+        isLongBreak: false,
+        startMs: cursor,
+        endMs: cursor + breakMs,
+      });
+      cursor += breakMs;
+    }
+  }
+
+  if (!skipBreaks && longBreakMs > 0) {
+    windows.push({
+      phase: "break",
+      cycleIndex: config.cycles,
+      isLongBreak: true,
+      startMs: cursor,
+      endMs: cursor + longBreakMs,
+    });
+  }
+
+  return windows;
 }
 
 export function pomodoroPlannedMinutes(config: PomodoroConfig): number {

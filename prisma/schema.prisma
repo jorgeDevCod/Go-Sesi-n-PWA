@@ -127,6 +127,8 @@ model FocusSession {
   skippedFocusMs   Int           @default(0)
   /// Tiempo de descanso omitido con "Saltar descanso".
   skippedBreakMs   Int           @default(0)
+  /// Tiempo de fase descontado al retroceder con "Retroceder fase".
+  rewoundMs        Int           @default(0)
   /// Última fase notificada por push para evitar duplicados.
   lastNotifiedPhaseKey String?
   /// Momento en que se envió el push de finalización.

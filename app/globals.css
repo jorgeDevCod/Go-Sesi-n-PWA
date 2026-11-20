@@ -86,19 +86,20 @@
 }
 
 .dark {
-  --background: #101014;
-  --foreground: #f0f0ed;
-  --surface: #1c1c1f;
-  --surface-muted: #2a2a2e;
-  --surface-hover: #3a3a40;
-  --border: #47474d;
-  --border-hover: #5e5e66;
-  --muted-foreground: #acacaa;
+  color-scheme: dark;
+  --background: #0b1120;
+  --foreground: #e2e8f0;
+  --surface: #111827;
+  --surface-muted: #1e293b;
+  --surface-hover: #334155;
+  --border: #334155;
+  --border-hover: #475569;
+  --muted-foreground: #94a3b8;
 
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.2);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.25), 0 2px 4px -2px rgb(0 0 0 / 0.2);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.2);
-  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.35), 0 8px 10px -6px rgb(0 0 0 / 0.25);
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+  --shadow-md: 0 4px 8px -1px rgb(0 0 0 / 0.35), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+  --shadow-lg: 0 10px 18px -3px rgb(0 0 0 / 0.4), 0 4px 8px -4px rgb(0 0 0 / 0.35);
+  --shadow-xl: 0 24px 32px -6px rgb(0 0 0 / 0.5), 0 10px 14px -8px rgb(0 0 0 / 0.4);
 }
 
 @theme inline {

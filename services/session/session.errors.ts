@@ -32,3 +32,10 @@ export class SessionNotSkippableError extends Error {
     this.name = "SessionNotSkippableError";
   }
 }
+
+export class SessionNotRewindableError extends Error {
+  constructor() {
+    super("Esta sesión no permite retroceder de fase.");
+    this.name = "SessionNotRewindableError";
+  }
+}

@@ -13,11 +13,14 @@ type ThemeOption = {
 
 const THEMES: ThemeOption[] = [
   { key: "blanco", label: "Blanco", swatch: "#FFFFFF" },
-  { key: "dark", label: "Oscuro", swatch: "#26262B" },
-  { key: "humo", label: "Blanco humo", swatch: "#F1F5F9" },
-  { key: "rosa", label: "Rosa", swatch: "#FCE7F3" },
-  { key: "celeste", label: "Celeste", swatch: "#E0F2FE" },
+  { key: "dark", label: "Oscuro", swatch: "#111827" },
+  { key: "humo", label: "Blanco humo", swatch: "#CBD5E1" },
+  { key: "rosa", label: "Rosa", swatch: "#F9A8D4" },
+  { key: "celeste", label: "Celeste", swatch: "#7DD3FC" },
 ];
+
+const THEME_WHEEL =
+  "conic-gradient(from -90deg, #111827 0deg 72deg, #7DD3FC 72deg 144deg, #F9A8D4 144deg 216deg, #CBD5E1 216deg 288deg, #FFFFFF 288deg 360deg)";
 
 function subscribeNoop() {
   return () => {};
@@ -90,13 +93,13 @@ export function ThemeToggle({
         className="flex size-10 cursor-pointer items-center justify-center rounded-full border border-border text-foreground transition-colors duration-300 hover:bg-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-aprender"
       >
         <span
-          className="grid size-6 shrink-0 grid-cols-2 overflow-hidden rounded-full border border-border/60 shadow-sm"
+          className="size-6 shrink-0 rounded-full border border-border/70 p-0.5 shadow-sm ring-1 ring-black/5 dark:ring-white/10"
           aria-hidden="true"
         >
-          <span style={{ backgroundColor: "#29292E" }} />
-          <span style={{ backgroundColor: "#F1F5F9" }} />
-          <span style={{ backgroundColor: "#E0F2FE" }} />
-          <span style={{ backgroundColor: "#FCE7F3" }} />
+          <span
+            className="block size-full rounded-full"
+            style={{ background: THEME_WHEEL }}
+          />
         </span>
       </button>
 
